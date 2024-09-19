@@ -1,0 +1,54 @@
+## ASPECTOS IMPORTANTES ##
+Las palabras se deben separar siempre por un espacio, no sera valido "edad=25" 
+en cambio si será correcto "edad = 25"
+
+
+Comentarios (Al encontrar # lo que siga hasta el \n sera un comentario)
+    # Esto es un comentarios
+
+Variables (Deben declararse con su tipo)
+    int edad = 25
+    string nombre = "Juan" (un string debe ir entre "")
+    bool activo = TRUE (siempre en mayúsculas)
+    float salario = 3000.50 (siempre con un punto)
+
+Funciones (Se definen usando def y se especifica el tipo de retorno)
+    def int sumar(int a, int b):
+        return a + b
+
+Condicionales (if/elif/else)
+    if edad > 18:
+        print("Eres mayor de edad")
+    elif edad == 18:
+        print("Tienes 18 años")
+    else:
+        print("Eres menor de edad")
+
+Bucle (for)
+    for int i in range(0, 10):
+        print(i)
+
+Bucle (while)
+    bool activo = TRUE
+    while activo:
+        print("El sistema está activo")
+        activo = FALSE 
+
+
+Clases y objetos (Soporte para constructores y métodos)
+    class Persona:
+        string nombre
+        int edad
+
+        def Persona(string nombre, int edad):
+            self.nombre = nombre
+            self.edad = edad
+
+        def void saludar():
+            print("Hola, mi nombre es " + self.nombre)
+
+Entrada y salida (Al hacer print no hace falta especificar el tipo de variable)
+    nombre = input("Introduce tu nombre: ")
+    print("Hola, " + nombre)
+
+
