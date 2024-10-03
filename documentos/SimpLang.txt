@@ -2,9 +2,47 @@
 Las palabras se deben separar siempre por un espacio, no sera valido "edad=25" 
 en cambio si será correcto "edad = 25"
 
+## Especificaciones del lenguaje SimpLang ##
+- Tipos de datos soportados: `int`, `float`, `string`, `bool`
+- Arrays: int[] numeros = [1,2,3,4,5]
+- Tuplas: tuple persona = ("Juan", 30, True)
+- Constantes: const int MAX_EDAD = 100
+- Operadores soportados: `+`, `-`, `*`, `/`, `==`, `!=`, `<`, `>`, `<=`, `>=`
+- Operador módulo: int resto = 10 % 3 #resto sera 1
+- Operadores lógicos: and, or, not, xor (solo utilizados en condicionales o bucles)
+- Estructuras de control: `if`, `elif`, `else`, `for`, `while`
+- Funciones: definidas con `def`, con parámetros tipados
+- Clases: con constructores, métodos y atributos, similar a Python pero con tipado estático como en Java
 
+Estructura de programa principal
+    def void main():
+        print("Programa iniciado")
+        # resto del código
+
+Entrada y salida desde archivos
+    file entrada = open("datos.txt", "r")
+    string contenido = entrada.read()
+    entrada.close()
+
+Selección múltiple (switch-case)
+    switch opcion:
+        case 1:
+            print("Opción 1 seleccionada")
+            break
+        case 2:
+            print("Opción 2 seleccionada")
+            break
+        default:
+            print("Opción no válida")
+
+Bucle 'repeat until'
+    repeat:
+        print("Se ejecuta al menos una vez")
+        edad += 1
+    until edad == 18
+    
 Comentarios (Al encontrar # lo que siga hasta el \n sera un comentario)
-    # Esto es un comentarios
+    # Esto es un comentario
 
 Variables (Deben declararse con su tipo)
     int edad = 25
