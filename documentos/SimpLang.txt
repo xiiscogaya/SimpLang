@@ -1,7 +1,3 @@
-## ASPECTOS IMPORTANTES ##
-Las palabras se deben separar siempre por un espacio, no sera valido "edad=25" 
-en cambio si será correcto "edad = 25"
-
 ## Especificaciones del lenguaje SimpLang ##
 - Tipos de datos soportados: `int`, `float`, `string`, `bool`
 - Arrays: int[] numeros = [1,2,3,4,5]
