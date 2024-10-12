@@ -28,7 +28,7 @@ digit       = [0-9]
 letter      = [a-zA-Z]
 id          = {letter}({letter}|{digit})*
 
-whitespace  = [ \t]+
+whitespace  = [ \t\n\r]+
 
 %{
     /***
@@ -61,71 +61,14 @@ whitespace  = [ \t]+
 "string"        { return symbol(ParserSym.STRING); }
 "bool"          { return symbol(ParserSym.BOOL); }
 "const"         { return symbol(ParserSym.CONST); }
-"tuple"         { return symbol(ParserSym.TUPLE); }
-"file"          { return symbol(ParserSym.FILE); }
 "def"           { return symbol(ParserSym.DEF); }
-"void"          { return symbol(ParserSym.VOID); }
-"return"        { return symbol(ParserSym.RETURN); }
-"if"            { return symbol(ParserSym.IF); }
-"elif"          { return symbol(ParserSym.ELIF); }
-"else"          { return symbol(ParserSym.ELSE); }
-"for"           { return symbol(ParserSym.FOR); }
-"in"            { return symbol(ParserSym.IN); }
-"while"         { return symbol(ParserSym.WHILE); }
-"repeat"        { return symbol(ParserSym.REPEAT); }
-"until"         { return symbol(ParserSym.UNTIL); }
-"switch"        { return symbol(ParserSym.SWITCH); }
-"case"          { return symbol(ParserSym.CASE); }
-"break"         { return symbol(ParserSym.BREAK); }
-"default"       { return symbol(ParserSym.DEFAULT); }
-"open"          { return symbol(ParserSym.OPEN); }
-"read"          { return symbol(ParserSym.READ); }
-"close"         { return symbol(ParserSym.CLOSE); }
-"TRUE"          { return symbol(ParserSym.TRUE); }
-"FALSE"         { return symbol(ParserSym.FALSE); }
-"print"         { return symbol(ParserSym.PRINT); }
-"input"         { return symbol(ParserSym.INPUT); }
 "class"         { return symbol(ParserSym.CLASS); }
-"self"          { return symbol(ParserSym.SELF); }
-
-// Operadores lógicos
-"and"           { return symbol(ParserSym.AND); }
-"or"            { return symbol(ParserSym.OR); }
-"not"           { return symbol(ParserSym.NOT); }
-"xor"           { return symbol(ParserSym.XOR); }
-
-// Operadores aritméticos
-"+"             { return symbol(ParserSym.PLUS); }
-"-"             { return symbol(ParserSym.MINUS); }
-"*"             { return symbol(ParserSym.MULT); }
-"/"             { return symbol(ParserSym.DIV); }
-"%"             { return symbol(ParserSym.MOD); }
-
-// Operadores relacionales
-"=="            { return symbol(ParserSym.EQUAL); }
-"!="            { return symbol(ParserSym.NOTEQUAL); }
-"<="            { return symbol(ParserSym.LESSEQUAL); }
-">="            { return symbol(ParserSym.GREATEREQUAL); }
-"<"             { return symbol(ParserSym.LESS); }
-">"             { return symbol(ParserSym.GREATER); }
 
 // Delimitadores
 "("             { return symbol(ParserSym.LPAREN); }
 ")"             { return symbol(ParserSym.RPAREN); }
-"["             { return symbol(ParserSym.LBRACKET); }
-"]"             { return symbol(ParserSym.RBRACKET); }
-"{"             { return symbol(ParserSym.LCURLY); }
-"}"             { return symbol(ParserSym.RCURLY); }
-"="             { return symbol(ParserSym.ASSIGN); }
-","             { return symbol(ParserSym.COMMA); }
-":"             { return symbol(ParserSym.COLON); }
+":"             { return symbol(ParserSym.DPOINT); }
 
-// Literales
-{digit}+        { return symbol(ParserSym.INT_LITERAL, new Integer(yytext())); }
-{digit}+"."{digit}+ { return symbol(ParserSym.FLOAT_LITERAL, new Float(yytext())); }
-
-// Cadenas de texto
-\"[^\"]*\"      { return symbol(ParserSym.STRING_LITERAL, yytext()); }
 
 // Identificadores
 {id}            { return symbol(ParserSym.ID, yytext()); }

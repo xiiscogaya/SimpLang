@@ -8,85 +8,33 @@ package compiler.sintactic;
 /** CUP generated class containing symbol constants. */
 public class ParserSym {
   /* terminals */
-  public static final int STRING_LITERAL = 35;
-  public static final int LBRACKET = 29;
-  public static final int MULT = 14;
-  public static final int CONST = 6;
-  public static final int GE = 23;
-  public static final int LPAREN = 27;
-  public static final int INT = 2;
-  public static final int MINUS = 13;
-  public static final int RPAREN = 28;
-  public static final int NOT = 26;
-  public static final int SEMICOLON = 34;
-  public static final int AND = 24;
-  public static final int LT = 20;
-  public static final int OR = 25;
+  public static final int INT = 3;
   public static final int BOOL = 5;
-  public static final int COMMA = 33;
-  public static final int CLASS = 11;
-  public static final int DIV = 15;
-  public static final int PLUS = 12;
-  public static final int ASSIGN = 17;
-  public static final int ID = 38;
-  public static final int LE = 21;
+  public static final int DPOINT = 12;
   public static final int EOF = 0;
-  public static final int RBRACKET = 30;
-  public static final int TRUE = 8;
-  public static final int error = 1;
-  public static final int MOD = 16;
-  public static final int NEQ = 19;
-  public static final int VOID = 7;
-  public static final int EQ = 18;
-  public static final int LBRACE = 31;
-  public static final int FLOAT = 3;
-  public static final int RBRACE = 32;
   public static final int STRING = 4;
-  public static final int DEF = 10;
-  public static final int FLOAT_LITERAL = 37;
-  public static final int FALSE = 9;
-  public static final int GT = 22;
-  public static final int INT_LITERAL = 36;
+  public static final int ID = 2;
+  public static final int error = 1;
+  public static final int RPAREN = 9;
+  public static final int DEF = 7;
+  public static final int LPAREN = 8;
+  public static final int CONST = 11;
+  public static final int CLASS = 10;
+  public static final int FLOAT = 6;
   public static final String[] terminalNames = new String[] {
   "EOF",
   "error",
+  "ID",
   "INT",
-  "FLOAT",
   "STRING",
   "BOOL",
-  "CONST",
-  "VOID",
-  "TRUE",
-  "FALSE",
+  "FLOAT",
   "DEF",
-  "CLASS",
-  "PLUS",
-  "MINUS",
-  "MULT",
-  "DIV",
-  "MOD",
-  "ASSIGN",
-  "EQ",
-  "NEQ",
-  "LT",
-  "LE",
-  "GT",
-  "GE",
-  "AND",
-  "OR",
-  "NOT",
   "LPAREN",
   "RPAREN",
-  "LBRACKET",
-  "RBRACKET",
-  "LBRACE",
-  "RBRACE",
-  "COMMA",
-  "SEMICOLON",
-  "STRING_LITERAL",
-  "INT_LITERAL",
-  "FLOAT_LITERAL",
-  "ID"
+  "CLASS",
+  "CONST",
+  "DPOINT"
   };
 }
 

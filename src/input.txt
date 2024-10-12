@@ -1,1 +1,4 @@
-int
+int persona
+bool hombre
+def int socio():
+class socio1():

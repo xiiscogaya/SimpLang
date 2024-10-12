@@ -38,86 +38,31 @@ parser code {:
     }
 :}
 
-/* Declaraciones de terminales */
-terminal INT, FLOAT, STRING, BOOL, CONST, VOID, TRUE, FALSE;
-terminal DEF, CLASS;
-terminal PLUS, MINUS, MULT, DIV, MOD, ASSIGN, EQ, NEQ, LT, LE, GT, GE, AND, OR, NOT;
-terminal LPAREN, RPAREN, LBRACKET, RBRACKET, LBRACE, RBRACE, COMMA, SEMICOLON;
-terminal STRING_LITERAL, INT_LITERAL, FLOAT_LITERAL, ID;
+terminal String ID;
+terminal INT, STRING, BOOL, FLOAT;
+terminal DEF, LPAREN, RPAREN, CLASS, CONST, DPOINT;
 
-/* No terminales */
-non terminal program, stmt_list, stmt, var_decl, class_def, func_def, type, expr, class_body, param_list;
+non terminal Programa, ListaSentencias, Sentencia, DecFun, DecClass, DecVar, Type;
 
-/* Precedencia de operadores */
-precedence left OR;
-precedence left AND;
-precedence nonassoc EQ, NEQ;
-precedence nonassoc LT, LE, GT, GE;
-precedence left PLUS, MINUS;
-precedence left MULT, DIV, MOD;
-precedence right NOT;
+Programa ::= ListaSentencias;
 
-/* Producción principal */
-program ::= stmt_list;
+ListaSentencias ::= ListaSentencias Sentencia 
+                    | ;
+Sentencia ::= DecFun
+            | DecClass
+            | DecVar
+            ;
 
-/* Lista de declaraciones */
-stmt_list ::= stmt_list stmt
-            | stmt;
+DecFun ::= DEF Type ID LPAREN RPAREN DPOINT;
 
-/* Definición de declaraciones */
-stmt ::= var_decl
-       | class_def
-       | func_def;
+DecClass ::= CLASS ID LPAREN RPAREN DPOINT; 
 
-/* Declaración de variables */
-var_decl ::= CONST type ID ASSIGN expr SEMICOLON
-           | type ID ASSIGN expr SEMICOLON;
+DecVar ::= CONST Type ID 
+            | Type ID
+            ;
 
-/* Tipos de datos */
-type ::= INT
-       | FLOAT
-       | STRING
-       | BOOL;
-
-/* Definición de expresiones */
-expr ::= expr PLUS expr
-       | expr MINUS expr
-       | expr MULT expr
-       | expr DIV expr
-       | expr MOD expr
-       | expr EQ expr
-       | expr NEQ expr
-       | expr LT expr
-       | expr LE expr
-       | expr GT expr
-       | expr GE expr
-       | expr AND expr
-       | expr OR expr
-       | NOT expr
-       | LPAREN expr RPAREN
-       | INT_LITERAL
-       | FLOAT_LITERAL
-       | STRING_LITERAL
-       | TRUE
-       | FALSE
-       | ID
-       | ID LBRACKET expr RBRACKET;
-
-/* Definición de clases */
-class_def ::= CLASS ID LBRACE class_body RBRACE;
-
-/* Cuerpo de la clase */
-class_body ::= var_decl
-             | func_def
-             | var_decl class_body
-             | func_def class_body;
-
-/* Definición de funciones */
-func_def ::= DEF type ID LPAREN param_list RPAREN
-           | DEF VOID ID LPAREN param_list RPAREN;
-
-/* Lista de parámetros */
-param_list ::= param_list COMMA type ID
-             | type ID
-             | /* vacío */;
-
+Type ::= INT
+        | STRING
+        | BOOL
+        | FLOAT
+        ;
