@@ -40,25 +40,58 @@ parser code {:
 
 terminal String ID;
 terminal INT, STRING, BOOL, FLOAT;
-terminal DEF, LPAREN, RPAREN, CLASS, CONST, DPOINT;
+terminal DEF, LPAREN, RPAREN, CLASS, CONST, COMMA;
+terminal LBRACE, RBRACE, IGUAL, PLUS_IGUAL, MENOS_IGUAL, TIMES_IGUAL, DIVIDE_IGUAL, MOD_IGUAL;
+terminal PLUS, MINUS, TIMES, DIVIDE, MOD, EQ, NE, LT, LE, GT, GE, AND, OR, NOT;
+terminal INT_LITERAL, FLOAT_LITERAL, STRING_LITERAL, TRUE, FALSE;
+
 
 non terminal Programa, ListaSentencias, Sentencia, DecFun, DecClass, DecVar, Type;
+non terminal ListaParametros, Parametro, ClassMemberList, ClassMember, Asignacion;
+non terminal Expresion;
+
+precedence left OR;
+precedence left AND;
+precedence left EQ, NE;
+precedence left LT, LE, GT, GE;
+precedence left PLUS, MINUS;
+precedence left TIMES, DIVIDE, MOD;
+precedence right NOT;
+
 
 Programa ::= ListaSentencias;
 
 ListaSentencias ::= ListaSentencias Sentencia 
                     | ;
+
 Sentencia ::= DecFun
             | DecClass
             | DecVar
+            | Asignacion
             ;
 
-DecFun ::= DEF Type ID LPAREN RPAREN DPOINT;
+DecFun ::= DEF Type ID LPAREN ListaParametros RPAREN LBRACE ListaSentencias RBRACE;
 
-DecClass ::= CLASS ID LPAREN RPAREN DPOINT; 
+DecClass ::= CLASS ID LBRACE ClassMemberList RBRACE; 
+
+ClassMemberList ::= ClassMemberList ClassMember
+                    | ClassMember 
+                    ;
+
+ClassMember ::= DecVar
+                | DecFun
+                ;
 
 DecVar ::= CONST Type ID 
             | Type ID
+            ;
+
+Asignacion ::= ID IGUAL Expresion
+            | ID PLUS_IGUAL Expresion
+            | ID MENOS_IGUAL Expresion
+            | ID TIMES_IGUAL Expresion
+            | ID DIVIDE_IGUAL Expresion
+            | ID MOD_IGUAL Expresion
             ;
 
 Type ::= INT
@@ -66,3 +99,33 @@ Type ::= INT
         | BOOL
         | FLOAT
         ;
+
+ListaParametros ::= ListaParametros COMMA Parametro
+                    | Parametro
+                    | ;
+
+Parametro ::= Type ID;
+
+Expresion ::= Expresion PLUS Expresion
+             | Expresion MINUS Expresion
+             | Expresion TIMES Expresion
+             | Expresion DIVIDE Expresion
+             | Expresion MOD Expresion
+             | Expresion EQ Expresion
+             | Expresion NE Expresion
+             | Expresion LT Expresion
+             | Expresion LE Expresion
+             | Expresion GT Expresion
+             | Expresion GE Expresion
+             | Expresion AND Expresion
+             | Expresion OR Expresion
+             | NOT Expresion
+             | LPAREN Expresion RPAREN
+             | ID
+             | ID LPAREN ListaParametros RPAREN
+             | INT_LITERAL
+             | FLOAT_LITERAL
+             | STRING_LITERAL
+             | TRUE
+             | FALSE
+             ;

@@ -27,6 +27,8 @@ import compiler.sintactic.ParserSym;
 digit       = [0-9]
 letter      = [a-zA-Z]
 id          = {letter}({letter}|{digit})*
+SChar       = [^\"\\\n\r] | {EscChar}
+EscChar     = \\[ntbrf\\\'\"]
 
 whitespace  = [ \t\n\r]+
 
@@ -38,6 +40,9 @@ whitespace  = [ \t\n\r]+
     /**
      Construcció d'un symbol sense atribut associat.
      **/
+
+    StringBuffer string = new StringBuffer();
+    
     private ComplexSymbol symbol(int type) {
         return new ComplexSymbol(ParserSym.terminalNames[type], type);
     }
@@ -67,8 +72,46 @@ whitespace  = [ \t\n\r]+
 // Delimitadores
 "("             { return symbol(ParserSym.LPAREN); }
 ")"             { return symbol(ParserSym.RPAREN); }
-":"             { return symbol(ParserSym.DPOINT); }
+"{"             { return symbol(ParserSym.LBRACE); }
+"}"             { return symbol(ParserSym.RBRACE); }
 
+// Operadores matemáticos y lógicos
+"/"             { return symbol(ParserSym.DIVIDE); }
+">="            { return symbol(ParserSym.GE); }
+"+="            { return symbol(ParserSym.PLUS_IGUAL); }
+"-"             { return symbol(ParserSym.MINUS); }
+"/="            { return symbol(ParserSym.DIVIDE_IGUAL); }
+"not"           { return symbol(ParserSym.NOT); }
+"and"           { return symbol(ParserSym.AND); }
+"="             { return symbol(ParserSym.IGUAL); }
+"<"             { return symbol(ParserSym.LT); }
+"or"            { return symbol(ParserSym.OR); }
+"\+"            { return symbol(ParserSym.PLUS); }
+"<="            { return symbol(ParserSym.LE); }
+"%="            { return symbol(ParserSym.MOD_IGUAL); }
+"TRUE"          { return symbol(ParserSym.TRUE); }
+"*="            { return symbol(ParserSym.TIMES_IGUAL); }
+"%"             { return symbol(ParserSym.MOD); }
+"=="            { return symbol(ParserSym.EQ); }
+"\*"            { return symbol(ParserSym.TIMES); }
+"!="            { return symbol(ParserSym.NE); }
+"FALSE"         { return symbol(ParserSym.FALSE); }
+"-="            { return symbol(ParserSym.MENOS_IGUAL); }
+">"             { return symbol(ParserSym.GT); }
+
+// Simbolos
+","             { return symbol(ParserSym.COMMA); }
+
+// Literales de cadena
+
+\"{SChar}*\"    { return symbol(ParserSym.STRING_LITERAL, yytext()); }
+
+
+// Literales de punto flotante
+[0-9]+\.[0-9]+      { return symbol(ParserSym.FLOAT_LITERAL, yytext()); }
+
+// Literales de entero
+[0-9]+              { return symbol(ParserSym.INT_LITERAL, yytext()); }
 
 // Identificadores
 {id}            { return symbol(ParserSym.ID, yytext()); }
@@ -77,5 +120,8 @@ whitespace  = [ \t\n\r]+
 <<EOF>>         { return symbol(ParserSym.EOF); }
 
 // Caracter no reconocido
-[^]             { return symbol(ParserSym.error); }
+. {
+    throw new RuntimeException("Caracter no reconocido: " + yytext() + " en la línea " + (yyline + 1));
+}
+
 
