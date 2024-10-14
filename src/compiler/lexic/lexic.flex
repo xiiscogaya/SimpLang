@@ -145,7 +145,9 @@ whitespace  = [ \t\n\r]+
 
 // Caracter no reconocido
 . {
-    throw new RuntimeException("Caracter no reconocido: " + yytext() + " en la línea " + (yyline + 1));
+    System.err.println("Error léxico: Caracter no reconocido '" + yytext() + "' en la línea " + (yyline + 1));
+    // Continúa con el análisis léxico sin interrumpir el proceso
 }
+
 
 

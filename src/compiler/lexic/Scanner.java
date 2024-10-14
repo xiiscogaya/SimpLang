@@ -836,7 +836,8 @@ public class Scanner implements java_cup.runtime.Scanner {
       else {
         switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
           case 1:
-            { throw new RuntimeException("Caracter no reconocido: " + yytext() + " en la línea " + (yyline + 1));
+            { System.err.println("Error léxico: Caracter no reconocido '" + yytext() + "' en la línea " + (yyline + 1));
+    // Continúa con el análisis léxico sin interrumpir el proceso
             }
             // fall through
           case 59: break;
