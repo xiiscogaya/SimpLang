@@ -44,11 +44,13 @@ terminal DEF, LPAREN, RPAREN, CLASS, CONST, COMMA;
 terminal LBRACE, RBRACE, IGUAL, PLUS_IGUAL, MENOS_IGUAL, TIMES_IGUAL, DIVIDE_IGUAL, MOD_IGUAL;
 terminal PLUS, MINUS, TIMES, DIVIDE, MOD, EQ, NE, LT, LE, GT, GE, AND, OR, NOT;
 terminal INT_LITERAL, FLOAT_LITERAL, STRING_LITERAL, TRUE, FALSE;
+terminal IF, ELSE, ELIF, WHILE, FOR, IN, REPEAT, UNTIL, SWITCH, CASE, DEFAULT;
 
 
 non terminal Programa, ListaSentencias, Sentencia, DecFun, DecClass, DecVar, Type;
 non terminal ListaParametros, Parametro, ClassMemberList, ClassMember, Asignacion;
-non terminal Expresion;
+non terminal Expresion, If_Sentencia, Elif_Lista, While_Sentencia, For_Sentencia, RepeatUntil_Sentencia;
+non terminal Switch_Sentencia, CaseLista, CaseClause, DefaultCase;
 
 precedence left OR;
 precedence left AND;
@@ -68,6 +70,11 @@ Sentencia ::= DecFun
             | DecClass
             | DecVar
             | Asignacion
+            | If_Sentencia
+            | While_Sentencia
+            | For_Sentencia
+            | RepeatUntil_Sentencia
+            | Switch_Sentencia
             ;
 
 DecFun ::= DEF Type ID LPAREN ListaParametros RPAREN LBRACE ListaSentencias RBRACE;
@@ -93,6 +100,33 @@ Asignacion ::= ID IGUAL Expresion
             | ID DIVIDE_IGUAL Expresion
             | ID MOD_IGUAL Expresion
             ;
+
+If_Sentencia ::= IF Expresion LBRACE ListaSentencias RBRACE Elif_Lista ELSE LBRACE ListaSentencias RBRACE
+                | IF Expresion LBRACE ListaSentencias RBRACE Elif_Lista
+                | IF Expresion LBRACE ListaSentencias RBRACE ELSE LBRACE ListaSentencias RBRACE
+                | IF Expresion LBRACE ListaSentencias RBRACE
+                ;
+
+Elif_Lista ::= Elif_Lista ELIF Expresion LBRACE ListaSentencias RBRACE
+                | ELIF Expresion LBRACE ListaSentencias RBRACE
+                ;
+
+While_Sentencia ::= WHILE Expresion LBRACE ListaSentencias RBRACE;
+
+For_Sentencia ::= FOR Type ID IN Expresion LBRACE ListaSentencias RBRACE;
+
+RepeatUntil_Sentencia ::= REPEAT LBRACE ListaSentencias RBRACE UNTIL LPAREN Expresion RPAREN;
+
+Switch_Sentencia ::= SWITCH Expresion LBRACE CaseLista DefaultCase RBRACE;
+
+CaseLista ::= CaseLista CaseClause
+            | CaseClause
+            ;
+
+CaseClause ::= CASE Expresion LBRACE ListaSentencias RBRACE;
+
+DefaultCase ::= DEFAULT LBRACE ListaSentencias RBRACE
+            | ;
 
 Type ::= INT
         | STRING

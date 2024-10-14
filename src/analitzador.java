@@ -29,8 +29,11 @@ public class analitzador {
 
 import java.io.FileReader;
 
+import java_cup.runtime.ComplexSymbolFactory;
 import java_cup.runtime.Symbol;
+import java_cup.runtime.SymbolFactory;
 import compiler.lexic.Scanner;
+import compiler.sintactic.Parser;
 import compiler.sintactic.ParserSym;
 
 public class analitzador {
@@ -59,6 +62,10 @@ public class analitzador {
                 }
 
             } while (token.sym != ParserSym.EOF);
+            
+            SymbolFactory sf = new ComplexSymbolFactory();
+            Parser parser = new Parser(scanner, sf);
+            parser.parse();
 
             System.out.println("Análisis léxico completado.");
         } catch (Exception e) {

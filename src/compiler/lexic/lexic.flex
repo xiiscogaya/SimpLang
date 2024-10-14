@@ -75,6 +75,19 @@ whitespace  = [ \t\n\r]+
 "{"             { return symbol(ParserSym.LBRACE); }
 "}"             { return symbol(ParserSym.RBRACE); }
 
+// Condicionales
+"if"            { return symbol(ParserSym.IF); }
+"elif"          { return symbol(ParserSym.ELIF); }
+"else"          { return symbol(ParserSym.ELSE); }
+"while"         { return symbol(ParserSym.WHILE); }
+"for"           { return symbol(ParserSym.FOR); }
+"in"            { return symbol(ParserSym.IN); }
+"repeat"        { return symbol(ParserSym.REPEAT); }
+"until"         { return symbol(ParserSym.UNTIL); }
+"switch"        { return symbol(ParserSym.SWITCH); }
+"case"          { return symbol(ParserSym.CASE); }
+"default"       { return symbol(ParserSym.DEFAULT); }
+
 // Operadores matemáticos y lógicos
 "/"             { return symbol(ParserSym.DIVIDE); }
 ">="            { return symbol(ParserSym.GE); }

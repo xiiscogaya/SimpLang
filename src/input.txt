@@ -1,1 +1,16 @@
-perso = "hola que terminalNames hacer               jaja"
+def int hola(int helo) {
+    if (h == h) {
+        ma = "hola"
+    } elif (d >= jf) {
+        class perso{
+            int f=10.8
+            bool u=TRUE
+
+            def hshs(){
+                hehe=5.8
+            }
+        }
+    } else {
+        hah="si     he"
+    }
+}
