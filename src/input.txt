@@ -1,16 +1,73 @@
-def int hola(int helo) {
-    if (h == h) {
-        ma = "hola"
-    } elif (d >= jf) {
-        class perso{
-            int f=10.8
-            bool u=TRUE
+# Declaración de variables y constantes
+const int MAX_EDAD = 100
+int edad = 25
+float salario = 3000.50
+string nombre = "Juan"
+bool activo = TRUE
 
-            def hshs(){
-                hehe=5.8
-            }
-        }
-    } else {
-        hah="si     he"
+# Asignación y operadores aritméticos
+edad += 1
+salario = salario * 2
+
+# Función para sumar dos números
+def int sumar(int a, int b) {
+    return a + b
+}
+
+# Clase con constructor y método
+class Persona {
+    string nombre
+    int edad
+    
+    def void inicializar(string nombre, int edad) {
+        self.nombre = nombre
+        self.edad = edad
+    }
+    
+    def void saludar() {
+        print("Hola, mi nombre es " + self.nombre)
     }
 }
+
+# Sentencias condicionales
+if edad >= 18 {
+    print("Eres mayor de edad")
+} elif edad == 17 {
+    print("Estás cerca de ser mayor de edad")
+} else {
+    print("Eres menor de edad")
+}
+
+# Bucle for
+for int i in range(0, 5) {
+    print(i)
+}
+
+# Bucle while
+while activo {
+    print("El sistema está activo")
+    activo = FALSE
+}
+
+# Sentencia switch
+switch edad {
+    case 18 {
+        print("Tienes 18 años")
+    }
+    case 25 {
+        print("Tienes 25 años")
+    }
+    default {
+        print("Edad desconocida")
+    }
+}
+
+# Bucle repeat-until
+repeat {
+    print("Intentando...")
+    edad += 1
+} until (edad >= MAX_EDAD)
+
+# Llamada a la función
+int resultado = sumar(5, 10)
+print("El resultado de la suma es: " + resultado)

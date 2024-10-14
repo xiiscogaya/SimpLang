@@ -14,6 +14,7 @@ import compiler.sintactic.ParserSym;
 %public
 %class Scanner
 
+%unicode
 %char
 %line
 %column
@@ -25,12 +26,13 @@ import compiler.sintactic.ParserSym;
 // DECLARACIONES
 
 digit       = [0-9]
-letter      = [a-zA-Z]
+letter      = [a-zA-Z_]
 id          = {letter}({letter}|{digit})*
 SChar       = [^\"\\\n\r] | {EscChar}
 EscChar     = \\[ntbrf\\\'\"]
 
 whitespace  = [ \t\n\r]+
+
 
 %{
     /***
@@ -58,16 +60,21 @@ whitespace  = [ \t\n\r]+
 %%
 
 // Ignorar espacios en blanco
-{whitespace} { /* No hacer nada, ignorar */ }
+{whitespace}    { /* No hacer nada, ignorar */ }
+"#" [^\n]*      { /* Ignorar comentarios */ }
+
+
 
 // Palabras clave
 "int"           { return symbol(ParserSym.INT); }
 "float"         { return symbol(ParserSym.FLOAT); }
 "string"        { return symbol(ParserSym.STRING); }
 "bool"          { return symbol(ParserSym.BOOL); }
+"void"          { return symbol(ParserSym.VOID); }
 "const"         { return symbol(ParserSym.CONST); }
 "def"           { return symbol(ParserSym.DEF); }
 "class"         { return symbol(ParserSym.CLASS); }
+"self"          { return symbol(ParserSym.SELF); }
 
 // Delimitadores
 "("             { return symbol(ParserSym.LPAREN); }
@@ -87,6 +94,9 @@ whitespace  = [ \t\n\r]+
 "switch"        { return symbol(ParserSym.SWITCH); }
 "case"          { return symbol(ParserSym.CASE); }
 "default"       { return symbol(ParserSym.DEFAULT); }
+"print"         { return symbol(ParserSym.PRINT); }
+"input"         { return symbol(ParserSym.INPUT); }
+"return"        { return symbol(ParserSym.RETURN); }
 
 // Operadores matemáticos y lógicos
 "/"             { return symbol(ParserSym.DIVIDE); }
@@ -114,6 +124,7 @@ whitespace  = [ \t\n\r]+
 
 // Simbolos
 ","             { return symbol(ParserSym.COMMA); }
+"."             { return symbol(ParserSym.PUNTO); }
 
 // Literales de cadena
 

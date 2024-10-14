@@ -39,13 +39,13 @@ parser code {:
 :}
 
 terminal String ID;
-terminal INT, STRING, BOOL, FLOAT;
+terminal INT, STRING, BOOL, FLOAT, VOID;
 terminal DEF, LPAREN, RPAREN, CLASS, CONST, COMMA;
 terminal LBRACE, RBRACE, IGUAL, PLUS_IGUAL, MENOS_IGUAL, TIMES_IGUAL, DIVIDE_IGUAL, MOD_IGUAL;
 terminal PLUS, MINUS, TIMES, DIVIDE, MOD, EQ, NE, LT, LE, GT, GE, AND, OR, NOT;
 terminal INT_LITERAL, FLOAT_LITERAL, STRING_LITERAL, TRUE, FALSE;
 terminal IF, ELSE, ELIF, WHILE, FOR, IN, REPEAT, UNTIL, SWITCH, CASE, DEFAULT;
-
+terminal PRINT, INPUT, RETURN, SELF, PUNTO;
 
 non terminal Programa, ListaSentencias, Sentencia, DecFun, DecClass, DecVar, Type;
 non terminal ListaParametros, Parametro, ClassMemberList, ClassMember, Asignacion;
@@ -75,6 +75,9 @@ Sentencia ::= DecFun
             | For_Sentencia
             | RepeatUntil_Sentencia
             | Switch_Sentencia
+            | PRINT LPAREN Expresion RPAREN
+            | INPUT LPAREN Expresion RPAREN
+            | RETURN Expresion
             ;
 
 DecFun ::= DEF Type ID LPAREN ListaParametros RPAREN LBRACE ListaSentencias RBRACE;
@@ -132,6 +135,7 @@ Type ::= INT
         | STRING
         | BOOL
         | FLOAT
+        | VOID
         ;
 
 ListaParametros ::= ListaParametros COMMA Parametro
@@ -162,4 +166,6 @@ Expresion ::= Expresion PLUS Expresion
              | STRING_LITERAL
              | TRUE
              | FALSE
+             | SELF PUNTO ID
+             | SELF PUNTO ID LPAREN ListaParametros RPAREN
              ;

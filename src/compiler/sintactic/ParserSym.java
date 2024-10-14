@@ -8,57 +8,63 @@ package compiler.sintactic;
 /** CUP generated class containing symbol constants. */
 public class ParserSym {
   /* terminals */
-  public static final int DIVIDE = 24;
-  public static final int STRING_LITERAL = 37;
-  public static final int CONST = 11;
-  public static final int GE = 31;
-  public static final int CASE = 49;
-  public static final int LPAREN = 8;
-  public static final int REPEAT = 46;
-  public static final int PLUS_IGUAL = 16;
+  public static final int DIVIDE = 25;
+  public static final int STRING_LITERAL = 38;
+  public static final int CONST = 12;
+  public static final int GE = 32;
+  public static final int INPUT = 53;
+  public static final int CASE = 50;
+  public static final int LPAREN = 9;
+  public static final int REPEAT = 47;
+  public static final int PLUS_IGUAL = 17;
   public static final int INT = 3;
-  public static final int FOR = 44;
-  public static final int MINUS = 22;
-  public static final int RPAREN = 9;
-  public static final int DIVIDE_IGUAL = 19;
-  public static final int NOT = 34;
-  public static final int AND = 32;
-  public static final int IGUAL = 15;
-  public static final int LT = 28;
-  public static final int IN = 45;
-  public static final int OR = 33;
+  public static final int FOR = 45;
+  public static final int MINUS = 23;
+  public static final int RPAREN = 10;
+  public static final int NOT = 35;
+  public static final int DIVIDE_IGUAL = 20;
+  public static final int AND = 33;
+  public static final int IGUAL = 16;
+  public static final int LT = 29;
+  public static final int IN = 46;
+  public static final int OR = 34;
   public static final int BOOL = 5;
-  public static final int COMMA = 12;
-  public static final int CLASS = 10;
-  public static final int UNTIL = 47;
-  public static final int PLUS = 21;
-  public static final int IF = 40;
+  public static final int COMMA = 13;
+  public static final int CLASS = 11;
+  public static final int UNTIL = 48;
+  public static final int PLUS = 22;
+  public static final int IF = 41;
   public static final int ID = 2;
-  public static final int LE = 29;
+  public static final int LE = 30;
   public static final int EOF = 0;
-  public static final int MOD_IGUAL = 20;
-  public static final int TRUE = 38;
+  public static final int MOD_IGUAL = 21;
+  public static final int RETURN = 54;
+  public static final int TRUE = 39;
   public static final int error = 1;
-  public static final int TIMES_IGUAL = 18;
-  public static final int MOD = 25;
-  public static final int EQ = 26;
-  public static final int SWITCH = 48;
-  public static final int TIMES = 23;
-  public static final int ELSE = 41;
-  public static final int LBRACE = 13;
-  public static final int WHILE = 43;
-  public static final int DEFAULT = 50;
+  public static final int SELF = 55;
+  public static final int TIMES_IGUAL = 19;
+  public static final int MOD = 26;
+  public static final int VOID = 7;
+  public static final int EQ = 27;
+  public static final int SWITCH = 49;
+  public static final int TIMES = 24;
+  public static final int ELSE = 42;
+  public static final int LBRACE = 14;
+  public static final int PUNTO = 56;
+  public static final int WHILE = 44;
+  public static final int DEFAULT = 51;
   public static final int FLOAT = 6;
-  public static final int RBRACE = 14;
-  public static final int NE = 27;
+  public static final int RBRACE = 15;
+  public static final int NE = 28;
   public static final int STRING = 4;
-  public static final int DEF = 7;
-  public static final int FALSE = 39;
-  public static final int FLOAT_LITERAL = 36;
-  public static final int MENOS_IGUAL = 17;
-  public static final int GT = 30;
-  public static final int ELIF = 42;
-  public static final int INT_LITERAL = 35;
+  public static final int DEF = 8;
+  public static final int FALSE = 40;
+  public static final int FLOAT_LITERAL = 37;
+  public static final int MENOS_IGUAL = 18;
+  public static final int GT = 31;
+  public static final int ELIF = 43;
+  public static final int PRINT = 52;
+  public static final int INT_LITERAL = 36;
   public static final String[] terminalNames = new String[] {
   "EOF",
   "error",
@@ -67,6 +73,7 @@ public class ParserSym {
   "STRING",
   "BOOL",
   "FLOAT",
+  "VOID",
   "DEF",
   "LPAREN",
   "RPAREN",
@@ -110,7 +117,12 @@ public class ParserSym {
   "UNTIL",
   "SWITCH",
   "CASE",
-  "DEFAULT"
+  "DEFAULT",
+  "PRINT",
+  "INPUT",
+  "RETURN",
+  "SELF",
+  "PUNTO"
   };
 }
 
