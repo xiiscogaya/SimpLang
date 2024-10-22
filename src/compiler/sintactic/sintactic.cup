@@ -17,7 +17,7 @@ parser code {:
     private HashMap<String, Double> tsymbols = new HashMap<>();
 
     public Double getSymbolValue(String id) {
-         return tsymbols.get(id);
+        return tsymbols.get(id);
     }
 
     public void addSymbol(String id, Double value) {
@@ -28,14 +28,17 @@ parser code {:
         }
     }
 
-    public void printVars(PrintStream out) {
-        if (tsymbols.size() == 0) {
-            out.println("No hay variables declaradas");
-        } else {
-            String fmt = "%-8s: %f";
-            tsymbols.forEach((k,v) -> out.println(String.format(fmt,k,v)));
-        }
+    @Override
+    public void syntax_error(Symbol cur_token) {
+        report_error("Error sintactic", cur_token);
     }
+
+    @Override
+    public void unrecovered_syntax_error(Symbol cur_token) throws java.lang.Exception {
+        report_error("Error sintactico no recuperable", cur_token);
+        done_parsing();
+    }
+
 :}
 
 terminal String ID;
@@ -45,12 +48,12 @@ terminal LBRACE, RBRACE, IGUAL, PLUS_IGUAL, MENOS_IGUAL, TIMES_IGUAL, DIVIDE_IGU
 terminal PLUS, MINUS, TIMES, DIVIDE, MOD, EQ, NE, LT, LE, GT, GE, AND, OR, NOT;
 terminal INT_LITERAL, FLOAT_LITERAL, STRING_LITERAL, TRUE, FALSE;
 terminal IF, ELSE, ELIF, WHILE, FOR, IN, REPEAT, UNTIL, SWITCH, CASE, DEFAULT;
-terminal PRINT, INPUT, RETURN, SELF, PUNTO;
+terminal PRINT, INPUT, SELF, PUNTO, NEWLINE;
 
-non terminal Programa, ListaSentencias, Sentencia, DecFun, DecClass, DecVar, Type;
+non terminal Programa, Bloque, DecList, DecFun, DecClass, DecVar, Type;
 non terminal ListaParametros, Parametro, ClassMemberList, ClassMember, Asignacion;
-non terminal Expresion, If_Sentencia, Elif_Lista, While_Sentencia, For_Sentencia, RepeatUntil_Sentencia;
-non terminal Switch_Sentencia, CaseLista, CaseClause, DefaultCase;
+non terminal Expresion, If_Sentencia, Elif_Lista, While_Sentencia, For_Sentencia, RepeatUntil_Sentencia, Print_Sentencia, Input_Sentencia;
+non terminal Switch_Sentencia, CaseLista, CaseClause, DefaultCase, OptNewLine;
 
 precedence left OR;
 precedence left AND;
@@ -61,28 +64,35 @@ precedence left TIMES, DIVIDE, MOD;
 precedence right NOT;
 
 
-Programa ::= ListaSentencias;
-
-ListaSentencias ::= ListaSentencias Sentencia 
-                    | ;
-
-Sentencia ::= DecFun
-            | DecClass
-            | DecVar
-            | Asignacion
-            | If_Sentencia
-            | While_Sentencia
-            | For_Sentencia
-            | RepeatUntil_Sentencia
-            | Switch_Sentencia
-            | PRINT LPAREN Expresion RPAREN
-            | INPUT LPAREN Expresion RPAREN
-            | RETURN Expresion
+Programa ::= Main  
             ;
 
-DecFun ::= DEF Type ID LPAREN ListaParametros RPAREN LBRACE ListaSentencias RBRACE;
+Main ::= Bloque DecList
+        | Bloque
+        ;
 
-DecClass ::= CLASS ID LBRACE ClassMemberList RBRACE; 
+DecList ::= DecList DecFun
+        | DecList DecClass
+        | DecFun
+        | DecClass
+        ;
+
+Bloque ::= DecVar
+        | Asignacion
+        | If_Sentencia
+        | While_Sentencia
+        | For_Sentencia
+        | RepeatUntil_Sentencia
+        | Switch_Sentencia
+        | Print_Sentencia
+        | Input_Sentencia
+        ;
+
+DecFun ::= DEF Type ID LPAREN ListaParametros RPAREN LBRACE Bloque RBRACE
+            ;
+
+DecClass ::= CLASS ID LBRACE ClassMemberList RBRACE
+            ; 
 
 ClassMemberList ::= ClassMemberList ClassMember
                     | ClassMember 
@@ -92,45 +102,60 @@ ClassMember ::= DecVar
                 | DecFun
                 ;
 
-DecVar ::= CONST Type ID 
-            | Type ID
+DecVar ::= CONST Type ID     
+            | Type ID 
             ;
 
-Asignacion ::= ID IGUAL Expresion
-            | ID PLUS_IGUAL Expresion
-            | ID MENOS_IGUAL Expresion
-            | ID TIMES_IGUAL Expresion
-            | ID DIVIDE_IGUAL Expresion
-            | ID MOD_IGUAL Expresion
+Asignacion ::= ID IGUAL Expresion 
+            | ID PLUS_IGUAL Expresion 
+            | ID MENOS_IGUAL Expresion 
+            | ID TIMES_IGUAL Expresion 
+            | ID DIVIDE_IGUAL Expresion 
+            | ID MOD_IGUAL Expresion 
             ;
 
-If_Sentencia ::= IF Expresion LBRACE ListaSentencias RBRACE Elif_Lista ELSE LBRACE ListaSentencias RBRACE
-                | IF Expresion LBRACE ListaSentencias RBRACE Elif_Lista
-                | IF Expresion LBRACE ListaSentencias RBRACE ELSE LBRACE ListaSentencias RBRACE
-                | IF Expresion LBRACE ListaSentencias RBRACE
+OptNewLine ::= NEWLINE
+            |
+            ;
+
+If_Sentencia ::= IF Expresion LBRACE Bloque RBRACE Elif_Lista ELSE LBRACE Bloque RBRACE
+                | IF Expresion LBRACE Bloque RBRACE Elif_Lista
+                | IF Expresion LBRACE Bloque RBRACE ELSE LBRACE Bloque RBRACE
+                | IF Expresion LBRACE Bloque RBRACE
                 ;
 
-Elif_Lista ::= Elif_Lista ELIF Expresion LBRACE ListaSentencias RBRACE
-                | ELIF Expresion LBRACE ListaSentencias RBRACE
+Elif_Lista ::= Elif_Lista ELIF Expresion LBRACE Bloque RBRACE
+                | ELIF Expresion LBRACE Bloque RBRACE
                 ;
 
-While_Sentencia ::= WHILE Expresion LBRACE ListaSentencias RBRACE;
+While_Sentencia ::= WHILE Expresion LBRACE Bloque RBRACE
+                ;
 
-For_Sentencia ::= FOR Type ID IN Expresion LBRACE ListaSentencias RBRACE;
+For_Sentencia ::= FOR Type ID IN Expresion LBRACE Bloque RBRACE
+                ;
 
-RepeatUntil_Sentencia ::= REPEAT LBRACE ListaSentencias RBRACE UNTIL LPAREN Expresion RPAREN;
+RepeatUntil_Sentencia ::= REPEAT LBRACE Bloque RBRACE UNTIL LPAREN Expresion RPAREN
+                        ;
 
-Switch_Sentencia ::= SWITCH Expresion LBRACE CaseLista DefaultCase RBRACE;
+Switch_Sentencia ::= SWITCH Expresion LBRACE CaseLista DefaultCase RBRACE
+                    ;
 
 CaseLista ::= CaseLista CaseClause
             | CaseClause
             ;
 
-CaseClause ::= CASE Expresion LBRACE ListaSentencias RBRACE;
+CaseClause ::= CASE Expresion LBRACE Bloque RBRACE
+            ;
 
-DefaultCase ::= DEFAULT LBRACE ListaSentencias RBRACE
-            | ;
+DefaultCase ::= DEFAULT LBRACE Bloque RBRACE
+            ;
 
+Print_Sentencia ::= PRINT LPAREN Expresion RPAREN NEWLINE
+                    ;
+
+Input_Sentencia ::= INPUT LPAREN Expresion RPAREN NEWLINE
+                    ;
+                    
 Type ::= INT
         | STRING
         | BOOL

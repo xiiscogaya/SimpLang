@@ -38,10 +38,10 @@ public class ParserSym {
   public static final int LE = 30;
   public static final int EOF = 0;
   public static final int MOD_IGUAL = 21;
-  public static final int RETURN = 54;
   public static final int TRUE = 39;
   public static final int error = 1;
-  public static final int SELF = 55;
+  public static final int SELF = 54;
+  public static final int NEWLINE = 56;
   public static final int TIMES_IGUAL = 19;
   public static final int MOD = 26;
   public static final int VOID = 7;
@@ -50,7 +50,7 @@ public class ParserSym {
   public static final int TIMES = 24;
   public static final int ELSE = 42;
   public static final int LBRACE = 14;
-  public static final int PUNTO = 56;
+  public static final int PUNTO = 55;
   public static final int WHILE = 44;
   public static final int DEFAULT = 51;
   public static final int FLOAT = 6;
@@ -120,9 +120,9 @@ public class ParserSym {
   "DEFAULT",
   "PRINT",
   "INPUT",
-  "RETURN",
   "SELF",
-  "PUNTO"
+  "PUNTO",
+  "NEWLINE"
   };
 }
 

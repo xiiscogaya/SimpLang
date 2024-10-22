@@ -31,7 +31,7 @@ id          = {letter}({letter}|{digit})*
 SChar       = [^\"\\\n\r] | {EscChar}
 EscChar     = \\[ntbrf\\\'\"]
 
-whitespace  = [ \t\n\r]+
+whitespace  = [ \t\r]+
 
 
 %{
@@ -62,6 +62,7 @@ whitespace  = [ \t\n\r]+
 // Ignorar espacios en blanco
 {whitespace}    { /* No hacer nada, ignorar */ }
 "#" [^\n]*      { /* Ignorar comentarios */ }
+\n              { return symbol(ParserSym.NEWLINE); }
 
 
 
@@ -96,7 +97,6 @@ whitespace  = [ \t\n\r]+
 "default"       { return symbol(ParserSym.DEFAULT); }
 "print"         { return symbol(ParserSym.PRINT); }
 "input"         { return symbol(ParserSym.INPUT); }
-"return"        { return symbol(ParserSym.RETURN); }
 
 // Operadores matemáticos y lógicos
 "/"             { return symbol(ParserSym.DIVIDE); }
@@ -144,10 +144,8 @@ whitespace  = [ \t\n\r]+
 <<EOF>>         { return symbol(ParserSym.EOF); }
 
 // Caracter no reconocido
-. {
-    System.err.println("Error léxico: Caracter no reconocido '" + yytext() + "' en la línea " + (yyline + 1));
-    // Continúa con el análisis léxico sin interrumpir el proceso
-}
 
+[^]             { System.err.println("Error léxico en línea " + (yyline+1) + ", columna " + (yycolumn+1) + ": caracter no reconocido '" + yytext() + "'");
+                return symbol(ParserSym.error);  }
 
 
