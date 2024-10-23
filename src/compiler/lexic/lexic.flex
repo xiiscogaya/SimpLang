@@ -31,7 +31,7 @@ id          = {letter}({letter}|{digit})*
 SChar       = [^\"\\\n\r] | {EscChar}
 EscChar     = \\[ntbrf\\\'\"]
 
-whitespace  = [ \t\r]+
+whitespace  = [ \t\n\r]+
 
 
 %{
@@ -62,7 +62,6 @@ whitespace  = [ \t\r]+
 // Ignorar espacios en blanco
 {whitespace}    { /* No hacer nada, ignorar */ }
 "#" [^\n]*      { /* Ignorar comentarios */ }
-\n              { return symbol(ParserSym.NEWLINE); }
 
 
 

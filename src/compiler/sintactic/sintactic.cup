@@ -50,10 +50,10 @@ terminal INT_LITERAL, FLOAT_LITERAL, STRING_LITERAL, TRUE, FALSE;
 terminal IF, ELSE, ELIF, WHILE, FOR, IN, REPEAT, UNTIL, SWITCH, CASE, DEFAULT;
 terminal PRINT, INPUT, SELF, PUNTO, NEWLINE;
 
-non terminal Programa, Bloque, DecList, DecFun, DecClass, DecVar, Type;
+non terminal Programa, ProgramaList, Bloque, DecList, Main, DecFun, DecClass, DecVar, Type;
 non terminal ListaParametros, Parametro, ClassMemberList, ClassMember, Asignacion;
 non terminal Expresion, If_Sentencia, Elif_Lista, While_Sentencia, For_Sentencia, RepeatUntil_Sentencia, Print_Sentencia, Input_Sentencia;
-non terminal Switch_Sentencia, CaseLista, CaseClause, DefaultCase, OptNewLine;
+non terminal Switch_Sentencia, CaseLista, CaseClause, DefaultCase;
 
 precedence left OR;
 precedence left AND;
@@ -64,17 +64,21 @@ precedence left TIMES, DIVIDE, MOD;
 precedence right NOT;
 
 
-Programa ::= Main  
+Programa ::= ProgramaList
             ;
 
-Main ::= Bloque DecList
-        | Bloque
-        ;
+ProgramaList ::= DecList ProgramaList
+                | LBRACE Main RBRACE 
+                | error RBRACE
+                ;
 
-DecList ::= DecList DecFun
-        | DecList DecClass
-        | DecFun
-        | DecClass
+DecList ::= DecFun 
+            | DecClass 
+            | error RBRACE
+            ;
+
+Main ::= Main Bloque
+        | Bloque
         ;
 
 Bloque ::= DecVar
@@ -114,9 +118,6 @@ Asignacion ::= ID IGUAL Expresion
             | ID MOD_IGUAL Expresion 
             ;
 
-OptNewLine ::= NEWLINE
-            |
-            ;
 
 If_Sentencia ::= IF Expresion LBRACE Bloque RBRACE Elif_Lista ELSE LBRACE Bloque RBRACE
                 | IF Expresion LBRACE Bloque RBRACE Elif_Lista
@@ -155,7 +156,7 @@ Print_Sentencia ::= PRINT LPAREN Expresion RPAREN NEWLINE
 
 Input_Sentencia ::= INPUT LPAREN Expresion RPAREN NEWLINE
                     ;
-                    
+
 Type ::= INT
         | STRING
         | BOOL
