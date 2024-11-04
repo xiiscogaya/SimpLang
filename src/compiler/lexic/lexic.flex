@@ -72,58 +72,16 @@ whitespace  = [ \t\n\r]+
 "bool"          { return symbol(ParserSym.BOOL); }
 "void"          { return symbol(ParserSym.VOID); }
 "const"         { return symbol(ParserSym.CONST); }
-"def"           { return symbol(ParserSym.DEF); }
-"class"         { return symbol(ParserSym.CLASS); }
-"self"          { return symbol(ParserSym.SELF); }
 
-// Delimitadores
-"("             { return symbol(ParserSym.LPAREN); }
-")"             { return symbol(ParserSym.RPAREN); }
 "{"             { return symbol(ParserSym.LBRACE); }
 "}"             { return symbol(ParserSym.RBRACE); }
-
-// Condicionales
-"if"            { return symbol(ParserSym.IF); }
-"elif"          { return symbol(ParserSym.ELIF); }
-"else"          { return symbol(ParserSym.ELSE); }
-"while"         { return symbol(ParserSym.WHILE); }
-"for"           { return symbol(ParserSym.FOR); }
-"in"            { return symbol(ParserSym.IN); }
-"repeat"        { return symbol(ParserSym.REPEAT); }
-"until"         { return symbol(ParserSym.UNTIL); }
-"switch"        { return symbol(ParserSym.SWITCH); }
-"case"          { return symbol(ParserSym.CASE); }
-"default"       { return symbol(ParserSym.DEFAULT); }
-"print"         { return symbol(ParserSym.PRINT); }
-"input"         { return symbol(ParserSym.INPUT); }
-
-// Operadores matemáticos y lógicos
-"/"             { return symbol(ParserSym.DIVIDE); }
-">="            { return symbol(ParserSym.GE); }
+"="             { return symbol(ParserSym.EQUAL); }
 "+="            { return symbol(ParserSym.PLUS_IGUAL); }
-"-"             { return symbol(ParserSym.MINUS); }
-"/="            { return symbol(ParserSym.DIVIDE_IGUAL); }
-"not"           { return symbol(ParserSym.NOT); }
-"and"           { return symbol(ParserSym.AND); }
-"="             { return symbol(ParserSym.IGUAL); }
-"<"             { return symbol(ParserSym.LT); }
-"or"            { return symbol(ParserSym.OR); }
-"\+"            { return symbol(ParserSym.PLUS); }
-"<="            { return symbol(ParserSym.LE); }
-"%="            { return symbol(ParserSym.MOD_IGUAL); }
-"TRUE"          { return symbol(ParserSym.TRUE); }
-"*="            { return symbol(ParserSym.TIMES_IGUAL); }
-"%"             { return symbol(ParserSym.MOD); }
-"=="            { return symbol(ParserSym.EQ); }
-"\*"            { return symbol(ParserSym.TIMES); }
-"!="            { return symbol(ParserSym.NE); }
-"FALSE"         { return symbol(ParserSym.FALSE); }
 "-="            { return symbol(ParserSym.MENOS_IGUAL); }
-">"             { return symbol(ParserSym.GT); }
+"*="            { return symbol(ParserSym.TIMES_IGUAL); }
+"/="            { return symbol(ParserSym.DIVIDE_IGUAL); }
 
-// Simbolos
-","             { return symbol(ParserSym.COMMA); }
-"."             { return symbol(ParserSym.PUNTO); }
+";"             { return symbol(ParserSym.SEMICOLON); }
 
 // Literales de cadena
 
@@ -146,5 +104,3 @@ whitespace  = [ \t\n\r]+
 
 [^]             { System.err.println("Error léxico en línea " + (yyline+1) + ", columna " + (yycolumn+1) + ": caracter no reconocido '" + yytext() + "'");
                 return symbol(ParserSym.error);  }
-
-

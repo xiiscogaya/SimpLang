@@ -1,12 +1,20 @@
-class a{
-    int i
-    def int o() {
-        int a
-    }
-}
+
+
 
 # Bloque Main
 {
-int i
-int a
+    const string hola = "hola";
+
+    int v = 4;
+    v += 4;
+    v += 100;
+
+    float v;
+    float h = 8;
+    float h =8.5;
+
+    h *=2.5;
+    h /=3.0;
+    h+=4.5;
+
 }

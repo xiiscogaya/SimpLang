@@ -6,8 +6,7 @@ import java_cup.runtime.ComplexSymbolFactory;
 import java_cup.runtime.Symbol;
 import java_cup.runtime.SymbolFactory;
 import compiler.lexic.Scanner;
-import compiler.sintactic.Parser;
-import compiler.sintactic.ParserSym;
+import compiler.sintactic.*;
 
 public class analitzador {
     public static void main(String[] args) {
@@ -24,5 +23,6 @@ public class analitzador {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        ErrorManager.printErrors();
     }
 }

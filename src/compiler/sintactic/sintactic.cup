@@ -1,12 +1,11 @@
 package compiler.sintactic;
 
-
-
 import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
-
+import java_cup.runtime.ComplexSymbolFactory.Location;
 import java_cup.runtime.*;
 
-import compiler.sintactic.Symbols.*;
+import compiler.simbols.*;
+import compiler.taulasimbols.*;
 
 import java.io.PrintStream;
 import java.util.HashMap;
@@ -14,19 +13,8 @@ import java.util.HashMap;
 class Parser;
 
 parser code {:
-    private HashMap<String, Double> tsymbols = new HashMap<>();
 
-    public Double getSymbolValue(String id) {
-        return tsymbols.get(id);
-    }
-
-    public void addSymbol(String id, Double value) {
-        if (tsymbols.get(id) == null) {
-            tsymbols.put(id, value);
-        } else {
-            tsymbols.replace(id, value);
-        }
-    }
+    public static TaulaSimbols taulaSim = new TaulaSimbols(); 
 
     @Override
     public void syntax_error(Symbol cur_token) {
@@ -39,159 +27,87 @@ parser code {:
         done_parsing();
     }
 
+    @Override
+    public void report_error(String message, Object info) {
+        StringBuilder m = new StringBuilder("Error");
+        if (info instanceof java_cup.runtime.Symbol) {
+            java_cup.runtime.Symbol s = ((java_cup.runtime.Symbol) info);
+            if (s.left >= 0) {                
+                m.append(" in line " + (s.left + 1));   
+                if (s.right >= 0)
+                    m.append(", column " + (s.right + 1));
+            }
+        }
+        m.append(" : " + message);
+        System.err.println(m);
+    }
 :}
 
 terminal String ID;
+terminal INT_LITERAL;
+terminal FLOAT_LITERAL;
+terminal String STRING_LITERAL;
 terminal INT, STRING, BOOL, FLOAT, VOID;
-terminal DEF, LPAREN, RPAREN, CLASS, CONST, COMMA;
-terminal LBRACE, RBRACE, IGUAL, PLUS_IGUAL, MENOS_IGUAL, TIMES_IGUAL, DIVIDE_IGUAL, MOD_IGUAL;
-terminal PLUS, MINUS, TIMES, DIVIDE, MOD, EQ, NE, LT, LE, GT, GE, AND, OR, NOT;
-terminal INT_LITERAL, FLOAT_LITERAL, STRING_LITERAL, TRUE, FALSE;
-terminal IF, ELSE, ELIF, WHILE, FOR, IN, REPEAT, UNTIL, SWITCH, CASE, DEFAULT;
-terminal PRINT, INPUT, SELF, PUNTO, NEWLINE;
+terminal CONST, SEMICOLON;
+terminal LBRACE, RBRACE, EQUAL, PLUS_IGUAL, MENOS_IGUAL, TIMES_IGUAL, DIVIDE_IGUAL;
 
-non terminal Programa, ProgramaList, Bloque, DecList, Main, DecFun, DecClass, DecVar, Type;
-non terminal ListaParametros, Parametro, ClassMemberList, ClassMember, Asignacion;
-non terminal Expresion, If_Sentencia, Elif_Lista, While_Sentencia, For_Sentencia, RepeatUntil_Sentencia, Print_Sentencia, Input_Sentencia;
-non terminal Switch_Sentencia, CaseLista, CaseClause, DefaultCase;
-
-precedence left OR;
-precedence left AND;
-precedence left EQ, NE;
-precedence left LT, LE, GT, GE;
-precedence left PLUS, MINUS;
-precedence left TIMES, DIVIDE, MOD;
-precedence right NOT;
-
+non terminal Programa, ProgramaList, DecList, Main, Sentencia, DecConstante, Valor, Type;
+non terminal DecVar, Asignacion;
 
 Programa ::= ProgramaList
             ;
 
-ProgramaList ::= DecList ProgramaList
-                | LBRACE Main RBRACE 
-                | error RBRACE
+ProgramaList ::= LBRACE Main RBRACE 
                 ;
 
+/**
 DecList ::= DecFun 
             | DecClass 
             | error RBRACE
             ;
+**/
 
-Main ::= Main Bloque
-        | Bloque
+Main ::= Main Sentencia
+        | Sentencia
         ;
 
-Bloque ::= DecVar
-        | Asignacion
-        | If_Sentencia
-        | While_Sentencia
-        | For_Sentencia
-        | RepeatUntil_Sentencia
-        | Switch_Sentencia
-        | Print_Sentencia
-        | Input_Sentencia
+Sentencia ::= DecConstante 
+            | DecVar
+            | Asignacion
+            ;
+
+DecConstante ::= CONST Type:idType ID:id EQUAL Valor:valor SEMICOLON
+                    {: RESULT = SemanticHelper.processConstantDeclaration(idType, id, valor, taulaSim); :}
+                ;
+
+DecVar ::= Type:idType ID:id EQUAL Valor:valor SEMICOLON
+            {: RESULT = SemanticHelper.processVarDeclaration(idType, id, valor, taulaSim); :}
+        | Type:idType ID:id SEMICOLON
+            {: RESULT = SemanticHelper.processVarDeclaration(idType, id, null, taulaSim); :}
         ;
 
-DecFun ::= DEF Type ID LPAREN ListaParametros RPAREN LBRACE Bloque RBRACE
+Asignacion ::= ID:id EQUAL Valor:valor SEMICOLON
+                {: RESULT = SemanticHelper.processAsignacion(id, valor, "=", taulaSim); :}
+            | ID:id PLUS_IGUAL Valor:valor SEMICOLON 
+                {: RESULT = SemanticHelper.processAsignacion(id, valor, "+=", taulaSim); :}
+            | ID:id MENOS_IGUAL Valor:valor SEMICOLON 
+                {: RESULT = SemanticHelper.processAsignacion(id, valor, "-=", taulaSim); :}
+            | ID:id TIMES_IGUAL Valor:valor SEMICOLON 
+                {: RESULT = SemanticHelper.processAsignacion(id, valor, "*=", taulaSim); :}
+            | ID:id DIVIDE_IGUAL Valor:valor SEMICOLON 
+                {: RESULT = SemanticHelper.processAsignacion(id, valor, "/=", taulaSim); :}
             ;
 
-DecClass ::= CLASS ID LBRACE ClassMemberList RBRACE
-            ; 
+Type ::= INT     {: RESULT = new SType(new TipoSubyacente(Tipus.INT)); :}
+       | FLOAT   {: RESULT = new SType(new TipoSubyacente(Tipus.FLOAT)); :}
+       | BOOL    {: RESULT = new SType(new TipoSubyacente(Tipus.BOOLEAN)); :}
+       | STRING  {: RESULT = new SType(new TipoSubyacente(Tipus.CHAR)); :}
+       ;
 
-ClassMemberList ::= ClassMemberList ClassMember
-                    | ClassMember 
-                    ;
-
-ClassMember ::= DecVar
-                | DecFun
-                ;
-
-DecVar ::= CONST Type ID     
-            | Type ID 
-            ;
-
-Asignacion ::= ID IGUAL Expresion 
-            | ID PLUS_IGUAL Expresion 
-            | ID MENOS_IGUAL Expresion 
-            | ID TIMES_IGUAL Expresion 
-            | ID DIVIDE_IGUAL Expresion 
-            | ID MOD_IGUAL Expresion 
-            ;
-
-
-If_Sentencia ::= IF Expresion LBRACE Bloque RBRACE Elif_Lista ELSE LBRACE Bloque RBRACE
-                | IF Expresion LBRACE Bloque RBRACE Elif_Lista
-                | IF Expresion LBRACE Bloque RBRACE ELSE LBRACE Bloque RBRACE
-                | IF Expresion LBRACE Bloque RBRACE
-                ;
-
-Elif_Lista ::= Elif_Lista ELIF Expresion LBRACE Bloque RBRACE
-                | ELIF Expresion LBRACE Bloque RBRACE
-                ;
-
-While_Sentencia ::= WHILE Expresion LBRACE Bloque RBRACE
-                ;
-
-For_Sentencia ::= FOR Type ID IN Expresion LBRACE Bloque RBRACE
-                ;
-
-RepeatUntil_Sentencia ::= REPEAT LBRACE Bloque RBRACE UNTIL LPAREN Expresion RPAREN
-                        ;
-
-Switch_Sentencia ::= SWITCH Expresion LBRACE CaseLista DefaultCase RBRACE
-                    ;
-
-CaseLista ::= CaseLista CaseClause
-            | CaseClause
-            ;
-
-CaseClause ::= CASE Expresion LBRACE Bloque RBRACE
-            ;
-
-DefaultCase ::= DEFAULT LBRACE Bloque RBRACE
-            ;
-
-Print_Sentencia ::= PRINT LPAREN Expresion RPAREN NEWLINE
-                    ;
-
-Input_Sentencia ::= INPUT LPAREN Expresion RPAREN NEWLINE
-                    ;
-
-Type ::= INT
-        | STRING
-        | BOOL
-        | FLOAT
-        | VOID
+Valor ::= INT_LITERAL:v
+          {: RESULT = new SValor(new TipoSubyacente(Tipus.INT), v); :}
+        | FLOAT_LITERAL:v
+          {: RESULT = new SValor(new TipoSubyacente(Tipus.FLOAT), v); :}
+        | STRING_LITERAL:v
+          {: RESULT = new SValor(new TipoSubyacente(Tipus.CHAR), v); :}
         ;
-
-ListaParametros ::= ListaParametros COMMA Parametro
-                    | Parametro
-                    | ;
-
-Parametro ::= Type ID;
-
-Expresion ::= Expresion PLUS Expresion
-             | Expresion MINUS Expresion
-             | Expresion TIMES Expresion
-             | Expresion DIVIDE Expresion
-             | Expresion MOD Expresion
-             | Expresion EQ Expresion
-             | Expresion NE Expresion
-             | Expresion LT Expresion
-             | Expresion LE Expresion
-             | Expresion GT Expresion
-             | Expresion GE Expresion
-             | Expresion AND Expresion
-             | Expresion OR Expresion
-             | NOT Expresion
-             | LPAREN Expresion RPAREN
-             | ID
-             | ID LPAREN ListaParametros RPAREN
-             | INT_LITERAL
-             | FLOAT_LITERAL
-             | STRING_LITERAL
-             | TRUE
-             | FALSE
-             | SELF PUNTO ID
-             | SELF PUNTO ID LPAREN ListaParametros RPAREN
-             ;
