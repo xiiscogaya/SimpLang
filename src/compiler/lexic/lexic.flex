@@ -72,9 +72,12 @@ whitespace  = [ \t\n\r]+
 "bool"          { return symbol(ParserSym.BOOL); }
 "void"          { return symbol(ParserSym.VOID); }
 "const"         { return symbol(ParserSym.CONST); }
+"tupla"         { return symbol(ParserSym.TUPLA); }
 
 "{"             { return symbol(ParserSym.LBRACE); }
 "}"             { return symbol(ParserSym.RBRACE); }
+"("             { return symbol(ParserSym.LPAREN); }
+")"             { return symbol(ParserSym.RPAREN); }
 "="             { return symbol(ParserSym.EQUAL); }
 "+="            { return symbol(ParserSym.PLUS_IGUAL); }
 "-="            { return symbol(ParserSym.MENOS_IGUAL); }
@@ -82,6 +85,7 @@ whitespace  = [ \t\n\r]+
 "/="            { return symbol(ParserSym.DIVIDE_IGUAL); }
 
 ";"             { return symbol(ParserSym.SEMICOLON); }
+","             { return symbol(ParserSym.COMMA); }
 
 // Literales de cadena
 

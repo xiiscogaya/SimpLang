@@ -22,7 +22,7 @@ public class DVar extends Descripcio{
     public void setValor(Object nuevoValor) {
         this.valor = nuevoValor;
     }
-
+ 
     public TipoSubyacente getTipoSubyacente() {
         return tipoSubyacente;
     }

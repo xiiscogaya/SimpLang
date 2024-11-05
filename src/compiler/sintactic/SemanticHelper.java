@@ -1,6 +1,10 @@
 package compiler.sintactic;
 
 import compiler.taulasimbols.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import compiler.simbols.*;
 
 public class SemanticHelper {
@@ -177,7 +181,8 @@ public class SemanticHelper {
                 return 0; // Valor por defecto en caso de error
             }
         } else {
-            throw new IllegalArgumentException("Tipo no compatible para entero: " + valor.getClass().getName());
+            ErrorManager.addError("Error: Tipo no compatible para entero: " + valor.getClass().getName());
+            return 0; // Valor por defecto en caso de tipo no compatible
         }
     }
 
@@ -194,8 +199,53 @@ public class SemanticHelper {
         } else if (valor instanceof Integer) {
             return ((Integer) valor).floatValue();
         } else {
-            throw new IllegalArgumentException("Tipo no compatible para flotante: " + valor.getClass().getName());
+            ErrorManager.addError("Error: Tipo no compatible para entero: " + valor.getClass().getName());
+            return 0.0f; // Valor por defecto en caso de tipo no compatible
         }
     }
 
+    public static SDecTupla processTuplaDeclaration(String id, STipoLista tipoLista, SValorLista valorLista, TaulaSimbols taulaSim) {
+        if (taulaSim.consultar(id) != null) {
+            ErrorManager.addError("Error: Redefinición de la tupla '" + id + "'.");
+            return new SDecTupla();
+        }
+
+        // Extraer la lista de tipos desde STipoLista
+        List<TipoSubyacente> tipos = new ArrayList<>();
+        for (TipoSubyacente tipo : tipoLista.getTipos()) {
+            tipos.add(tipo);
+        }
+
+        // Verificar que la cantidad de tipos y valores coincida
+        if (tipos.size() != valorLista.getValores().size()) {
+            ErrorManager.addError("Error: La cantidad de valores no coincide con la cantidad de tipos en la tupla '" + id + "'.");
+            return new SDecTupla();
+        }
+
+        // Verificación de tipos para cada valor
+        List<Object> valoresAsignados = new ArrayList<>();
+        for (int i = 0; i < tipos.size(); i++) {
+            TipoSubyacente tipoEsperado = tipos.get(i);
+            SValor valorActual = valorLista.getValores().get(i);
+
+            // Comprobar que el tipo de cada valor coincida con el tipo esperado
+            if (!tipoEsperado.equals(valorActual.getTipo())) {
+                ErrorManager.addError("Error: Tipo incompatible en la posición " + i + " de la tupla '" + id + "'.");
+                return new SDecTupla();
+            }
+
+            // Añadimos el valor si los tipos coinciden
+            valoresAsignados.add(valorActual.getValor()); 
+        }
+        
+        // Crear una descripción para la tupla con los tipos convertidos
+        DTupla descripcioTupla = new DTupla(tipos, valoresAsignados);
+
+        // Añadir la tupla a la tabla de símbolos
+        taulaSim.posar(id, descripcioTupla);
+        taulaSim.imprimirTabla();
+
+        // Retornar un nodo de declaración de tupla
+        return new SDecTupla(id, tipoLista);
+    }
 }

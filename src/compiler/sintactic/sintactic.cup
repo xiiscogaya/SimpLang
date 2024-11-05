@@ -50,9 +50,10 @@ terminal String STRING_LITERAL;
 terminal INT, STRING, BOOL, FLOAT, VOID;
 terminal CONST, SEMICOLON;
 terminal LBRACE, RBRACE, EQUAL, PLUS_IGUAL, MENOS_IGUAL, TIMES_IGUAL, DIVIDE_IGUAL;
+terminal TUPLA, LPAREN, RPAREN, COMMA;
 
 non terminal Programa, ProgramaList, DecList, Main, Sentencia, DecConstante, Valor, Type;
-non terminal DecVar, Asignacion;
+non terminal DecVar, Asignacion, DecTupla, TipoLista, ValorLista;
 
 Programa ::= ProgramaList
             ;
@@ -74,6 +75,7 @@ Main ::= Main Sentencia
 Sentencia ::= DecConstante 
             | DecVar
             | Asignacion
+            | DecTupla
             ;
 
 DecConstante ::= CONST Type:idType ID:id EQUAL Valor:valor SEMICOLON
@@ -97,6 +99,39 @@ Asignacion ::= ID:id EQUAL Valor:valor SEMICOLON
             | ID:id DIVIDE_IGUAL Valor:valor SEMICOLON 
                 {: RESULT = SemanticHelper.processAsignacion(id, valor, "/=", taulaSim); :}
             ;
+
+DecTupla ::= TUPLA ID:id LPAREN TipoLista:tipos RPAREN EQUAL LPAREN ValorLista:valores RPAREN SEMICOLON
+                {: RESULT = SemanticHelper.processTuplaDeclaration(id, (STipoLista) tipos, (SValorLista) valores, taulaSim); :}
+            ;
+
+TipoLista ::= TipoLista:lista COMMA Type:idType
+                {:
+                    // Agregamos el tipo subyacente de `idType` a `lista`
+                    ((STipoLista) lista).addTipo(((SType) idType).getTipo());
+                    RESULT = lista;
+                :}
+            | Type:idType
+                {:
+                    // Creamos un nuevo `STipoLista` y añadimos el tipo subyacente de `idType`
+                    STipoLista lista = new STipoLista();
+                    lista.addTipo(((SType) idType).getTipo());
+                    RESULT = lista;
+                :}
+            ;
+
+ValorLista ::= ValorLista:lista COMMA Valor:valor
+                {:
+                    ((SValorLista) lista).addValor((SValor) valor);
+                    RESULT = lista;
+                :}
+            | Valor:valor
+                {:
+                    SValorLista lista = new SValorLista();
+                    lista.addValor((SValor) valor);
+                    RESULT = lista;
+                :}
+            ;
+
 
 Type ::= INT     {: RESULT = new SType(new TipoSubyacente(Tipus.INT)); :}
        | FLOAT   {: RESULT = new SType(new TipoSubyacente(Tipus.FLOAT)); :}
