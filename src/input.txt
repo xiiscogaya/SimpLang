@@ -3,8 +3,8 @@
 
 # Bloque Main
 {
+
     
-    tupla he (int, int, string)= (4, 5, "hola");
-    const int he = 4;
+    tupla x=(int 4, float 7.0);
 
 }

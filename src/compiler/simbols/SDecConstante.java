@@ -1,21 +1,20 @@
 package compiler.simbols;
 
 
-public class SDecConstante {
+public class SDecConstante extends SBase{
     private SType tipo;
     private String id;
     private SValor valor;
-    private boolean hasError;
 
     public SDecConstante(SType tipo, String id, SValor valor) {
+        super("SDecConstante", valor);
         this.tipo = tipo;
         this.id = id;
         this.valor = valor;
-        this.hasError = false;
     }
 
     public SDecConstante() {
-        this.hasError = true;
+        super();
     }
 
     public SType getTipo() {
@@ -30,13 +29,9 @@ public class SDecConstante {
         return valor;
     }
 
-    public boolean hasError() {
-        return hasError;
-    }
-
     @Override
     public String toString() {
-        return hasError ? "Error en declaración de constante" : "Constante " + id + ": " + tipo + " = " + valor;
+        return isError ? "Error en declaración de constante" : "Constante " + id + ": " + tipo + " = " + valor;
     }
 }
 

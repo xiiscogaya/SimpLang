@@ -1,4 +1,3 @@
-// TipoSubyacente.java
 package compiler.taulasimbols;
 
 public class TipoSubyacente {
@@ -7,6 +6,10 @@ public class TipoSubyacente {
 
     public TipoSubyacente(Tipus tipoBasico) {
         this.tipoBasico = tipoBasico;
+    }
+
+    public Tipus getTipoBasico() {
+        return tipoBasico;
     }
 
     @Override
@@ -25,7 +28,6 @@ public class TipoSubyacente {
     public int hashCode() {
         return tipoBasico != null ? tipoBasico.hashCode() : 0;
     }
-
 
     /**
      * Retorna la mida d'un TSB en bytes

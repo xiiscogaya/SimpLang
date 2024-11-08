@@ -8,36 +8,31 @@ package compiler.sintactic;
 /** CUP generated class containing symbol constants. */
 public class ParserSym {
   /* terminals */
-  public static final int TIMES_IGUAL = 18;
-  public static final int SEMICOLON = 12;
-  public static final int RPAREN = 22;
-  public static final int RBRACE = 14;
-  public static final int INT = 6;
+  public static final int OP_ASSIGN = 14;
+  public static final int SEMICOLON = 11;
+  public static final int RPAREN = 18;
+  public static final int RBRACE = 13;
+  public static final int INT = 5;
   public static final int EQUAL = 15;
-  public static final int TUPLA = 20;
-  public static final int LPAREN = 21;
-  public static final int LBRACE = 13;
+  public static final int TUPLA = 16;
+  public static final int LPAREN = 17;
+  public static final int LBRACE = 12;
   public static final int ID = 2;
-  public static final int STRING_LITERAL = 5;
-  public static final int INT_LITERAL = 3;
-  public static final int STRING = 7;
-  public static final int COMMA = 23;
-  public static final int FLOAT = 9;
+  public static final int STRING_LITERAL = 4;
+  public static final int STRING = 6;
+  public static final int COMMA = 19;
+  public static final int FLOAT = 8;
   public static final int EOF = 0;
-  public static final int PLUS_IGUAL = 16;
-  public static final int MENOS_IGUAL = 17;
-  public static final int CONST = 11;
+  public static final int CONST = 10;
   public static final int error = 1;
-  public static final int DIVIDE_IGUAL = 19;
-  public static final int BOOL = 8;
-  public static final int FLOAT_LITERAL = 4;
-  public static final int VOID = 10;
+  public static final int BOOL = 7;
+  public static final int VOID = 9;
+  public static final int VALOR = 3;
   public static final String[] terminalNames = new String[] {
   "EOF",
   "error",
   "ID",
-  "INT_LITERAL",
-  "FLOAT_LITERAL",
+  "VALOR",
   "STRING_LITERAL",
   "INT",
   "STRING",
@@ -48,11 +43,8 @@ public class ParserSym {
   "SEMICOLON",
   "LBRACE",
   "RBRACE",
+  "OP_ASSIGN",
   "EQUAL",
-  "PLUS_IGUAL",
-  "MENOS_IGUAL",
-  "TIMES_IGUAL",
-  "DIVIDE_IGUAL",
   "TUPLA",
   "LPAREN",
   "RPAREN",

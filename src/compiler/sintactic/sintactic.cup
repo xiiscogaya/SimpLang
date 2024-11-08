@@ -44,16 +44,15 @@ parser code {:
 :}
 
 terminal String ID;
-terminal INT_LITERAL;
-terminal FLOAT_LITERAL;
+terminal VALOR;
 terminal String STRING_LITERAL;
 terminal INT, STRING, BOOL, FLOAT, VOID;
 terminal CONST, SEMICOLON;
-terminal LBRACE, RBRACE, EQUAL, PLUS_IGUAL, MENOS_IGUAL, TIMES_IGUAL, DIVIDE_IGUAL;
+terminal LBRACE, RBRACE, OP_ASSIGN, EQUAL;
 terminal TUPLA, LPAREN, RPAREN, COMMA;
 
 non terminal Programa, ProgramaList, DecList, Main, Sentencia, DecConstante, Valor, Type;
-non terminal DecVar, Asignacion, DecTupla, TipoLista, ValorLista;
+non terminal DecVar, Asignacion, DecTupla, ListaParametros;
 
 Programa ::= ProgramaList
             ;
@@ -79,7 +78,7 @@ Sentencia ::= DecConstante
             ;
 
 DecConstante ::= CONST Type:idType ID:id EQUAL Valor:valor SEMICOLON
-                    {: RESULT = SemanticHelper.processConstantDeclaration(idType, id, valor, taulaSim); :}
+                    {: RESULT = SemanticHelper.processConstantDeclaration((SType) idType, id, (SValor) valor, taulaSim); :}
                 ;
 
 DecVar ::= Type:idType ID:id EQUAL Valor:valor SEMICOLON
@@ -90,47 +89,20 @@ DecVar ::= Type:idType ID:id EQUAL Valor:valor SEMICOLON
 
 Asignacion ::= ID:id EQUAL Valor:valor SEMICOLON
                 {: RESULT = SemanticHelper.processAsignacion(id, valor, "=", taulaSim); :}
-            | ID:id PLUS_IGUAL Valor:valor SEMICOLON 
-                {: RESULT = SemanticHelper.processAsignacion(id, valor, "+=", taulaSim); :}
-            | ID:id MENOS_IGUAL Valor:valor SEMICOLON 
-                {: RESULT = SemanticHelper.processAsignacion(id, valor, "-=", taulaSim); :}
-            | ID:id TIMES_IGUAL Valor:valor SEMICOLON 
-                {: RESULT = SemanticHelper.processAsignacion(id, valor, "*=", taulaSim); :}
-            | ID:id DIVIDE_IGUAL Valor:valor SEMICOLON 
-                {: RESULT = SemanticHelper.processAsignacion(id, valor, "/=", taulaSim); :}
+            | ID:id OP_ASSIGN:op Valor:valor SEMICOLON
+                {: RESULT = SemanticHelper.processAsignacion(id, valor, (String) op, taulaSim); :}
             ;
 
-DecTupla ::= TUPLA ID:id LPAREN TipoLista:tipos RPAREN EQUAL LPAREN ValorLista:valores RPAREN SEMICOLON
-                {: RESULT = SemanticHelper.processTuplaDeclaration(id, (STipoLista) tipos, (SValorLista) valores, taulaSim); :}
+DecTupla ::= TUPLA ID:id EQUAL LPAREN ListaParametros:lista RPAREN SEMICOLON
+            {: RESULT = SemanticHelper.processTuplaDeclaration(id, (SListaParametros) lista, taulaSim); :}
             ;
 
-TipoLista ::= TipoLista:lista COMMA Type:idType
-                {:
-                    // Agregamos el tipo subyacente de `idType` a `lista`
-                    ((STipoLista) lista).addTipo(((SType) idType).getTipo());
-                    RESULT = lista;
-                :}
-            | Type:idType
-                {:
-                    // Creamos un nuevo `STipoLista` y añadimos el tipo subyacente de `idType`
-                    STipoLista lista = new STipoLista();
-                    lista.addTipo(((SType) idType).getTipo());
-                    RESULT = lista;
-                :}
-            ;
+ListaParametros ::= ListaParametros COMMA Type:idType Valor:valor
+                        {: RESULT = SemanticHelper.procesarListaParametros((SType) idType, (SValor) valor); :}
+                    | Type:idType Valor:valor
+                        {: RESULT = SemanticHelper.procesarListaParametros((SType) idType, (SValor) valor); :}
+                    ;
 
-ValorLista ::= ValorLista:lista COMMA Valor:valor
-                {:
-                    ((SValorLista) lista).addValor((SValor) valor);
-                    RESULT = lista;
-                :}
-            | Valor:valor
-                {:
-                    SValorLista lista = new SValorLista();
-                    lista.addValor((SValor) valor);
-                    RESULT = lista;
-                :}
-            ;
 
 
 Type ::= INT     {: RESULT = new SType(new TipoSubyacente(Tipus.INT)); :}
@@ -139,10 +111,15 @@ Type ::= INT     {: RESULT = new SType(new TipoSubyacente(Tipus.INT)); :}
        | STRING  {: RESULT = new SType(new TipoSubyacente(Tipus.CHAR)); :}
        ;
 
-Valor ::= INT_LITERAL:v
-          {: RESULT = new SValor(new TipoSubyacente(Tipus.INT), v); :}
-        | FLOAT_LITERAL:v
-          {: RESULT = new SValor(new TipoSubyacente(Tipus.FLOAT), v); :}
+Valor ::= VALOR:v
+            {: 
+                // Detectar si es entero o flotante según la presencia del punto decimal
+                if (((String) v).contains(".")) {
+                    RESULT = SemanticHelper.crearValorConComprobacion(new TipoSubyacente(Tipus.FLOAT), v);
+                } else {
+                    RESULT = SemanticHelper.crearValorConComprobacion(new TipoSubyacente(Tipus.INT), v);
+                }
+            :}
         | STRING_LITERAL:v
-          {: RESULT = new SValor(new TipoSubyacente(Tipus.CHAR), v); :}
+          {: RESULT = SemanticHelper.crearValorConComprobacion(new TipoSubyacente(Tipus.CHAR), v); :}
         ;

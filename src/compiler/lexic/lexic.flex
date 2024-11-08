@@ -79,24 +79,20 @@ whitespace  = [ \t\n\r]+
 "("             { return symbol(ParserSym.LPAREN); }
 ")"             { return symbol(ParserSym.RPAREN); }
 "="             { return symbol(ParserSym.EQUAL); }
-"+="            { return symbol(ParserSym.PLUS_IGUAL); }
-"-="            { return symbol(ParserSym.MENOS_IGUAL); }
-"*="            { return symbol(ParserSym.TIMES_IGUAL); }
-"/="            { return symbol(ParserSym.DIVIDE_IGUAL); }
+"+="|"-="|"*="|"/="     { return symbol(ParserSym.OP_ASSIGN, yytext()); }
 
 ";"             { return symbol(ParserSym.SEMICOLON); }
 ","             { return symbol(ParserSym.COMMA); }
 
 // Literales de cadena
 
-\"{SChar}*\"    { return symbol(ParserSym.STRING_LITERAL, yytext()); }
+\"{SChar}*\"    {   String contenidoSinComillas = yytext().substring(1, yytext().length() - 1);
+                    return symbol(ParserSym.STRING_LITERAL, contenidoSinComillas); 
+                }
 
 
-// Literales de punto flotante
-[0-9]+\.[0-9]+      { return symbol(ParserSym.FLOAT_LITERAL, yytext()); }
-
-// Literales de entero
-[0-9]+              { return symbol(ParserSym.INT_LITERAL, yytext()); }
+// Literales de punto flotante o enteros
+-?[0-9]+\.[0-9]+|-?[0-9]+      { return symbol(ParserSym.VALOR, yytext()); }
 
 // Identificadores
 {id}            { return symbol(ParserSym.ID, yytext()); }

@@ -1,20 +1,19 @@
 package compiler.simbols;
 
-public class SDecVar {
+public class SDecVar extends SBase{
     private SType tipo;
     private String id;
     private SValor valor;
-    private boolean hasError;
 
     public SDecVar(SType tipo, String id, SValor valor) {
+        super("SDecVar", valor);
         this.tipo = tipo;
         this.id = id;
         this.valor = valor;
-        this.hasError = false;
     }
 
     public SDecVar() {
-        this.hasError = true;
+        super();
     }
 
     public SType getTipo() {
@@ -28,13 +27,9 @@ public class SDecVar {
     public SValor getValor() {
         return valor;
     }
-
-    public boolean hasError() {
-        return hasError;
-    }
-
+    
     @Override
     public String toString() {
-        return hasError ? "Error en declaración de constante" : "Variable " + id + ": " + tipo + " = " + valor;
+        return isError ? "Error en declaración de constante" : "Variable " + id + ": " + tipo + " = " + valor;
     }
 }
