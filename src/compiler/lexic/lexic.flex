@@ -73,11 +73,15 @@ whitespace  = [ \t\n\r]+
 "void"          { return symbol(ParserSym.VOID); }
 "const"         { return symbol(ParserSym.CONST); }
 "tupla"         { return symbol(ParserSym.TUPLA); }
+"array"         { return symbol(ParserSym.ARRAY); }
+"true"|"false"  { return symbol(ParserSym.BOOLEAN_LITERAL); }
 
 "{"             { return symbol(ParserSym.LBRACE); }
 "}"             { return symbol(ParserSym.RBRACE); }
 "("             { return symbol(ParserSym.LPAREN); }
 ")"             { return symbol(ParserSym.RPAREN); }
+"["             { return symbol(ParserSym.LBRACKET); }
+"]"             { return symbol(ParserSym.RBRACKET); }
 "="             { return symbol(ParserSym.EQUAL); }
 "+="|"-="|"*="|"/="     { return symbol(ParserSym.OP_ASSIGN, yytext()); }
 

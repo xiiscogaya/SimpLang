@@ -7,6 +7,5 @@ public enum Tipus {
     INT,
     FLOAT,
     ARRAY,
-    POINTER,
-    NUL
+    STRING,
 }

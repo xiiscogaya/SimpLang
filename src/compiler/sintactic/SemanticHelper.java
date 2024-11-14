@@ -5,6 +5,8 @@ import compiler.taulasimbols.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.print.DocFlavor.STRING;
+
 import compiler.simbols.*;
 
 public class SemanticHelper {
@@ -219,9 +221,6 @@ public class SemanticHelper {
         }
     }
 
-    // Instancia de SListaParametros que se irá acumulando entre llamadas
-    private static SListaParametros listaParametros = new SListaParametros(new ArrayList<>(), new ArrayList<>());
-
     /**
      * Procesa un tipo y un valor, realizando las comprobaciones necesarias.
      * Si el tipo y valor son compatibles, se añaden a la lista acumulada `SListaParametros`.
@@ -231,12 +230,27 @@ public class SemanticHelper {
      * @param valor El valor correspondiente al parámetro.
      * @return Una instancia de `SListaParametros` acumulada si no hay errores, o una vacía si hubo error.
      */
-    public static SListaParametros procesarListaParametros(SType tipo, SValor valor) {
+    public static SListaParametros procesarListaParametros(SListaParametros listaParametros, SType tipo, SValor valor) {
         // Si hay error en una producción anterior
         if (valor.isError()) {
             return new SListaParametros();
         }
+        if (listaParametros==null) {
+            // Comprobar la compatibilidad de tipo
+            if (!tipo.getTipo().equals(valor.getTipo())) {
+                ErrorManager.addError("Error: Tipo incompatible para el valor proporcionado.");
+                return new SListaParametros();
+            }
 
+            // Si no hay error, añadir el tipo y el valor a `listaParametros`
+            List<TipoSubyacente> lista_tipo = new ArrayList<>();
+            List<SValor> lista_valor = new ArrayList<>();
+            SListaParametros listaParametrosNew = new SListaParametros(lista_tipo, lista_valor);
+            listaParametrosNew.addParametro(tipo, valor);
+            
+            return listaParametrosNew;
+        }
+        
         // Comprobar si ya hubo un error en una llamada anterior a `procesarListaParametros`
         if (listaParametros.isError()) {
             return listaParametros; // Devuelve la instancia de error acumulada
@@ -326,14 +340,13 @@ public class SemanticHelper {
                         return new SValor(); // Devuelve un SValor vacío con error
                     }
                     
-                case CHAR:
-                    // Aquí asumimos que `CHAR` como tipo básico puede representar un `String`
-                    if (valorStr.length() > TipoSubyacente.sizeOf(Tipus.CHAR) / 2) { // UTF-16 implica 2 bytes por `CHAR`
-                        ErrorManager.addError("Error: Longitud de cadena excede el tamaño permitido para CHAR.");
-                        return new SValor(); // Devuelve un SValor vacío con error
-                    } else {
-                        return new SValor(tipo, valorStr);
-                    }
+                case STRING:
+                    // No realizamos comprobación ya que es de tamaño variable
+                    return new SValor(tipo, valorStr);
+
+                case BOOLEAN:
+                    // No realizamos comprobación
+                    return new SValor(tipo, valorStr);
                     
                 default:
                     ErrorManager.addError("Error: Tipo no compatible para el valor proporcionado.");
@@ -403,4 +416,80 @@ public class SemanticHelper {
         // Si el tipo y el valor no coinciden, el valor no es válido
         return false;
     }
-}    
+
+    /**
+     * Agrega una dimensión a la lista especificada de dimensiones.
+     * Realiza una comprobación para asegurarse de que es un entero positivo.
+     * 
+     * @param dimensiones Lista de dimensiones a la que se va a agregar el valor.
+     * @param sizeStr La dimensión como String.
+     */
+    public static SDimension agregarDimension(SDimension dimensiones, String sizeStr) {
+        if (dimensiones == null) {
+            if (esEntero(sizeStr)) {
+                int size = Integer.parseInt(sizeStr);
+                if (size > 0) {
+                    List<Integer> nuevaLista = new ArrayList<>();
+                    SDimension lista_dimension = new SDimension(nuevaLista);
+                    lista_dimension.addParametro(size);
+                    return lista_dimension;
+                } else {
+                    ErrorManager.addError("Error: La dimensión del array debe ser un número entero positivo.");
+                    return new SDimension();
+                }
+            }
+            ErrorManager.addError("Error: Las dimensiones del array deben ser enteros.");
+            return new SDimension();
+        } else {
+            List<Integer> lista_dimension = dimensiones.getDimension(); 
+            if (esEntero(sizeStr)) {
+                int size = Integer.parseInt(sizeStr);
+                if (size > 0) {
+                    lista_dimension.add(size);
+                    return new SDimension(lista_dimension);
+                } else {
+                    ErrorManager.addError("Error: La dimensión del array debe ser un número entero positivo.");
+                    return new SDimension();
+                }
+            }
+            ErrorManager.addError("Error: Las dimensiones del array deben ser enteros.");
+            return new SDimension();
+        }
+    }
+
+    /**
+     * Crea la declaración de un array con las dimensiones especificadas y el tipo dado.
+     * 
+     * @param tipo El tipo de los elementos del array.
+     * @param id El identificador del array.
+     * @param dimensiones Lista de dimensiones acumuladas.
+     * @return Una instancia de SDecArray representando la declaración del array, o una instancia vacía si hubo errores.
+     */
+    public static SDecArray crearArrayConDimensiones(SType tipo, String id, SDimension dimensiones, TaulaSimbols taulaSim) {
+        if (dimensiones.isError()) {
+            return new SDecArray();
+        }
+
+        List<Integer> lista_dimension = dimensiones.getDimension();
+        if (lista_dimension.isEmpty()) {
+            ErrorManager.addError("Error: El array '" + id + "' debe tener al menos una dimensión.");
+            return new SDecArray(); // Retorna un objeto vacío en caso de error
+        }
+
+        // Insertar en la tabla de símbolos
+        if (taulaSim.consultar(id) != null) {
+            ErrorManager.addError("Error: Redefinición del array '" + id + "'.");
+            return new SDecArray();
+        }
+        DArray array_nuevo = new DArray(tipo.getTipo(), lista_dimension);
+        taulaSim.posar(id, array_nuevo);
+        taulaSim.imprimirTabla();
+
+        return new SDecArray(tipo.getTipo(), id, new ArrayList<>(lista_dimension));
+    }
+
+    // Método auxiliar para verificar si una cadena representa un entero
+    private static boolean esEntero(String valor) {
+        return !valor.contains("."); // Si contiene un punto, no es entero
+    }
+}

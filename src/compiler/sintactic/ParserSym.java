@@ -8,24 +8,28 @@ package compiler.sintactic;
 /** CUP generated class containing symbol constants. */
 public class ParserSym {
   /* terminals */
-  public static final int OP_ASSIGN = 14;
-  public static final int SEMICOLON = 11;
-  public static final int RPAREN = 18;
-  public static final int RBRACE = 13;
+  public static final int OP_ASSIGN = 17;
+  public static final int SEMICOLON = 12;
+  public static final int RPAREN = 21;
+  public static final int RBRACE = 14;
   public static final int INT = 5;
-  public static final int EQUAL = 15;
-  public static final int TUPLA = 16;
-  public static final int LPAREN = 17;
-  public static final int LBRACE = 12;
+  public static final int EQUAL = 18;
+  public static final int TUPLA = 19;
+  public static final int BOOLEAN_LITERAL = 10;
+  public static final int LPAREN = 20;
+  public static final int LBRACKET = 15;
+  public static final int LBRACE = 13;
   public static final int ID = 2;
+  public static final int RBRACKET = 16;
   public static final int STRING_LITERAL = 4;
   public static final int STRING = 6;
-  public static final int COMMA = 19;
+  public static final int COMMA = 22;
   public static final int FLOAT = 8;
   public static final int EOF = 0;
-  public static final int CONST = 10;
+  public static final int CONST = 11;
   public static final int error = 1;
   public static final int BOOL = 7;
+  public static final int ARRAY = 23;
   public static final int VOID = 9;
   public static final int VALOR = 3;
   public static final String[] terminalNames = new String[] {
@@ -39,16 +43,20 @@ public class ParserSym {
   "BOOL",
   "FLOAT",
   "VOID",
+  "BOOLEAN_LITERAL",
   "CONST",
   "SEMICOLON",
   "LBRACE",
   "RBRACE",
+  "LBRACKET",
+  "RBRACKET",
   "OP_ASSIGN",
   "EQUAL",
   "TUPLA",
   "LPAREN",
   "RPAREN",
-  "COMMA"
+  "COMMA",
+  "ARRAY"
   };
 }
 

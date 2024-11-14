@@ -3,8 +3,6 @@
 
 # Bloque Main
 {
-
+    tupla x = (int 3, string "hola");
     
-    tupla x=(int 4, float 7.0);
-
 }

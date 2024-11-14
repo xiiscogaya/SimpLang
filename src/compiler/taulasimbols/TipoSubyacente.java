@@ -42,11 +42,8 @@ public class TipoSubyacente {
                 return 2; // En Java, el char ocupa 2 bytes (UTF-16)
             case FLOAT:
                 return 4; // Tamaño típico de float en Java
-            case POINTER:
-            case ARRAY:
-                return 8; // Tamaño de referencia en 64 bits
-            case NUL:
-                return 0;
+            case STRING:
+                return -1; // Indica que el tamaño es dinámico o no limitado
             default:
                 throw new IllegalArgumentException("Tipo no reconocido: " + tipoBasico);
         }
@@ -67,10 +64,8 @@ public class TipoSubyacente {
                 return "real";
             case ARRAY:
                 return "array";
-            case POINTER:
-                return "punter";
-            case NUL:
-                return "nul";
+            case STRING:
+                return "string";
             default:
                 return "desconegut";
         }

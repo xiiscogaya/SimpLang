@@ -9,6 +9,9 @@ import compiler.taulasimbols.*;
 
 import java.io.PrintStream;
 import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+
 
 class Parser;
 
@@ -46,13 +49,13 @@ parser code {:
 terminal String ID;
 terminal VALOR;
 terminal String STRING_LITERAL;
-terminal INT, STRING, BOOL, FLOAT, VOID;
+terminal INT, STRING, BOOL, FLOAT, VOID, BOOLEAN_LITERAL;
 terminal CONST, SEMICOLON;
-terminal LBRACE, RBRACE, OP_ASSIGN, EQUAL;
-terminal TUPLA, LPAREN, RPAREN, COMMA;
+terminal LBRACE, RBRACE, LBRACKET, RBRACKET, OP_ASSIGN, EQUAL;
+terminal TUPLA, LPAREN, RPAREN, COMMA, ARRAY;
 
 non terminal Programa, ProgramaList, DecList, Main, Sentencia, DecConstante, Valor, Type;
-non terminal DecVar, Asignacion, DecTupla, ListaParametros;
+non terminal DecVar, Asignacion, DecTupla, ListaParametros, DecArray, ListaDimensiones;
 
 Programa ::= ProgramaList
             ;
@@ -75,6 +78,7 @@ Sentencia ::= DecConstante
             | DecVar
             | Asignacion
             | DecTupla
+            | DecArray
             ;
 
 DecConstante ::= CONST Type:idType ID:id EQUAL Valor:valor SEMICOLON
@@ -97,18 +101,36 @@ DecTupla ::= TUPLA ID:id EQUAL LPAREN ListaParametros:lista RPAREN SEMICOLON
             {: RESULT = SemanticHelper.processTuplaDeclaration(id, (SListaParametros) lista, taulaSim); :}
             ;
 
-ListaParametros ::= ListaParametros COMMA Type:idType Valor:valor
-                        {: RESULT = SemanticHelper.procesarListaParametros((SType) idType, (SValor) valor); :}
+ListaParametros ::= ListaParametros:lista COMMA Type:idType Valor:valor
+                        {: RESULT = SemanticHelper.procesarListaParametros((SListaParametros) lista, (SType) idType, (SValor) valor); :}
                     | Type:idType Valor:valor
-                        {: RESULT = SemanticHelper.procesarListaParametros((SType) idType, (SValor) valor); :}
+                        {: RESULT = SemanticHelper.procesarListaParametros(null, (SType) idType, (SValor) valor); :}
                     ;
+
+DecArray ::= ARRAY Type:idType ID:id ListaDimensiones:lista SEMICOLON
+            {: 
+                RESULT = SemanticHelper.crearArrayConDimensiones((SType) idType, (String) id, (SDimension) lista, taulaSim); 
+            :}
+            ;
+
+ListaDimensiones ::= ListaDimensiones:lista LBRACKET VALOR:size RBRACKET
+                    {: 
+                        // Añadir la dimensión a la lista de dimensiones acumulada en RESULT
+                        RESULT = SemanticHelper.agregarDimension((SDimension) lista, (String) size); 
+                    :}
+                    | LBRACKET VALOR:size RBRACKET
+                    {: 
+                        RESULT = SemanticHelper.agregarDimension(null, (String) size);
+                    :}
+                    ;
+
 
 
 
 Type ::= INT     {: RESULT = new SType(new TipoSubyacente(Tipus.INT)); :}
        | FLOAT   {: RESULT = new SType(new TipoSubyacente(Tipus.FLOAT)); :}
        | BOOL    {: RESULT = new SType(new TipoSubyacente(Tipus.BOOLEAN)); :}
-       | STRING  {: RESULT = new SType(new TipoSubyacente(Tipus.CHAR)); :}
+       | STRING  {: RESULT = new SType(new TipoSubyacente(Tipus.STRING)); :}
        ;
 
 Valor ::= VALOR:v
@@ -121,5 +143,7 @@ Valor ::= VALOR:v
                 }
             :}
         | STRING_LITERAL:v
-          {: RESULT = SemanticHelper.crearValorConComprobacion(new TipoSubyacente(Tipus.CHAR), v); :}
+            {: RESULT = SemanticHelper.crearValorConComprobacion(new TipoSubyacente(Tipus.STRING), v); :}
+        | BOOLEAN_LITERAL:v
+            {: RESULT = SemanticHelper.crearValorConComprobacion(new TipoSubyacente(Tipus.BOOLEAN), v); :}
         ;
