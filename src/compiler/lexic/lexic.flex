@@ -74,6 +74,9 @@ whitespace  = [ \t\n\r]+
 "const"         { return symbol(ParserSym.CONST); }
 "tupla"         { return symbol(ParserSym.TUPLA); }
 "array"         { return symbol(ParserSym.ARRAY); }
+"def"           { return symbol(ParserSym.DEF); }
+"class"         { return symbol(ParserSym.CLASS); }
+"return"        { return symbol(ParserSym.RETURN); }
 "true"|"false"  { return symbol(ParserSym.BOOLEAN_LITERAL); }
 
 "{"             { return symbol(ParserSym.LBRACE); }
@@ -84,6 +87,8 @@ whitespace  = [ \t\n\r]+
 "]"             { return symbol(ParserSym.RBRACKET); }
 "="             { return symbol(ParserSym.EQUAL); }
 "+="|"-="|"*="|"/="     { return symbol(ParserSym.OP_ASSIGN, yytext()); }
+
+"+"|"-"|"*"|"/"         { return symbol(ParserSym.OP_ARITMETICO, yytext()); }
 
 ";"             { return symbol(ParserSym.SEMICOLON); }
 ","             { return symbol(ParserSym.COMMA); }

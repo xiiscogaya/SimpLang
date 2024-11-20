@@ -1,8 +1,11 @@
 
+def void suma(int a) {
+    float hola;
+}
 
 
 # Bloque Main
 {
-    tupla x = (int 3, string "hola");
-    
+    suma(3);
+
 }

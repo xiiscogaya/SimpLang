@@ -66,6 +66,8 @@ public class TipoSubyacente {
                 return "array";
             case STRING:
                 return "string";
+            case VOID:
+                return "void";
             default:
                 return "desconegut";
         }

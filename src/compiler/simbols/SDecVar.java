@@ -3,13 +3,13 @@ package compiler.simbols;
 public class SDecVar extends SBase{
     private SType tipo;
     private String id;
-    private SValor valor;
+    private SExpresion expresion;
 
-    public SDecVar(SType tipo, String id, SValor valor) {
-        super("SDecVar", valor);
+    public SDecVar(SType tipo, String id, SExpresion expresion) {
+        super("SDecVar", null);
         this.tipo = tipo;
         this.id = id;
-        this.valor = valor;
+        this.expresion = expresion;
     }
 
     public SDecVar() {
@@ -24,12 +24,12 @@ public class SDecVar extends SBase{
         return id;
     }
 
-    public SValor getValor() {
-        return valor;
+    public SExpresion getTipoExpresion() {
+        return expresion;
     }
     
     @Override
     public String toString() {
-        return isError ? "Error en declaración de constante" : "Variable " + id + ": " + tipo + " = " + valor;
+        return isError ? "Error en declaración de constante" : "Variable " + id + ": " + tipo + " = tipo de la expresión: " + expresion;
     }
 }

@@ -52,86 +52,111 @@ terminal String STRING_LITERAL;
 terminal INT, STRING, BOOL, FLOAT, VOID, BOOLEAN_LITERAL;
 terminal CONST, SEMICOLON;
 terminal LBRACE, RBRACE, LBRACKET, RBRACKET, OP_ASSIGN, EQUAL;
-terminal TUPLA, LPAREN, RPAREN, COMMA, ARRAY;
+terminal TUPLA, LPAREN, RPAREN, COMMA, ARRAY, DEF, CLASS, RETURN, OP_ARITMETICO;
 
 non terminal Programa, ProgramaList, DecList, Main, Sentencia, DecConstante, Valor, Type;
 non terminal DecVar, Asignacion, DecTupla, ListaParametros, DecArray, ListaDimensiones;
+non terminal DecFun, DecClass, ClassMemberList, ClassMember, Bloque, LlamadaFuncion, ListaArgumentos;
+non terminal Return, Expresion;
 
 Programa ::= ProgramaList
             ;
 
-ProgramaList ::= LBRACE Main RBRACE 
+ProgramaList ::= DecList ProgramaList
+            | LBRACE Main RBRACE 
                 ;
 
-/**
+
 DecList ::= DecFun 
             | DecClass 
             | error RBRACE
             ;
-**/
 
 Main ::= Main Sentencia
         | Sentencia
         ;
 
-Sentencia ::= DecConstante 
-            | DecVar
-            | Asignacion
-            | DecTupla
-            | DecArray
-            ;
-
-DecConstante ::= CONST Type:idType ID:id EQUAL Valor:valor SEMICOLON
-                    {: RESULT = SemanticHelper.processConstantDeclaration((SType) idType, id, (SValor) valor, taulaSim); :}
-                ;
-
-DecVar ::= Type:idType ID:id EQUAL Valor:valor SEMICOLON
-            {: RESULT = SemanticHelper.processVarDeclaration(idType, id, valor, taulaSim); :}
-        | Type:idType ID:id SEMICOLON
-            {: RESULT = SemanticHelper.processVarDeclaration(idType, id, null, taulaSim); :}
-        ;
-
-Asignacion ::= ID:id EQUAL Valor:valor SEMICOLON
-                {: RESULT = SemanticHelper.processAsignacion(id, valor, "=", taulaSim); :}
-            | ID:id OP_ASSIGN:op Valor:valor SEMICOLON
-                {: RESULT = SemanticHelper.processAsignacion(id, valor, (String) op, taulaSim); :}
-            ;
-
-DecTupla ::= TUPLA ID:id EQUAL LPAREN ListaParametros:lista RPAREN SEMICOLON
-            {: RESULT = SemanticHelper.processTuplaDeclaration(id, (SListaParametros) lista, taulaSim); :}
-            ;
-
-ListaParametros ::= ListaParametros:lista COMMA Type:idType Valor:valor
-                        {: RESULT = SemanticHelper.procesarListaParametros((SListaParametros) lista, (SType) idType, (SValor) valor); :}
-                    | Type:idType Valor:valor
-                        {: RESULT = SemanticHelper.procesarListaParametros(null, (SType) idType, (SValor) valor); :}
-                    ;
-
-DecArray ::= ARRAY Type:idType ID:id ListaDimensiones:lista SEMICOLON
+Bloque ::= Bloque:bloque Sentencia:sentencia
             {: 
-                RESULT = SemanticHelper.crearArrayConDimensiones((SType) idType, (String) id, (SDimension) lista, taulaSim); 
+                ((SBloque) bloque).addSentencia((SBase) sentencia);
+                RESULT = bloque;
+            :}
+        | Sentencia:sentencia
+            {:
+                SBloque bloque = new SBloque();
+                bloque.addSentencia((SBase) sentencia);
+                RESULT = bloque;
             :}
             ;
 
-ListaDimensiones ::= ListaDimensiones:lista LBRACKET VALOR:size RBRACKET
-                    {: 
-                        // Añadir la dimensión a la lista de dimensiones acumulada en RESULT
-                        RESULT = SemanticHelper.agregarDimension((SDimension) lista, (String) size); 
-                    :}
-                    | LBRACKET VALOR:size RBRACKET
-                    {: 
-                        RESULT = SemanticHelper.agregarDimension(null, (String) size);
-                    :}
+Sentencia ::= DecConstante:s    {: RESULT = s; :}
+            | DecVar:s          {: RESULT = s; :}
+            | Asignacion:s      {: RESULT = s; :}
+            | LlamadaFuncion:s    {: RESULT = s; :}
+            | Return:s            {: RESULT = s; :}
+            ;
+
+DecConstante ::= CONST Type:idType ID:id EQUAL Valor:valor SEMICOLON
+                    {: RESULT = new SDecConstante((SType) idType, id, (SValor) valor); :}
+                ;
+
+DecVar ::= Type:idType ID:id EQUAL Expresion:e SEMICOLON
+            {: RESULT = new SDecVar((SType) idType, id, (SExpresion) e); :}
+        | Type:idType ID:id SEMICOLON
+            {: RESULT = new SDecVar((SType) idType, id, null); :}
+        ;
+
+Asignacion ::= ID:id EQUAL Expresion:e SEMICOLON
+                {: RESULT = new SAsignacion(id, (SExpresion) e); :}
+            | ID:id OP_ASSIGN:op Expresion:e SEMICOLON
+                {: RESULT = new SAsignacion(id, (SExpresion) e); :}
+            ;
+
+ListaParametros ::= ListaParametros:lista COMMA Type:idType ID:id
+                        {: RESULT = SemanticHelper.procesarListaParametros((SListaParametros) lista, (SType) idType, id, taulaSim); :}
+                    | Type:idType ID:id
+                        {: RESULT = SemanticHelper.procesarListaParametros(null, (SType) idType, id, taulaSim); :}
                     ;
 
+DecFun ::= DEF Type:idType ID:id LPAREN ListaParametros:params RPAREN LBRACE Bloque:bloque RBRACE
+            {: SemanticHelper.procesarDecFuncion((SType) idType, id, (SListaParametros) params, (SBloque) bloque, taulaSim); :}
+            ;
 
+LlamadaFuncion ::= ID:id LPAREN ListaArgumentos:lista RPAREN SEMICOLON
+                {: 
+                    TipoSubyacente tipoRetorno = SemanticHelper.obtenerTipoFuncion(id, taulaSim);
+                    RESULT = new SLlamadaFuncion(id, (SListaArgumentos) lista, tipoRetorno); 
+                :}
+                ;
 
+ListaArgumentos ::= ListaArgumentos:lista COMMA Valor:valor
+                    {: RESULT = SemanticHelper.procesarListaArgumentos((SListaArgumentos) lista, (SValor) valor, taulaSim); :}
+                | Valor:valor
+                    {: RESULT = SemanticHelper.procesarListaArgumentos(null, (SValor) valor, taulaSim); :}
+                ;
+
+Return ::= RETURN Valor:valor SEMICOLON
+            {: RESULT = new SReturn((SValor) valor); :}
+        | RETURN SEMICOLON
+            {: RESULT = new SReturn(); :}
+        ;
 
 Type ::= INT     {: RESULT = new SType(new TipoSubyacente(Tipus.INT)); :}
        | FLOAT   {: RESULT = new SType(new TipoSubyacente(Tipus.FLOAT)); :}
        | BOOL    {: RESULT = new SType(new TipoSubyacente(Tipus.BOOLEAN)); :}
        | STRING  {: RESULT = new SType(new TipoSubyacente(Tipus.STRING)); :}
+       | VOID    {: RESULT = new SType(new TipoSubyacente(Tipus.VOID)); :}
        ;
+
+Expresion ::= Expresion:e1 OP_ARITMETICO:op Expresion:e2
+                {: RESULT = SemanticHelper.procesarExpresion((SExpresion) e1, (String) op, (SExpresion) e2, taulaSim); :}
+            | LlamadaFuncion:func
+                {: RESULT = new SExpresion(((SLlamadaFuncion) func).getTipoRetorno()):}
+            | LPAREN Expresion:e RPAREN
+                {: RESULT = e; :}
+            | Valor:v
+                {: RESULT = new SExpresion(((SValor) v).getTipo()):}
+            ;
 
 Valor ::= VALOR:v
             {: 
@@ -146,4 +171,7 @@ Valor ::= VALOR:v
             {: RESULT = SemanticHelper.crearValorConComprobacion(new TipoSubyacente(Tipus.STRING), v); :}
         | BOOLEAN_LITERAL:v
             {: RESULT = SemanticHelper.crearValorConComprobacion(new TipoSubyacente(Tipus.BOOLEAN), v); :}
+        | ID:id
+            {: RESULT = SemanticHelper.crearValorConComprobacion(null, id); :}
         ;
+

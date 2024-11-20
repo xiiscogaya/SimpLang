@@ -1,6 +1,5 @@
 package compiler.taulasimbols;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class DArray extends Descripcio {

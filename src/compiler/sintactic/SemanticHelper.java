@@ -12,294 +12,108 @@ import compiler.simbols.*;
 public class SemanticHelper {
 
     
-    public static SDecConstante processConstantDeclaration(SType idType, String id, SValor valor, TaulaSimbols taulaSim) {
+    public static void processConstantDeclaration(SType idType, String id, SValor valor, TaulaSimbols taulaSim) {
         // Comprobar si en la producción anterior se ha producido un error
         // Solo puede venir un fallo de la producción Valor, no de la Type
         if (valor.isError()) {
-            return new SDecConstante();
+            return;
         }
 
-        String idConstante = (String) id;
         // Verificar si el ID ya está definido en el ámbito actual
-        if (taulaSim.consultar(idConstante) != null) {
-            ErrorManager.addError("Error: Redefinición de constante '" + idConstante + "'");
-            return new SDecConstante();
+        if (taulaSim.consultar(id) != null) {
+            ErrorManager.addError("Error: Redefinición de constante '" + id + "'");
+            return;
         }
 
         // Verificar que el tipo de valor coincida con el tipo de la constante
         if (!valor.getTipo().equals(idType.getTipo())) {
-            ErrorManager.addError("Error: Tipo incompatible en constante '" + idConstante + "'");
-            return new SDecConstante();  // Retorna null para indicar que hubo un error
+            ErrorManager.addError("Error: Tipo incompatible en constante '" + id + "'");
+            return;  // Retorna null para indicar que hubo un error
         }
         // Crear la descripción de la constante usando DConst
         DConst descripcionConstante = new DConst(valor.getValor(), idType.getTipo());
-        taulaSim.posar(idConstante, descripcionConstante);
+        taulaSim.posar(id, descripcionConstante);
         taulaSim.imprimirTabla();
-        return new SDecConstante(idType, idConstante, valor);
         
     }
 
 
     // Procesamiento de una declaración de variable
-    public static SDecVar processVarDeclaration(Object idType, String id, Object valor, TaulaSimbols taulaSim) {
-        SType tipoVar = (SType) idType;
-        String idVar = (String) id;
-        
-        // Comprobamos que es una declaración de variable con valor
-        if (valor != null ) {
-            SValor valorVar = (SValor) valor;
-            // Comprobamos si en la producción Valor se produce un error
-            if (!valorVar.isError()){
-                // Verificar que el tipo de valor coincida con el tipo de la variable
-                if (!valorVar.getTipo().equals(tipoVar.getTipo())) {
-                    ErrorManager.addError("Error: Tipo incompatible en variable '" + idVar + "'");
-                    return new SDecVar(); // Devuelve una variable en estado de error
-                }
-                // Crear la descripción de la variable usando DVar
-                DVar descripcionConstante = new DVar(valorVar.getValor(), tipoVar.getTipo());
-                taulaSim.posar(idVar, descripcionConstante);
-                taulaSim.imprimirTabla();
-                return new SDecVar(tipoVar, idVar, valorVar);
-            } else {
-                return new SDecVar();
+    public static void processVarDeclaration(SType idType, String id, SExpresion expresion, TaulaSimbols taulaSim) {
+        // Verificar si el ID ya está definido en el ámbito actual
+        if (taulaSim.consultar(id) != null) {
+            ErrorManager.addError("Error: Redefinición de la variable '" + id + "'");
+            return;
+        }
+    
+        // Si se asigna un valor inicial, verificar su tipo
+        if (expresion != null) {
+            if (expresion.isError()) {
+                return;
+            }
+    
+            if (!expresion.getTipo().equals(idType.getTipo())) {
+                ErrorManager.addError("Error: Tipo incompatible en variable '" + id + "'");
+                return;
             }
         }
-
-        // Si valor = null
-        DVar descripcionConstante = new DVar(null, tipoVar.getTipo());
-        taulaSim.posar(idVar, descripcionConstante);
+    
+        // Si no hay errores, la variable ya está creada, simplemente valida y registra su descripción
+        DVar descripcionVariable = new DVar(expresion != null ? expresion.getTipo() : null, idType.getTipo());
+        taulaSim.posar(id, descripcionVariable);
         taulaSim.imprimirTabla();
-        return new SDecVar(tipoVar, idVar, null); 
     }
+    
 
     // Procesamiento de una asignación
-    public static SAsignacion processAsignacion(String id, Object valor, String operador, TaulaSimbols taulaSim) {
-        SValor valorA = (SValor) valor;
-        // Comprobamos si la producción Valor tiene algun error
-        if (!valorA.isError()) {
-            SValor nuevoValor = (SValor) valor;
-            Descripcio desc = taulaSim.consultar(id);
-
-            // Verificar si la variable está definida en la tabla de símbolos
-            if (desc == null) {
-                ErrorManager.addError("Error: La variable '" + id + "' no está declarada.");
-                return new SAsignacion(); // Retorna un objeto vacío si hay error
-            }
-
-            // Verificar que la descripción sea de tipo variable
-            if (!(desc instanceof DVar)) {
-                ErrorManager.addError("Error: '" + id + "' no es una variable y no se le puede asignar un valor.");
-                return new SAsignacion();
-            }
-
-            DVar variable = (DVar) desc;
-            TipoSubyacente tipoVariable = variable.getTipoSubyacente();
-            TipoSubyacente tipoValor = nuevoValor.getTipo();
-
-            // Verificar la compatibilidad de tipo entre la variable y el nuevo valor
-            if (!tipoVariable.equals(tipoValor)) {
-                ErrorManager.addError("Error: Tipo incompatible en la asignación a '" + id + "'.");
-                return new SAsignacion();
-            }
-
-            Object valorActual = variable.getValor();
-
-            // Procesar según el operador
-            try {
-                switch (operador) {
-                    case "=":
-                        // Asignación simple
-                        variable.setValor(nuevoValor.getValor());
-                        break;
-
-                    case "+=":
-                    case "-=":
-                    case "*=":
-                    case "/=":
-                        // Asignación compuesta (+=, -=, *=, /=)
-                        if (!tipoVariable.esCompatibleConOperacionCompuesta()) {
-                            ErrorManager.addError("Error: Operación '" + operador + "' no es compatible con el tipo de la variable '" + id + "'.");
-                            return new SAsignacion();
-                        }
-
-                        // Ejecutar la operación compuesta y asignar el resultado
-                        Object resultado = ejecutarOperacionCompuesta(valorActual, nuevoValor.getValor(), tipoVariable, operador);
-                        if (resultado == null) {
-                            // Error durante la operación compuesta (como división por cero)
-                            return new SAsignacion();
-                        }
-                        variable.setValor(resultado);
-                        break;
-
-                    default:
-                        ErrorManager.addError("Error: Operador '" + operador + "' no soportado en la asignación a '" + id + "'.");
-                        return new SAsignacion();
-                }
-            } catch (ArithmeticException e) {
-                // Capturar división por cero u otros errores aritméticos
-                ErrorManager.addError("Error: " + e.getMessage() + " en operación '" + operador + "' para la variable '" + id + "'.");
-                return new SAsignacion();
-            }
-            taulaSim.imprimirTabla();
-            return new SAsignacion(id, nuevoValor);
-        } else {
-            return new SAsignacion();
+    public static void processAsignacion(String id, SExpresion expresion, TaulaSimbols taulaSim) {
+        // Verificar si el valor tiene errores
+        if (expresion.isError()) {
+            return;
+        }
+    
+        // Consultar la variable en la tabla de símbolos
+        Descripcio desc = taulaSim.consultar(id);
+    
+        // Verificar si la variable está declarada
+        if (desc == null) {
+            ErrorManager.addError("Error: La variable '" + id + "' no está declarada.");
+            return;
+        }
+    
+        // Verificar que sea una variable y no otro tipo de símbolo
+        if (!(desc instanceof DVar)) {
+            ErrorManager.addError("Error: '" + id + "' no es una variable.");
+            return;
+        }
+    
+        // Verificar compatibilidad de tipo
+        DVar variable = (DVar) desc;
+        if (!variable.getTipoSubyacente().equals(expresion.getTipo())) {
+            ErrorManager.addError("Error: Tipo incompatible en asignación a '" + id + "'.");
+            return;
         }
     }
 
-    // Método auxiliar para ejecutar la operación compuesta
-    private static Object ejecutarOperacionCompuesta(Object valorActual, Object nuevoValor, TipoSubyacente tipoVariable, String operador) {
-        // Convertir valores explícitamente según el tipo subyacente
-        if (tipoVariable.esNumerico()) {
-            if (tipoVariable.equals(new TipoSubyacente(Tipus.INT))) {
-                int actual = convertirAEntero(valorActual);
-                int nuevo = convertirAEntero(nuevoValor);
-                switch (operador) {
-                    case "+=": return actual + nuevo;
-                    case "-=": return actual - nuevo;
-                    case "*=": return actual * nuevo;
-                    case "/=":
-                        if (nuevo == 0) {
-                            ErrorManager.addError("Error: División entre cero en operación '/='.");
-                            return null;
-                        }
-                        return actual / nuevo;
-                }
-            } else if (tipoVariable.equals(new TipoSubyacente(Tipus.FLOAT))) {
-                float actual = convertirAFlotante(valorActual);
-                float nuevo = convertirAFlotante(nuevoValor);
-                switch (operador) {
-                    case "+=": return actual + nuevo;
-                    case "-=": return actual - nuevo;
-                    case "*=": return actual * nuevo;
-                    case "/=":
-                        if (nuevo == 0.0f) {
-                            ErrorManager.addError("Error: División entre cero en operación '/='.");
-                            return null;
-                        }
-                        return actual / nuevo;
-                }
-            }
-        }
-
-        ErrorManager.addError("Error: Tipos incompatibles para la operación '" + operador + "'.");
-        return null;
-    }
-
-    // Métodos auxiliares de conversión
-    private static int convertirAEntero(Object valor) {
-        if (valor instanceof Integer) {
-            return (Integer) valor;
-        } else if (valor instanceof String) {
-            try {
-                return Integer.parseInt((String) valor);
-            } catch (NumberFormatException e) {
-                ErrorManager.addError("Error: No se puede convertir el valor a entero.");
-                return 0; // Valor por defecto en caso de error
-            }
-        } else {
-            ErrorManager.addError("Error: Tipo no compatible para entero: " + valor.getClass().getName());
-            return 0; // Valor por defecto en caso de tipo no compatible
-        }
-    }
-
-    private static float convertirAFlotante(Object valor) {
-        if (valor instanceof Float) {
-            return (Float) valor;
-        } else if (valor instanceof String) {
-            try {
-                return Float.parseFloat((String) valor);
-            } catch (NumberFormatException e) {
-                ErrorManager.addError("Error: No se puede convertir el valor a flotante.");
-                return 0.0f; // Valor por defecto en caso de error
-            }
-        } else if (valor instanceof Integer) {
-            return ((Integer) valor).floatValue();
-        } else {
-            ErrorManager.addError("Error: Tipo no compatible para entero: " + valor.getClass().getName());
-            return 0.0f; // Valor por defecto en caso de tipo no compatible
-        }
-    }
-
-    /**
-     * Procesa un tipo y un valor, realizando las comprobaciones necesarias.
-     * Si el tipo y valor son compatibles, se añaden a la lista acumulada `SListaParametros`.
-     * Si hay algún error, se devuelve una instancia vacía de `SListaParametros`.
-     *
-     * @param tipo El tipo de parámetro.
-     * @param valor El valor correspondiente al parámetro.
-     * @return Una instancia de `SListaParametros` acumulada si no hay errores, o una vacía si hubo error.
-     */
-    public static SListaParametros procesarListaParametros(SListaParametros listaParametros, SType tipo, SValor valor) {
-        // Si hay error en una producción anterior
-        if (valor.isError()) {
-            return new SListaParametros();
-        }
-        if (listaParametros==null) {
-            // Comprobar la compatibilidad de tipo
-            if (!tipo.getTipo().equals(valor.getTipo())) {
-                ErrorManager.addError("Error: Tipo incompatible para el valor proporcionado.");
-                return new SListaParametros();
-            }
-
-            // Si no hay error, añadir el tipo y el valor a `listaParametros`
-            List<TipoSubyacente> lista_tipo = new ArrayList<>();
-            List<SValor> lista_valor = new ArrayList<>();
-            SListaParametros listaParametrosNew = new SListaParametros(lista_tipo, lista_valor);
-            listaParametrosNew.addParametro(tipo, valor);
-            
-            return listaParametrosNew;
-        }
+    public static SListaParametros procesarListaParametros(SListaParametros listaParametros, SType tipo, String id, TaulaSimbols taulaSim) {
         
-        // Comprobar si ya hubo un error en una llamada anterior a `procesarListaParametros`
-        if (listaParametros.isError()) {
-            return listaParametros; // Devuelve la instancia de error acumulada
+        if (listaParametros == null) {
+            listaParametros = new SListaParametros();
         }
-
-        // Comprobar la compatibilidad de tipo
-        if (!tipo.getTipo().equals(valor.getTipo())) {
-            ErrorManager.addError("Error: Tipo incompatible para el valor proporcionado.");
-            listaParametros = new SListaParametros(); // Reinicia `listaParametros` como instancia vacía con error
+    
+        // Verificar si el identificador ya existe en el ámbito actual
+        if (taulaSim.consultar(id) != null) {
+            ErrorManager.addError("Error: Redefinición del parámetro '" + id + "'.");
+            listaParametros.setError(true);
             return listaParametros;
         }
-
-        // Si no hay error, añadir el tipo y el valor a `listaParametros`
-        listaParametros.addParametro(tipo, valor);
-        
+    
+        // Añadir el tipo y el nombre del parámetro a la lista
+        listaParametros.addParametro(tipo.getTipo(), id);
         return listaParametros;
     }
-
-    public static SDecTupla processTuplaDeclaration(String id, SListaParametros listaParametros, TaulaSimbols taulaSim) {
-        // Comprobar si hubo un error en `listaParametros`
-        if (listaParametros.isError()) {
-            return new SDecTupla(); // Devuelve una instancia vacía con error
-        }
-        
-        // Verificar si ya existe una declaración con el mismo id
-        if (taulaSim.consultar(id) != null) {
-            ErrorManager.addError("Error: Redefinición de la tupla '" + id + "'.");
-            return new SDecTupla(); // Devuelve una instancia vacía con error
-        }
     
-        // Crear una lista de tipos y valores para la tupla
-        List<TipoSubyacente> tipos = listaParametros.getTipos();
-        List<Object> valores = new ArrayList<>();
-    
-        for (SValor valor : listaParametros.getValores()) {
-            valores.add(valor.getValor());
-        }
-    
-        // Crear la descripción de la tupla y agregarla a la tabla de símbolos
-        DTupla descripcioTupla = new DTupla(tipos, valores);
-        taulaSim.posar(id, descripcioTupla);
-        taulaSim.imprimirTabla();
-    
-        // Retornar una instancia de `SDecTupla` para construir el árbol sintáctico
-        return new SDecTupla(id, listaParametros);
-    }
-    
-    
-    /**
+        /**
      * Crea un SValor si el valor cumple con las restricciones de tipo y tamaño.
      * En caso contrario, devuelve un SValor vacío (con error).
      *
@@ -308,7 +122,7 @@ public class SemanticHelper {
      * @return Una instancia de SValor válida o una instancia vacía con error.
      */
     public static SValor crearValorConComprobacion(TipoSubyacente tipo, Object valor) {
-        if (valor instanceof String) {
+        if (valor instanceof String && tipo != null) {
             String valorStr = (String) valor;
             
             switch (tipo.getTipoBasico()) {
@@ -353,6 +167,8 @@ public class SemanticHelper {
                     return new SValor(); // Devuelve un SValor vacío con error
             }
             
+        } else if (tipo == null) {
+            return new SValor(valor.toString());
         } else if (esValorValido(valor, tipo)) {
             return new SValor(tipo, valor);
         }
@@ -360,10 +176,9 @@ public class SemanticHelper {
         ErrorManager.addError("Error: Valor fuera de rango para el tipo " + tipo);
         return new SValor(); // Devuelve un SValor vacío con error
     }
-
-        
     
-    /**
+
+        /**
      * Verifica si el valor proporcionado está dentro del rango permitido para su tipo.
      *
      * @param valor El valor a verificar.
@@ -417,79 +232,222 @@ public class SemanticHelper {
         return false;
     }
 
-    /**
-     * Agrega una dimensión a la lista especificada de dimensiones.
-     * Realiza una comprobación para asegurarse de que es un entero positivo.
-     * 
-     * @param dimensiones Lista de dimensiones a la que se va a agregar el valor.
-     * @param sizeStr La dimensión como String.
-     */
-    public static SDimension agregarDimension(SDimension dimensiones, String sizeStr) {
-        if (dimensiones == null) {
-            if (esEntero(sizeStr)) {
-                int size = Integer.parseInt(sizeStr);
-                if (size > 0) {
-                    List<Integer> nuevaLista = new ArrayList<>();
-                    SDimension lista_dimension = new SDimension(nuevaLista);
-                    lista_dimension.addParametro(size);
-                    return lista_dimension;
-                } else {
-                    ErrorManager.addError("Error: La dimensión del array debe ser un número entero positivo.");
-                    return new SDimension();
-                }
+    public static void procesarReturn(SReturn retorno, TaulaSimbols taulaSim) {
+        // Verificar si estamos dentro de una función
+        String funcionActual = taulaSim.obtenerFuncionActual();
+        if (funcionActual == null) {
+            ErrorManager.addError("Error: 'return' sólo puede utilizarse dentro de una función.");
+            return;
+        }
+    
+        // Consultar la función actual
+        Descripcio desc = taulaSim.consultar(funcionActual);
+        if (!(desc instanceof DFuncion)) {
+            ErrorManager.addError("Error interno: La función actual no está registrada correctamente.");
+            return;
+        }
+    
+        DFuncion funcion = (DFuncion) desc;
+    
+        // Verificar el tipo de retorno de la función
+        TipoSubyacente tipoRetornoEsperado = funcion.getTipoRetorno();
+    
+        // Caso `return;` (sin valor)
+        if (retorno.getValor() == null) {
+            if (!tipoRetornoEsperado.equals(new TipoSubyacente(Tipus.VOID))) {
+                ErrorManager.addError("Error: La función '" + funcionActual + "' debe retornar un valor de tipo '" + tipoRetornoEsperado + "'.");
             }
-            ErrorManager.addError("Error: Las dimensiones del array deben ser enteros.");
-            return new SDimension();
+            return;
+        }
+    
+        // Caso `return valor;`
+        SValor valorRetorno = retorno.getValor();
+        if (valorRetorno.getID() != null) {
+            // Si el valor es un identificador, verificar su existencia y tipo
+            Descripcio varDesc = taulaSim.consultar(valorRetorno.getID());
+            if (varDesc == null) {
+                ErrorManager.addError("Error: La variable '" + valorRetorno.getID() + "' no está declarada.");
+                return;
+            }
+    
+            if (!(varDesc instanceof DVar)) {
+                ErrorManager.addError("Error: '" + valorRetorno.getID() + "' no es una variable válida para retornar.");
+                return;
+            }
+    
+            DVar variable = (DVar) varDesc;
+    
+            // Verificar el tipo de la variable
+            if (!tipoRetornoEsperado.equals(variable.getTipoSubyacente())) {
+                ErrorManager.addError("Error: El tipo de la variable '" + valorRetorno.getID() + "' no coincide con el tipo de retorno esperado ('" + tipoRetornoEsperado + "').");
+            }
         } else {
-            List<Integer> lista_dimension = dimensiones.getDimension(); 
-            if (esEntero(sizeStr)) {
-                int size = Integer.parseInt(sizeStr);
-                if (size > 0) {
-                    lista_dimension.add(size);
-                    return new SDimension(lista_dimension);
+            // Si el valor es una constante o literal, verificar el tipo directamente
+            if (!tipoRetornoEsperado.equals(valorRetorno.getTipo())) {
+                ErrorManager.addError("Error: El tipo del valor retornado ('" + valorRetorno.getTipo() + "') no coincide con el tipo de retorno declarado ('" + tipoRetornoEsperado + "').");
+            }
+        }
+    }
+    
+
+
+    public static void procesarDecFuncion(SType tipoRetorno, String id, SListaParametros parametros, SBloque cuerpo, TaulaSimbols taulaSim) {
+        // Verificar si la función ya está declarada en el ámbito global
+        if (taulaSim.consultar(id) != null) {
+            ErrorManager.addError("Error: Redefinición de la función '" + id + "'.");
+            return;
+        }
+    
+        // Registrar la función en la tabla de descripciones
+        DFuncion descripcionFuncion = new DFuncion(
+            tipoRetorno.getTipo(),
+            parametros != null ? parametros.getTipos() : new ArrayList<>(),
+            parametros != null ? parametros.getNombres() : new ArrayList<>()
+        );
+        taulaSim.posar(id, descripcionFuncion);
+
+        taulaSim.entrarFuncion(id);
+    
+        // Crear un nuevo ámbito para la función
+        taulaSim.nuevoNivelAmbito();
+    
+        // Registrar los parámetros en el nuevo ámbito
+        if (parametros != null) {
+            for (int i = 0; i < parametros.getTipos().size(); i++) {
+                TipoSubyacente tipoParametro = parametros.getTipos().get(i);
+                String nombreParametro = parametros.getNombres().get(i);
+    
+                // Verificar si el nombre del parámetro ya existe en el ámbito actual
+                if (taulaSim.consultar(nombreParametro) != null) {
+                    ErrorManager.addError("Error: Redefinición del parámetro '" + nombreParametro + "' en la función '" + id + "'.");
+                    continue;
+                }
+    
+                // Registrar el parámetro como una variable
+                DVar parametro = new DVar(null, tipoParametro);
+                taulaSim.posar(nombreParametro, parametro);
+            }
+        }
+
+        // Variable para indicar si una funcion tiene return
+        boolean tieneReturnValido = false;
+    
+        // Procesar el bloque de la función
+        if (cuerpo != null) {
+            for (SBase sentencia : cuerpo.getSentencias()) {
+                if (sentencia instanceof SDecConstante) {
+                    SDecConstante decConst = (SDecConstante) sentencia;
+                    processConstantDeclaration(decConst.getTipo(), decConst.getId(), decConst.getValor(), taulaSim);
+                } else if (sentencia instanceof SDecVar) {
+                    SDecVar decVar = (SDecVar) sentencia;
+                    processVarDeclaration(decVar.getTipo(), decVar.getId(), decVar.getTipoExpresion(), taulaSim);
+                } else if (sentencia instanceof SAsignacion) {
+                    SAsignacion asignacion = (SAsignacion) sentencia;
+                    processAsignacion(asignacion.getId(), asignacion.getTipoExpresion(), taulaSim);
+                } else if (sentencia instanceof SReturn) {
+                    SReturn retorno = (SReturn) sentencia;
+                    procesarReturn(retorno, taulaSim);
+                    tieneReturnValido = true;
+                } else if (sentencia instanceof SLlamadaFuncion) {
+                    SLlamadaFuncion llamadaFuncion = (SLlamadaFuncion) sentencia;
+                    procesarLlamadaFuncion(llamadaFuncion.getIdFuncion(), llamadaFuncion.getArgumentos(), taulaSim);
                 } else {
-                    ErrorManager.addError("Error: La dimensión del array debe ser un número entero positivo.");
-                    return new SDimension();
+                    ErrorManager.addError("Error: Sentencia no reconocida dentro del cuerpo de la función '" + id + "'.");
                 }
             }
-            ErrorManager.addError("Error: Las dimensiones del array deben ser enteros.");
-            return new SDimension();
         }
+
+        // Verificar que la función tiene un return válido si no es de tipo void
+        if (!tipoRetorno.getTipo().equals(new TipoSubyacente(Tipus.VOID)) && !tieneReturnValido) {
+            ErrorManager.addError("Error: La función '" + id + "' debe retornar un valor de tipo '" + tipoRetorno.getTipo() + "'.");
+        }
+    
+        // Eliminar el ámbito de la función
+        taulaSim.eliminarNivelAmbito();
+
+        taulaSim.salirFuncion();
     }
 
-    /**
-     * Crea la declaración de un array con las dimensiones especificadas y el tipo dado.
-     * 
-     * @param tipo El tipo de los elementos del array.
-     * @param id El identificador del array.
-     * @param dimensiones Lista de dimensiones acumuladas.
-     * @return Una instancia de SDecArray representando la declaración del array, o una instancia vacía si hubo errores.
-     */
-    public static SDecArray crearArrayConDimensiones(SType tipo, String id, SDimension dimensiones, TaulaSimbols taulaSim) {
-        if (dimensiones.isError()) {
-            return new SDecArray();
+    public static SListaArgumentos procesarListaArgumentos(SListaArgumentos lista, SValor valor, TaulaSimbols taulaSim) {
+        if (lista == null) {
+            lista = new SListaArgumentos();
         }
-
-        List<Integer> lista_dimension = dimensiones.getDimension();
-        if (lista_dimension.isEmpty()) {
-            ErrorManager.addError("Error: El array '" + id + "' debe tener al menos una dimensión.");
-            return new SDecArray(); // Retorna un objeto vacío en caso de error
+    
+        // Verificar si el identificador ya existe en el ámbito actual
+        if (taulaSim.consultar(valor.getID()) != null) {
+            ErrorManager.addError("Error: Redefinición del parámetro '" + valor.getID() + "'.");
+            lista.setError(true);
+            return lista;
         }
-
-        // Insertar en la tabla de símbolos
-        if (taulaSim.consultar(id) != null) {
-            ErrorManager.addError("Error: Redefinición del array '" + id + "'.");
-            return new SDecArray();
-        }
-        DArray array_nuevo = new DArray(tipo.getTipo(), lista_dimension);
-        taulaSim.posar(id, array_nuevo);
-        taulaSim.imprimirTabla();
-
-        return new SDecArray(tipo.getTipo(), id, new ArrayList<>(lista_dimension));
+    
+        // Añadir el tipo y el nombre del parámetro a la lista
+        lista.addArgumento(valor);
+        return lista;
     }
 
-    // Método auxiliar para verificar si una cadena representa un entero
-    private static boolean esEntero(String valor) {
-        return !valor.contains("."); // Si contiene un punto, no es entero
+    public static void procesarLlamadaFuncion(String id, SListaArgumentos lista, TaulaSimbols taulaSim) {
+        // Consultar la función en la tabla de símbolos
+        Descripcio desc = taulaSim.consultar(id);
+    
+        // Verificar que la función existe y es una descripción de función
+        if (desc == null || !(desc instanceof DFuncion)) {
+            ErrorManager.addError("Error: La función '" + id + "' no está declarada.");
+            return;
+        }
+    
+        DFuncion funcion = (DFuncion) desc;
+    
+        // Verificar número de argumentos
+        if (funcion.getListaTipos().size() != lista.getArgumentos().size()) {
+            ErrorManager.addError(
+                "Error: La función '" + id + "' espera " 
+                + funcion.getListaTipos().size() 
+                + " argumentos, pero se pasaron " 
+                + lista.getArgumentos().size() + "."
+            );
+            return;
+        }
+    
+        // Verificar tipos de argumentos
+        for (int i = 0; i < lista.getArgumentos().size(); i++) {
+            TipoSubyacente tipoEsperado = funcion.getListaTipos().get(i);
+            SValor argumento = lista.getArgumentos().get(i);
+    
+            // Verificar compatibilidad de tipos
+            if (!tipoEsperado.equals(argumento.getTipo())) {
+                ErrorManager.addError(
+                    "Error: Argumento " + (i + 1) 
+                    + " de la función '" + id + "' tiene un tipo incompatible. "
+                    + "Se esperaba '" + tipoEsperado + "', pero se recibió '" + argumento.getTipo() + "'."
+                );
+                return;
+            }
+        }
+    
+        // Todo está correcto: la llamada a la función es válida
+        System.out.println("Llamada a la función '" + id + "' válida con argumentos: " + lista);
     }
-}
+
+    public static TipoSubyacente obtenerTipoFuncion(String idFuncion, TaulaSimbols taulaSim) {
+        // Consultar la función en la tabla de símbolos
+        Descripcio desc = taulaSim.consultar(idFuncion);
+    
+        // Verificar que la función existe y es una descripción de función
+        if (desc == null) {
+            ErrorManager.addError("Error: La función '" + idFuncion + "' no está declarada.");
+            return null; // Retorna null si no existe
+        }
+    
+        if (!(desc instanceof DFuncion)) {
+            ErrorManager.addError("Error: '" + idFuncion + "' no es una función.");
+            return null; // Retorna null si no es una función
+        }
+    
+        // Retornar el tipo de retorno de la función
+        DFuncion funcion = (DFuncion) desc;
+        return funcion.getTipoRetorno();
+    }
+    
+
+
+}    

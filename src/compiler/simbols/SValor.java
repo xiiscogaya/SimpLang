@@ -6,6 +6,7 @@ public class SValor extends SBase {
 
     private TipoSubyacente tipo;
     private Object valor;
+    private String id;
 
     /**
      * Constructor para crear un SValor con un tipo y un valor específico.
@@ -19,6 +20,11 @@ public class SValor extends SBase {
         super("SValor", valor); // Llama al constructor de SBase con nombre y valor.
         this.tipo = tipo;
         this.valor = valor;
+    }
+
+    public SValor(String id) {
+        super("Svalor", id);
+        this.id = id;
     }
 
     /**
@@ -35,6 +41,10 @@ public class SValor extends SBase {
 
     public Object getValor() {
         return valor;
+    }
+
+    public String getID() {
+        return id;
     }
 
     @Override

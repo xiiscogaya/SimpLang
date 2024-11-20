@@ -2,12 +2,12 @@ package compiler.simbols;
 
 public class SAsignacion extends SBase{
     private String id;
-    private SValor valor;
+    private SExpresion expresion;
 
-    public SAsignacion(String id, SValor valor) {
-        super("SAsignacion", valor);
+    public SAsignacion(String id, SExpresion expresion) {
+        super("SAsignacion", null);
         this.id = id;
-        this.valor = valor;
+        this.expresion = expresion;
     }
 
     public SAsignacion() {
@@ -18,12 +18,12 @@ public class SAsignacion extends SBase{
         return id;
     }
 
-    public SValor getValor() {
-        return valor;
+    public SExpresion getTipoExpresion() {
+        return expresion;
     }
 
     @Override
     public String toString() {
-        return "Variable " + id  + " = " + valor;
+        return "Variable " + id  + " = tipo de la expresión: " + expresion;
     }
 }

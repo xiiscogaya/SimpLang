@@ -9,6 +9,7 @@ package compiler.sintactic;
 public class ParserSym {
   /* terminals */
   public static final int OP_ASSIGN = 17;
+  public static final int CLASS = 25;
   public static final int SEMICOLON = 12;
   public static final int RPAREN = 21;
   public static final int RBRACE = 14;
@@ -16,6 +17,7 @@ public class ParserSym {
   public static final int EQUAL = 18;
   public static final int TUPLA = 19;
   public static final int BOOLEAN_LITERAL = 10;
+  public static final int RETURN = 26;
   public static final int LPAREN = 20;
   public static final int LBRACKET = 15;
   public static final int LBRACE = 13;
@@ -26,6 +28,7 @@ public class ParserSym {
   public static final int COMMA = 22;
   public static final int FLOAT = 8;
   public static final int EOF = 0;
+  public static final int DEF = 24;
   public static final int CONST = 11;
   public static final int error = 1;
   public static final int BOOL = 7;
@@ -56,7 +59,10 @@ public class ParserSym {
   "LPAREN",
   "RPAREN",
   "COMMA",
-  "ARRAY"
+  "ARRAY",
+  "DEF",
+  "CLASS",
+  "RETURN"
   };
 }
 
