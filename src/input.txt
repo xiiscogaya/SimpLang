@@ -1,11 +1,10 @@
 
-def void suma(int a) {
-    float hola;
+def bool suma(bool a, bool b) {
+    int sumat = 8;
+    return a && b;
 }
-
 
 # Bloque Main
 {
-    suma(3);
-
+    array int he[4][6];
 }

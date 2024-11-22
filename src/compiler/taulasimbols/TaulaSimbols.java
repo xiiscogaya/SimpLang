@@ -1,8 +1,6 @@
 package compiler.taulasimbols;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
@@ -11,14 +9,12 @@ import compiler.sintactic.ErrorManager;
 public class TaulaSimbols {
     private int n = 1; // Nivel de ámbito actual
     private final Stack<Integer> ta; // Tabla de ámbitos
-    private final List<EntradaExp> te; // Tabla de expansión
     private final Map<String, EntradaDesc> td; // Tabla de descripciones
     private final Stack<String> funcionActual; // Pila para registrar la función actual
 
     public TaulaSimbols() {
         this.ta = new Stack<>();
         this.ta.push(0); // Inicializa el primer nivel en ta
-        this.te = new ArrayList<>();
         this.td = new HashMap<>();
         this.funcionActual = new Stack<>();
     }
@@ -27,27 +23,10 @@ public class TaulaSimbols {
     private static class EntradaDesc {
         Descripcio descripcio;
         int np; // Nivel de ámbito de la declaración
-        int first; // Apuntador al primer campo en te para estructuras
 
         EntradaDesc(Descripcio descripcio, int np) {
             this.descripcio = descripcio;
             this.np = np;
-            this.first = -1;
-        }
-    }
-
-    // Clase para las entradas en la tabla de expansión (te)
-    private static class EntradaExp {
-        String idcamp; // Identificador del campo
-        Descripcio descripcio; // Tipo completo (como objeto Tipo)
-        int np; // Nivel de ámbito o -1 si es desplazado
-        int next; // Índice al siguiente campo de la estructura
-
-        EntradaExp(String idcamp, Descripcio descripcio, int np, int next) {
-            this.idcamp = idcamp;
-            this.descripcio = descripcio;
-            this.np = np;
-            this.next = next;
         }
     }
 
@@ -56,7 +35,7 @@ public class TaulaSimbols {
      */
     public void nuevoNivelAmbito() {
         n++;
-        ta.push(te.size()); // Se añade un nuevo ámbito en la pila con el índice actual de `te`
+        ta.push(n); // Añadir el nuevo nivel al stack
     }
 
     /**
@@ -64,11 +43,12 @@ public class TaulaSimbols {
      */
     public void eliminarNivelAmbito() {
         if (n > 1) {
-            int idxTe = ta.pop(); // Recupera el índice del último nivel de expansión
-            while (te.size() > idxTe) {
-                te.remove(te.size() - 1); // Limpia `te` hasta el índice del ámbito anterior
-            }
-            n--;
+            int nivelActual = n;
+            ta.pop(); // Elimina el nivel actual del stack
+            n--; // Reduce el nivel de ámbito actual
+
+            // Limpia las variables locales del nivel actual en la tabla de descripciones
+            td.entrySet().removeIf(entry -> entry.getValue().np == nivelActual);
         } else {
             ErrorManager.addError("Error: Intento de eliminar el ámbito global.");
         }
@@ -82,7 +62,6 @@ public class TaulaSimbols {
         ta.clear();
         ta.push(0);
         td.clear();
-        te.clear();
         funcionActual.clear();
     }
 
@@ -96,13 +75,6 @@ public class TaulaSimbols {
             return; // No agrega el símbolo de nuevo
         }
 
-        // Si la variable existe pero en un nivel diferente, la añade a la tabla de expansión
-        if (td.containsKey(id)) {
-            int idxe = ta.peek();
-            te.add(new EntradaExp(id, td.get(id).descripcio, td.get(id).np, -1));
-            ta.set(n - 1, idxe + 1);
-        }
-
         // Agrega la variable a la tabla de descripciones
         td.put(id, new EntradaDesc(descripcio, n));
     }
@@ -114,17 +86,6 @@ public class TaulaSimbols {
         return td.get(id) != null ? td.get(id).descripcio : null;
     }
 
-    /**
-     * Actualizar el valor de una variable existente en la tabla
-     */
-    public void actualizarVariable(String id, Object nuevoValor) {
-        Descripcio desc = consultar(id);
-        if (desc instanceof DVar) {
-            ((DVar) desc).setValor(nuevoValor);
-        } else {
-            ErrorManager.addError("Error: Intento de modificar constante o identificador inexistente '" + id + "'.");
-        }
-    }
 
     /**
      * Registrar la función actual (cuando se entra en su ámbito)
@@ -160,23 +121,15 @@ public class TaulaSimbols {
         for (Map.Entry<String, EntradaDesc> entry : td.entrySet()) {
             String id = entry.getKey();
             EntradaDesc desc = entry.getValue();
-            System.out.printf("ID: %s, Tipo: %s, Nivel: %d, First: %d%n",
-                    id, desc.descripcio, desc.np, desc.first);
+            System.out.printf("ID: %s, Tipo: %s, Nivel: %d%n",
+                    id, desc.descripcio, desc.np);
         }
 
-        // Imprimir la tabla de expansión (te)
-        System.out.println("\nTabla de Expansión (te):");
-        for (int i = 0; i < te.size(); i++) {
-            EntradaExp exp = te.get(i);
-            System.out.printf("Posición: %d, ID Campo: %s, Tipo: %s, Nivel: %d, Next: %d%n",
-                    i, exp.idcamp, exp.descripcio, exp.np, exp.next);
-        }
-
-        // Imprimir la tabla de ámbitos (ta)
+        // Imprimir los niveles de ámbitos
         System.out.println("\nTabla de Ámbitos (ta):");
         System.out.println("Niveles de Ámbito en la Pila:");
         for (int i = 0; i < ta.size(); i++) {
-            System.out.printf("Nivel %d -> Índice en te: %d%n", i + 1, ta.get(i));
+            System.out.printf("Nivel %d%n", ta.get(i));
         }
 
         System.out.println("===============================================");

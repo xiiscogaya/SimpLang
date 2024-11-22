@@ -1,26 +1,28 @@
 package compiler.simbols;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class SListaArgumentos extends SBase {
-    private List<SValor> argumentos;
+    private SListaArgumentos argumentos;
+    private SExpresion expresion;
 
     /**
-     * Constructor para crear una lista de argumentos inicializada vacía.
+     * Constructor para cuando haya más argumentos
      */
-    public SListaArgumentos() {
+    public SListaArgumentos(SListaArgumentos argumentos, SExpresion expresion) {
         super("SListaArgumentos", null);
-        this.argumentos = new ArrayList<>();
+        this.argumentos = argumentos;
+        this.expresion = expresion;
     }
 
-    /**
-     * Método para añadir un argumento a la lista.
-     * 
-     * @param argumento El argumento a añadir.
-     */
-    public void addArgumento(SValor argumento) {
-        this.argumentos.add(argumento);
+    // Constructor para cuando no haya más argumentos
+    public SListaArgumentos(SExpresion expresion) {
+        super("SListaArgumentos", null);
+        this.argumentos =null;
+        this.expresion = expresion;
+    }
+
+    public SListaArgumentos() {
+        super();
     }
 
     /**
@@ -28,8 +30,12 @@ public class SListaArgumentos extends SBase {
      * 
      * @return Lista de argumentos.
      */
-    public List<SValor> getArgumentos() {
+    public SListaArgumentos getArgumentos() {
         return argumentos;
+    }
+
+    public SExpresion getExpresion() {
+        return expresion;
     }
 
     @Override

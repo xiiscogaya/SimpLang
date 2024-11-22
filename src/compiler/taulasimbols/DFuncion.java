@@ -34,6 +34,11 @@ public class DFuncion extends Descripcio {
         return nombresParametros;
     }
 
+    public void addParametro(TipoSubyacente tipo, String nombre) {
+        this.listaTipos.add(tipo);
+        this.nombresParametros.add(nombre);
+    }
+
     // Método toString para facilitar la depuración
     @Override
     public String toString() {

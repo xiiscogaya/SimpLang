@@ -49,22 +49,28 @@ parser code {:
 terminal String ID;
 terminal VALOR;
 terminal String STRING_LITERAL;
+terminal FLOAT_LITERAL, INT_LITERAL;
 terminal INT, STRING, BOOL, FLOAT, VOID, BOOLEAN_LITERAL;
 terminal CONST, SEMICOLON;
 terminal LBRACE, RBRACE, LBRACKET, RBRACKET, OP_ASSIGN, EQUAL;
-terminal TUPLA, LPAREN, RPAREN, COMMA, ARRAY, DEF, CLASS, RETURN, OP_ARITMETICO;
+terminal TUPLA, LPAREN, RPAREN, COMMA, ARRAY, DEF, CLASS, RETURN, OP_ARITMETICO, OP_LOGICO, OP_COMPARACION;
 
 non terminal Programa, ProgramaList, DecList, Main, Sentencia, DecConstante, Valor, Type;
 non terminal DecVar, Asignacion, DecTupla, ListaParametros, DecArray, ListaDimensiones;
 non terminal DecFun, DecClass, ClassMemberList, ClassMember, Bloque, LlamadaFuncion, ListaArgumentos;
 non terminal Return, Expresion;
 
+precedence left OP_ARITMETICO;
+precedence left OP_LOGICO;
+precedence left OP_COMPARACION;
+
 Programa ::= ProgramaList
             ;
 
 ProgramaList ::= DecList ProgramaList
-            | LBRACE Main RBRACE 
-                ;
+            | LBRACE Main:main RBRACE 
+                {: SemanticHelper.procesarMain((SMain) main, taulaSim); :}
+            ;
 
 
 DecList ::= DecFun 
@@ -72,72 +78,78 @@ DecList ::= DecFun
             | error RBRACE
             ;
 
-Main ::= Main Sentencia
-        | Sentencia
+Main ::= Sentencia:sentencia Main:main
+            {: RESULT = new SMain((SMain) main, (SBase) sentencia); :}
+        | Sentencia:sentencia
+            {: RESULT = new SMain((SBase) sentencia); :}
         ;
 
-Bloque ::= Bloque:bloque Sentencia:sentencia
-            {: 
-                ((SBloque) bloque).addSentencia((SBase) sentencia);
-                RESULT = bloque;
-            :}
+Bloque ::= Sentencia:sentencia Bloque:bloque
+            {: RESULT = new SBloque((SBloque) bloque, (SBase) sentencia); :}
         | Sentencia:sentencia
-            {:
-                SBloque bloque = new SBloque();
-                bloque.addSentencia((SBase) sentencia);
-                RESULT = bloque;
-            :}
+            {: RESULT = new SBloque((SBase) sentencia); :}
             ;
 
-Sentencia ::= DecConstante:s    {: RESULT = s; :}
-            | DecVar:s          {: RESULT = s; :}
-            | Asignacion:s      {: RESULT = s; :}
-            | LlamadaFuncion:s    {: RESULT = s; :}
-            | Return:s            {: RESULT = s; :}
+Sentencia ::= DecConstante:s SEMICOLON      {: RESULT = s; :}
+            | DecVar:s SEMICOLON            {: RESULT = s; :}
+            | DecArray:s SEMICOLON          {: RESULT = s; :}
+            | Asignacion:s SEMICOLON        {: RESULT = s; :}
+            | LlamadaFuncion:s SEMICOLON    {: RESULT = s; :}
+            | Return:s SEMICOLON            {: RESULT = s; :}
             ;
 
-DecConstante ::= CONST Type:idType ID:id EQUAL Valor:valor SEMICOLON
+DecConstante ::= CONST Type:idType ID:id EQUAL Valor:valor 
                     {: RESULT = new SDecConstante((SType) idType, id, (SValor) valor); :}
                 ;
 
-DecVar ::= Type:idType ID:id EQUAL Expresion:e SEMICOLON
+DecVar ::= Type:idType ID:id EQUAL Expresion:e 
             {: RESULT = new SDecVar((SType) idType, id, (SExpresion) e); :}
-        | Type:idType ID:id SEMICOLON
+        | Type:idType ID:id 
             {: RESULT = new SDecVar((SType) idType, id, null); :}
         ;
 
-Asignacion ::= ID:id EQUAL Expresion:e SEMICOLON
+DecArray ::= ARRAY Type:idType ID:id ListaDimensiones:lista
+            {: RESULT = new SDecArray((SType) idType, id, (SListaDimensiones) lista); :}
+            ;
+
+ListaDimensiones ::= LBRACKET Valor:size RBRACKET ListaDimensiones:lista
+                    {: RESULT = new SListaDimensiones((SValor) size, (SListaDimensiones) lista); :}
+                | LBRACKET Valor:size RBRACKET
+                    {: RESULT = new SListaDimensiones((SValor) size, null); :}
+                ;
+
+Asignacion ::= ID:id EQUAL Expresion:e 
                 {: RESULT = new SAsignacion(id, (SExpresion) e); :}
-            | ID:id OP_ASSIGN:op Expresion:e SEMICOLON
+            | ID:id OP_ASSIGN:op Expresion:e 
                 {: RESULT = new SAsignacion(id, (SExpresion) e); :}
             ;
 
 ListaParametros ::= ListaParametros:lista COMMA Type:idType ID:id
-                        {: RESULT = SemanticHelper.procesarListaParametros((SListaParametros) lista, (SType) idType, id, taulaSim); :}
+                        {: RESULT = new SListaParametros((SType) idType, id, (SListaParametros) lista); :}
                     | Type:idType ID:id
-                        {: RESULT = SemanticHelper.procesarListaParametros(null, (SType) idType, id, taulaSim); :}
+                        {: RESULT = new SListaParametros((SType) idType, id); :}
                     ;
 
 DecFun ::= DEF Type:idType ID:id LPAREN ListaParametros:params RPAREN LBRACE Bloque:bloque RBRACE
             {: SemanticHelper.procesarDecFuncion((SType) idType, id, (SListaParametros) params, (SBloque) bloque, taulaSim); :}
             ;
 
-LlamadaFuncion ::= ID:id LPAREN ListaArgumentos:lista RPAREN SEMICOLON
+LlamadaFuncion ::= ID:id LPAREN ListaArgumentos:lista RPAREN 
                 {: 
                     TipoSubyacente tipoRetorno = SemanticHelper.obtenerTipoFuncion(id, taulaSim);
                     RESULT = new SLlamadaFuncion(id, (SListaArgumentos) lista, tipoRetorno); 
                 :}
                 ;
 
-ListaArgumentos ::= ListaArgumentos:lista COMMA Valor:valor
-                    {: RESULT = SemanticHelper.procesarListaArgumentos((SListaArgumentos) lista, (SValor) valor, taulaSim); :}
-                | Valor:valor
-                    {: RESULT = SemanticHelper.procesarListaArgumentos(null, (SValor) valor, taulaSim); :}
+ListaArgumentos ::= ListaArgumentos:lista COMMA Expresion:e
+                    {: RESULT = new SListaArgumentos((SListaArgumentos) lista, (SExpresion) e); :}
+                | Expresion:e
+                    {: RESULT = new SListaArgumentos((SExpresion) e); :}
                 ;
 
-Return ::= RETURN Valor:valor SEMICOLON
-            {: RESULT = new SReturn((SValor) valor); :}
-        | RETURN SEMICOLON
+Return ::= RETURN Expresion:expresion 
+            {: RESULT = new SReturn((SExpresion) expresion); :}
+        | RETURN 
             {: RESULT = new SReturn(); :}
         ;
 
@@ -149,29 +161,28 @@ Type ::= INT     {: RESULT = new SType(new TipoSubyacente(Tipus.INT)); :}
        ;
 
 Expresion ::= Expresion:e1 OP_ARITMETICO:op Expresion:e2
-                {: RESULT = SemanticHelper.procesarExpresion((SExpresion) e1, (String) op, (SExpresion) e2, taulaSim); :}
+                {: RESULT = new SExpresion((SExpresion) e1, (SExpresion) e2, (String) op); :}
+            | Expresion:e1 OP_LOGICO:op Expresion:e2
+                {: RESULT = new SExpresion((SExpresion) e1, (SExpresion) e2, (String) op); :}
+            | Expresion:e1 OP_COMPARACION:op Expresion:e2
+                {: RESULT = new SExpresion((SExpresion) e1, (SExpresion) e2, (String) op); :}
             | LlamadaFuncion:func
-                {: RESULT = new SExpresion(((SLlamadaFuncion) func).getTipoRetorno()):}
+                {: RESULT = new SExpresion((SLlamadaFuncion) func); :}
             | LPAREN Expresion:e RPAREN
                 {: RESULT = e; :}
-            | Valor:v
-                {: RESULT = new SExpresion(((SValor) v).getTipo()):}
+            | Valor:valor
+                {: RESULT = new SExpresion((SValor) valor); :}
+            | ID:id
+                {: RESULT = new SExpresion((String) id); :}
             ;
 
-Valor ::= VALOR:v
-            {: 
-                // Detectar si es entero o flotante según la presencia del punto decimal
-                if (((String) v).contains(".")) {
-                    RESULT = SemanticHelper.crearValorConComprobacion(new TipoSubyacente(Tipus.FLOAT), v);
-                } else {
-                    RESULT = SemanticHelper.crearValorConComprobacion(new TipoSubyacente(Tipus.INT), v);
-                }
-            :}
+Valor ::= INT_LITERAL:v
+            {: RESULT = new SValor(new TipoSubyacente(Tipus.INT), (String) v); :}
+        | FLOAT_LITERAL:v
+            {: RESULT = new SValor(new TipoSubyacente(Tipus.FLOAT), (String) v); :}
         | STRING_LITERAL:v
-            {: RESULT = SemanticHelper.crearValorConComprobacion(new TipoSubyacente(Tipus.STRING), v); :}
+            {: RESULT = new SValor(new TipoSubyacente(Tipus.STRING), (String) v); :}
         | BOOLEAN_LITERAL:v
-            {: RESULT = SemanticHelper.crearValorConComprobacion(new TipoSubyacente(Tipus.BOOLEAN), v); :}
-        | ID:id
-            {: RESULT = SemanticHelper.crearValorConComprobacion(null, id); :}
+            {: RESULT = new SValor(new TipoSubyacente(Tipus.BOOLEAN), (String) v); :}
         ;
 

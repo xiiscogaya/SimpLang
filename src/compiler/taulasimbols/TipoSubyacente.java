@@ -78,6 +78,31 @@ public class TipoSubyacente {
         return getNomTSB(tipoBasico);
     }
 
+    // Método para verificar compatibilidad de tipos
+    public boolean esCompatibleCon(TipoSubyacente otroTipo) {
+        if (otroTipo == null) {
+            return false;
+        }
+
+        // Si los tipos son iguales, son compatibles
+        if (this.tipoBasico == otroTipo.tipoBasico) {
+            return true;
+        }
+
+        // Compatibilidad entre números (INT y FLOAT)
+        if (this.esNumerico() && otroTipo.esNumerico()) {
+            return true;
+        }
+
+        // Compatibilidad lógica: solo BOOLEAN
+        if (this.tipoBasico == Tipus.BOOLEAN && otroTipo.tipoBasico == Tipus.BOOLEAN) {
+            return true;
+        }
+
+        // Si no cumplen ninguno de los criterios, no son compatibles
+        return false;
+    }
+    
     /**
      * Método que verifica si el tipo actual es numérico (int o float),
      * útil para operaciones aritméticas en la tabla de símbolos.

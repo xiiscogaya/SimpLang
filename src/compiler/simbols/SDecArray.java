@@ -4,11 +4,11 @@ import java.util.List;
 import compiler.taulasimbols.TipoSubyacente;
 
 public class SDecArray extends SBase {
-    private TipoSubyacente tipo;
+    private SType tipo;
     private String id;
-    private List<Integer> dimensiones;
+    private SListaDimensiones dimensiones;
 
-    public SDecArray(TipoSubyacente tipo, String id, List<Integer> dimensiones) {
+    public SDecArray(SType tipo, String id, SListaDimensiones dimensiones) {
         super("SDecArray", null);
         this.tipo = tipo;
         this.id = id;
@@ -19,7 +19,7 @@ public class SDecArray extends SBase {
         super();
     }
 
-    public TipoSubyacente getTipo() {
+    public SType getTipo() {
         return tipo;
     }
 
@@ -27,7 +27,7 @@ public class SDecArray extends SBase {
         return id;
     }
 
-    public List<Integer> getDimensiones() {
+    public SListaDimensiones getDimensiones() {
         return dimensiones;
     }
 

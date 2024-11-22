@@ -1,12 +1,12 @@
 package compiler.simbols;
 
-import java.util.List;
 import compiler.taulasimbols.TipoSubyacente;
 
 public class SLlamadaFuncion extends SBase {
     private String idFuncion; // Identificador de la función llamada
     private SListaArgumentos argumentos; // Lista de expresiones que son los argumentos de la llamada
     private TipoSubyacente tipoRetorno; // Tipo de retorno de la función
+    private boolean esVoid;     // Indica si una función es void
 
     /**
      * Constructor de SLLamadaFuncion
@@ -20,6 +20,7 @@ public class SLlamadaFuncion extends SBase {
         this.idFuncion = idFuncion;
         this.argumentos = argumentos;
         this.tipoRetorno = tipoRetorno;
+        this.esVoid = false; // Por defecto asumimos que no es void
     }
 
     /**
@@ -47,6 +48,14 @@ public class SLlamadaFuncion extends SBase {
      */
     public TipoSubyacente getTipoRetorno() {
         return tipoRetorno;
+    }
+
+    public boolean isEsVoid() {
+        return esVoid;
+    }
+
+    public void setEsVoid(boolean esVoid) {
+        this.esVoid = esVoid;
     }
 
     @Override

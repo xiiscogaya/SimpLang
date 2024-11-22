@@ -87,6 +87,8 @@ whitespace  = [ \t\n\r]+
 "]"             { return symbol(ParserSym.RBRACKET); }
 "="             { return symbol(ParserSym.EQUAL); }
 "+="|"-="|"*="|"/="     { return symbol(ParserSym.OP_ASSIGN, yytext()); }
+"&&"|"||"               { return symbol(ParserSym.OP_ARITMETICO, yytext()); }
+"<"|">"|">="|"<="|"=="|"!="     { return symbol(ParserSym.OP_LOGICO, yytext()) ;}
 
 "+"|"-"|"*"|"/"         { return symbol(ParserSym.OP_ARITMETICO, yytext()); }
 
@@ -101,7 +103,9 @@ whitespace  = [ \t\n\r]+
 
 
 // Literales de punto flotante o enteros
--?[0-9]+\.[0-9]+|-?[0-9]+      { return symbol(ParserSym.VALOR, yytext()); }
+-?[0-9]+\.[0-9]+    { return symbol(ParserSym.FLOAT_LITERAL, yytext()); }
+
+-?[0-9]+        { return symbol(ParserSym.INT_LITERAL, yytext()); }
 
 // Identificadores
 {id}            { return symbol(ParserSym.ID, yytext()); }
