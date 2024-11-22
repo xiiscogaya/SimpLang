@@ -24,6 +24,10 @@ public class SListaParametros extends SBase {
         this.lista = null;
     }
 
+    public SListaParametros() {
+        super();
+    }
+
     
     // Getters
     public SType getTipo() {

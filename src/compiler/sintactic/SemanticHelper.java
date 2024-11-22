@@ -112,6 +112,39 @@ public class SemanticHelper {
         return dimension; 
     }
 
+    // Procesamiento de una tupla
+    public static void procesarTupla(String id, SListaTupla lista, TaulaSimbols taulaSim) {
+        // Comprobar si hay error en los parametros
+        if (taulaSim.consultar(id) != null) {
+            ErrorManager.addError("Error: Redefinición de la tupla '" + id + "'.");
+            return;
+        }
+
+        DTupla tupla = new DTupla();
+
+        do {
+            SExpresion expresionProcesada = procesarExpresion(lista.getExpresion(), taulaSim);
+            if (expresionProcesada.isError()) {
+                return; //Fallo en la expresión, abortamos
+            }
+
+            // Verificar que el tipo de la expresión coincide con el declarado 
+            if (!lista.getTipo().getTipo().equals(expresionProcesada.getTipo())) {
+                ErrorManager.addError("Error: Tipo incompatible en la tupla para el campo con tipo " + lista.getTipo().getTipo());
+                return;
+            }
+
+            tupla.addParametro(lista.getTipo().getTipo(), expresionProcesada.getID());
+
+            lista = lista.getLista();
+
+        } while (lista != null);
+
+        taulaSim.posar(id, tupla);
+        taulaSim.imprimirTabla();
+           
+    }
+
     // Procesamiento de una asignación
     public static void processAsignacion(String id, SExpresion expresion, TaulaSimbols taulaSim) {
         // Verificar si el valor tiene errores
@@ -144,18 +177,21 @@ public class SemanticHelper {
         taulaSim.imprimirTabla();
     }
 
-    public static void procesarListaParametros(String id, SListaParametros parametro, DFuncion descDFuncion, TaulaSimbols taulaSim) {
-        
+    public static SListaParametros procesarListaParametros(String id, SListaParametros parametro, DFuncion descD, TaulaSimbols taulaSim) {
+        SListaParametros parametro_local = parametro;
         do {
-            if (taulaSim.consultar(parametro.getID()) != null ) {
-                ErrorManager.addError("Error: Redefinición del parámetro '" + parametro.getID() + "'.");
-                continue;
+            if (taulaSim.consultar(parametro_local.getID()) != null ) {
+                ErrorManager.addError("Error: Redefinición del parámetro '" + parametro_local.getID() + "'.");
+                return new SListaParametros();
             }
-            descDFuncion.addParametro(parametro.getTipo().getTipo(), parametro.getID());
-            parametro = parametro.getParametro();
-        } while ((parametro != null));
 
-        taulaSim.posar(id, descDFuncion);
+            descD.addParametro(parametro_local.getTipo().getTipo(), parametro_local.getID());
+
+            parametro_local = parametro_local.getParametro();
+        } while ((parametro_local != null));
+
+        taulaSim.posar(id, descD);
+        return parametro;
     }
     
         /**
@@ -326,7 +362,9 @@ public class SemanticHelper {
             new ArrayList<>()
         );
 
-        procesarListaParametros(id, parametros, descripcionFuncion, taulaSim);
+        if (procesarListaParametros(id, parametros, descripcionFuncion, taulaSim).isError()) {
+            return;
+        }
 
         taulaSim.entrarFuncion(id);
     
@@ -367,6 +405,9 @@ public class SemanticHelper {
             } else if (sentencia instanceof SDecArray) {
                 SDecArray decArray = (SDecArray) sentencia;
                 processArray(decArray.getTipo(), decArray.getId(), decArray.getDimensiones() , taulaSim);
+            } else if (sentencia instanceof SDecTupla) {
+                SDecTupla decTupla = (SDecTupla) sentencia;
+                procesarTupla(decTupla.getId(), decTupla.getListaParametros(), taulaSim);
             } else if (sentencia instanceof SAsignacion) {
                 SAsignacion asignacion = (SAsignacion) sentencia;
                 processAsignacion(asignacion.getId(), asignacion.getTipoExpresion(), taulaSim);
@@ -474,6 +515,9 @@ public class SemanticHelper {
             } else if (sentencia instanceof SDecArray) {
                 SDecArray decArray = (SDecArray) sentencia;
                 processArray(decArray.getTipo(), decArray.getId(), decArray.getDimensiones() , taulaSim);
+            } else if (sentencia instanceof SDecTupla) {
+                SDecTupla decTupla = (SDecTupla) sentencia;
+                procesarTupla(decTupla.getId(), decTupla.getListaParametros(), taulaSim);
             } else if (sentencia instanceof SAsignacion) {
                 SAsignacion asignacion = (SAsignacion) sentencia;
                 processAsignacion(asignacion.getId(), asignacion.getTipoExpresion(), taulaSim);

@@ -1,10 +1,8 @@
 
-def bool suma(bool a, bool b) {
-    int sumat = 8;
-    return a && b;
-}
+
 
 # Bloque Main
 {
-    array int he[4][6];
+    float i;
+    tupla x = (int 4, float i);
 }

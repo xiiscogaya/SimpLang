@@ -3,7 +3,7 @@ package compiler.simbols;
 // Nodo de AST para la declaración de tupla
 public class SDecTupla extends SBase {
     private String id;
-    private SListaParametros listaParametros;  // Contiene tanto tipos como valores
+    private SListaTupla listaParametros;  // Contiene tanto tipos como valores
 
     /**
      * Constructor para crear una instancia de SDecTupla con el id y los parámetros.
@@ -11,7 +11,7 @@ public class SDecTupla extends SBase {
      * @param id Identificador de la tupla.
      * @param listaParametros Lista de tipos y valores de los parámetros.
      */
-    public SDecTupla(String id, SListaParametros listaParametros) {
+    public SDecTupla(String id, SListaTupla listaParametros) {
         super("SDecTupla", listaParametros);  // Inicializa con el nombre y la lista de parámetros
         this.id = id;
         this.listaParametros = listaParametros;
@@ -28,7 +28,7 @@ public class SDecTupla extends SBase {
         return id;
     }
 
-    public SListaParametros getListaParametros() {
+    public SListaTupla getListaParametros() {
         return listaParametros;
     }
 

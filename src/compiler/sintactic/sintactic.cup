@@ -54,11 +54,12 @@ terminal INT, STRING, BOOL, FLOAT, VOID, BOOLEAN_LITERAL;
 terminal CONST, SEMICOLON;
 terminal LBRACE, RBRACE, LBRACKET, RBRACKET, OP_ASSIGN, EQUAL;
 terminal TUPLA, LPAREN, RPAREN, COMMA, ARRAY, DEF, CLASS, RETURN, OP_ARITMETICO, OP_LOGICO, OP_COMPARACION;
+terminal IF, ELIF, ELSE;
 
 non terminal Programa, ProgramaList, DecList, Main, Sentencia, DecConstante, Valor, Type;
 non terminal DecVar, Asignacion, DecTupla, ListaParametros, DecArray, ListaDimensiones;
 non terminal DecFun, DecClass, ClassMemberList, ClassMember, Bloque, LlamadaFuncion, ListaArgumentos;
-non terminal Return, Expresion;
+non terminal Return, Expresion, ListaTupla, If_Sentencia, Elif_Lista;
 
 precedence left OP_ARITMETICO;
 precedence left OP_LOGICO;
@@ -72,17 +73,16 @@ ProgramaList ::= DecList ProgramaList
                 {: SemanticHelper.procesarMain((SMain) main, taulaSim); :}
             ;
 
-
-DecList ::= DecFun 
-            | DecClass 
-            | error RBRACE
-            ;
-
 Main ::= Sentencia:sentencia Main:main
             {: RESULT = new SMain((SMain) main, (SBase) sentencia); :}
         | Sentencia:sentencia
             {: RESULT = new SMain((SBase) sentencia); :}
         ;
+
+DecList ::= DecFun 
+            | DecClass 
+            | error RBRACE
+            ;
 
 Bloque ::= Sentencia:sentencia Bloque:bloque
             {: RESULT = new SBloque((SBloque) bloque, (SBase) sentencia); :}
@@ -93,9 +93,11 @@ Bloque ::= Sentencia:sentencia Bloque:bloque
 Sentencia ::= DecConstante:s SEMICOLON      {: RESULT = s; :}
             | DecVar:s SEMICOLON            {: RESULT = s; :}
             | DecArray:s SEMICOLON          {: RESULT = s; :}
+            | DecTupla:s SEMICOLON          {: RESULT = s; :}
             | Asignacion:s SEMICOLON        {: RESULT = s; :}
             | LlamadaFuncion:s SEMICOLON    {: RESULT = s; :}
             | Return:s SEMICOLON            {: RESULT = s; :}
+            | If_sentencia:s                {: RESULT = s; :}
             ;
 
 DecConstante ::= CONST Type:idType ID:id EQUAL Valor:valor 
@@ -109,7 +111,17 @@ DecVar ::= Type:idType ID:id EQUAL Expresion:e
         ;
 
 DecArray ::= ARRAY Type:idType ID:id ListaDimensiones:lista
-            {: RESULT = new SDecArray((SType) idType, id, (SListaDimensiones) lista); :}
+                {: RESULT = new SDecArray((SType) idType, id, (SListaDimensiones) lista); :}
+            ;
+
+DecTupla ::= TUPLA ID:id EQUAL LPAREN ListaTupla:lista RPAREN
+                {: RESULT = new SDecTupla(id, (SListaTupla) lista); :}
+            ;
+
+ListaTupla ::= Type:idType Expresion:expresion COMMA ListaTupla:lista
+                {: RESULT = new SListaTupla((SListaTupla) lista, (SType) idType, (SExpresion) expresion); :}
+            | Type:idType Expresion:expresion
+                {: RESULT = new SListaTupla((SType) idType, (SExpresion) expresion); :}
             ;
 
 ListaDimensiones ::= LBRACKET Valor:size RBRACKET ListaDimensiones:lista
@@ -124,7 +136,7 @@ Asignacion ::= ID:id EQUAL Expresion:e
                 {: RESULT = new SAsignacion(id, (SExpresion) e); :}
             ;
 
-ListaParametros ::= ListaParametros:lista COMMA Type:idType ID:id
+ListaParametros ::= Type:idType ID:id COMMA ListaParametros:lista  
                         {: RESULT = new SListaParametros((SType) idType, id, (SListaParametros) lista); :}
                     | Type:idType ID:id
                         {: RESULT = new SListaParametros((SType) idType, id); :}
@@ -146,6 +158,16 @@ ListaArgumentos ::= ListaArgumentos:lista COMMA Expresion:e
                 | Expresion:e
                     {: RESULT = new SListaArgumentos((SExpresion) e); :}
                 ;
+
+If_Sentencia ::= IF Expresion LBRACE Bloque RBRACE Elif_Lista ELSE LBRACE Bloque RBRACE
+                | IF Expresion LBRACE Bloque RBRACE Elif_Lista
+                | IF Expresion LBRACE Bloque RBRACE ELSE LBRACE Bloque RBRACE
+                | IF Expresion LBRACE Bloque RBRACE
+                ;
+
+Elif_Lista ::= Elif_Lista ELIF Expresion LBRACE Bloque RBRACE
+                | ELIF Expresion LBRACE Bloque RBRACE
+                ; 
 
 Return ::= RETURN Expresion:expresion 
             {: RESULT = new SReturn((SExpresion) expresion); :}

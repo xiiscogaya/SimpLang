@@ -78,6 +78,9 @@ whitespace  = [ \t\n\r]+
 "class"         { return symbol(ParserSym.CLASS); }
 "return"        { return symbol(ParserSym.RETURN); }
 "true"|"false"  { return symbol(ParserSym.BOOLEAN_LITERAL); }
+"if"            { return symbol(ParserSym.IF); }
+"elif"          { return symbol(ParserSym.ELIF); }
+"else"          { return symbol(ParserSym.ELSE); }
 
 "{"             { return symbol(ParserSym.LBRACE); }
 "}"             { return symbol(ParserSym.RBRACE); }
@@ -85,10 +88,10 @@ whitespace  = [ \t\n\r]+
 ")"             { return symbol(ParserSym.RPAREN); }
 "["             { return symbol(ParserSym.LBRACKET); }
 "]"             { return symbol(ParserSym.RBRACKET); }
-"="             { return symbol(ParserSym.EQUAL); }
 "+="|"-="|"*="|"/="     { return symbol(ParserSym.OP_ASSIGN, yytext()); }
 "&&"|"||"               { return symbol(ParserSym.OP_ARITMETICO, yytext()); }
 "<"|">"|">="|"<="|"=="|"!="     { return symbol(ParserSym.OP_LOGICO, yytext()) ;}
+"="             { return symbol(ParserSym.EQUAL); }
 
 "+"|"-"|"*"|"/"         { return symbol(ParserSym.OP_ARITMETICO, yytext()); }
 
