@@ -393,45 +393,8 @@ public class SemanticHelper {
         boolean tieneReturnValido = false;
     
         // Procesar el bloque de la función
-        
-        do {
-            SBase sentencia = cuerpo.getSentencia();
-            if (sentencia instanceof SDecConstante) {
-                SDecConstante decConst = (SDecConstante) sentencia;
-                processConstantDeclaration(decConst.getTipo(), decConst.getId(), decConst.getValor(), taulaSim);
-            } else if (sentencia instanceof SDecVar) {
-                SDecVar decVar = (SDecVar) sentencia;
-                processVarDeclaration(decVar.getTipo(), decVar.getId(), decVar.getTipoExpresion(), taulaSim);
-            } else if (sentencia instanceof SDecArray) {
-                SDecArray decArray = (SDecArray) sentencia;
-                processArray(decArray.getTipo(), decArray.getId(), decArray.getDimensiones() , taulaSim);
-            } else if (sentencia instanceof SDecTupla) {
-                SDecTupla decTupla = (SDecTupla) sentencia;
-                procesarTupla(decTupla.getId(), decTupla.getListaParametros(), taulaSim);
-            } else if (sentencia instanceof SAsignacion) {
-                SAsignacion asignacion = (SAsignacion) sentencia;
-                processAsignacion(asignacion.getId(), asignacion.getTipoExpresion(), taulaSim);
-            } else if (sentencia instanceof SReturn) {
-                SReturn retorno = (SReturn) sentencia;
-                procesarReturn(retorno, taulaSim);
-                tieneReturnValido = true;
-            } else if (sentencia instanceof SLlamadaFuncion) {
-                SLlamadaFuncion llamadaFuncion = (SLlamadaFuncion) sentencia;
-                procesarLlamadaFuncion(llamadaFuncion, taulaSim);
-                if (llamadaFuncion.isEsVoid()) {
-                    ErrorManager.addError("Error: llamada a una funcion como sentencia y no como asignación");
-                }
-            } else {
-                ErrorManager.addError("Error: Sentencia no reconocida dentro del cuerpo de la función '" + id + "'.");
-            }
-            cuerpo = cuerpo.getBloque();
-        } while (cuerpo != null);
-        
+        procesarBloque(cuerpo, taulaSim, false, tipoRetorno.getTipo().equals(new TipoSubyacente(Tipus.VOID)) ? "voidFunction" : id);
 
-        // Verificar que la función tiene un return válido si no es de tipo void
-        if (!tipoRetorno.getTipo().equals(new TipoSubyacente(Tipus.VOID)) && !tieneReturnValido) {
-            ErrorManager.addError("Error: La función '" + id + "' debe retornar un valor de tipo '" + tipoRetorno.getTipo() + "'.");
-        }
     
         // Eliminar el ámbito de la función
         taulaSim.eliminarNivelAmbito();
@@ -501,11 +464,81 @@ public class SemanticHelper {
         DFuncion funcion = (DFuncion) desc;
         return funcion.getTipoRetorno();
     }
+
+
+    public static void procesarIf(SExpresion expresion, SBloque bloqueIf, SElif listaElseIf, SBloque bloqueElse, TaulaSimbols taulaSim) {
+        // Procesar la condición del if principal
+        SExpresion expresionProcesada = procesarExpresion(expresion, taulaSim);
+        if (expresionProcesada.isError()) {
+            return;
+        }
     
-    public static void procesarMain(SMain main, TaulaSimbols taulaSim) {
+        // Verificar que la condición sea de tipo booleano
+        if (!expresionProcesada.getTipo().equals(new TipoSubyacente(Tipus.BOOLEAN))) {
+            ErrorManager.addError("Error: La condición del 'if' debe ser de tipo booleano, no " + expresionProcesada.getTipo());
+            return;
+        }
+    
+        // Procesamos el bloque del `if`
+        procesarBloque(bloqueIf, taulaSim, true, "IF");
+    
+        // Procesamos los else-if si existen
+        if (listaElseIf != null) {
+            procesarListaElseIf(listaElseIf, taulaSim);
+        }
+    
+        // Procesamos el bloque `else` si existe
+        if (bloqueElse != null) {
+            procesarBloque(bloqueElse, taulaSim, true, "ELSE");
+        }
+        taulaSim.imprimirTabla();
+    }
+    
+    
+
+    public static SElif procesarListaElseIf(SElif lista, TaulaSimbols taulaSim) {
+        SElif listaLocal = lista;
+
+        while (listaLocal != null) {
+            // Procesar la condición del else-if
+            SExpresion condicion = listaLocal.getExpresion();
+            if (procesarExpresion(condicion, taulaSim).isError()) {
+                return new SElif(); // Si la expresión tiene un error, abortamos
+            }
+
+            // Verificar que la condición sea de tipo booleano
+            if (!condicion.getTipo().equals(new TipoSubyacente(Tipus.BOOLEAN))) {
+                ErrorManager.addError("Error: La condición del 'else-if' debe ser de tipo booleano, no " + condicion.getTipo());
+                return new SElif();
+            }
+
+            // Procesar el bloque del else-if
+            SBloque bloque = listaLocal.getBloque();
+            procesarBloque(bloque, taulaSim, true, "ELSE IF");
+
+            // Avanzar al siguiente else-if en la lista
+            listaLocal = listaLocal.getLista();
+        }
+        taulaSim.imprimirTabla();
+        return lista;
+    }
+
+    
+    
+    public static void procesarMain(SBloque bloque, TaulaSimbols taulaSim) {
+        procesarBloque(bloque, taulaSim, false, "Main");
+    }
+
+    public static void procesarBloque(SBloque bloque, TaulaSimbols taulaSim, boolean crearNuevoNivel, String contexto) {
+        if (crearNuevoNivel) {
+            taulaSim.nuevoNivelAmbito();
+        }
         
+        boolean dentroDeFuncion = taulaSim.obtenerFuncionActual() != null;
+        boolean tieneReturnValido = false;
+    
         do {
-            SBase sentencia = main.getSentencia();
+            SBase sentencia = bloque.getSentencia();
             if (sentencia instanceof SDecConstante) {
                 SDecConstante decConst = (SDecConstante) sentencia;
                 processConstantDeclaration(decConst.getTipo(), decConst.getId(), decConst.getValor(), taulaSim);
@@ -514,7 +547,7 @@ public class SemanticHelper {
                 processVarDeclaration(decVar.getTipo(), decVar.getId(), decVar.getTipoExpresion(), taulaSim);
             } else if (sentencia instanceof SDecArray) {
                 SDecArray decArray = (SDecArray) sentencia;
-                processArray(decArray.getTipo(), decArray.getId(), decArray.getDimensiones() , taulaSim);
+                processArray(decArray.getTipo(), decArray.getId(), decArray.getDimensiones(), taulaSim);
             } else if (sentencia instanceof SDecTupla) {
                 SDecTupla decTupla = (SDecTupla) sentencia;
                 procesarTupla(decTupla.getId(), decTupla.getListaParametros(), taulaSim);
@@ -522,21 +555,46 @@ public class SemanticHelper {
                 SAsignacion asignacion = (SAsignacion) sentencia;
                 processAsignacion(asignacion.getId(), asignacion.getTipoExpresion(), taulaSim);
             } else if (sentencia instanceof SReturn) {
-                ErrorManager.addError("Error: Sentencia return no disponible dentro del bloque Main.");
+                if (!dentroDeFuncion) {     // Si no estamos dentro de una función, es un error
+                    ErrorManager.addError("Error: Sentencia 'return' no permitida en el contexto '" + contexto + "'.");
+                    continue;
+                }
+                SReturn retorno = (SReturn) sentencia;
+                procesarReturn(retorno, taulaSim);
+                tieneReturnValido = true;
             } else if (sentencia instanceof SLlamadaFuncion) {
                 SLlamadaFuncion llamadaFuncion = (SLlamadaFuncion) sentencia;
                 procesarLlamadaFuncion(llamadaFuncion, taulaSim);
-                if (!llamadaFuncion.isEsVoid()) {
-                    ErrorManager.addError("Error: llamada a una funcion como sentencia y no como asignación");
+                if (!llamadaFuncion.isEsVoid() && !dentroDeFuncion) {
+                    ErrorManager.addError("Error: Llamada a función con retorno no utilizada dentro del bloque '" + contexto + "'.");
                 }
-    
+            } else if (sentencia instanceof SIf) {
+                SIf ifSentencia = (SIf) sentencia;
+                procesarIf(ifSentencia.getExpresion(), ifSentencia.getBloque1(), ifSentencia.getLista(), ifSentencia.getBloque2(), taulaSim);
             } else {
-                ErrorManager.addError("Error: Sentencia no reconocida dentro del bloque Main.");
-            }   
-            main = main.getMain();
-        } while (main != null);
-        
+                ErrorManager.addError("Error: Sentencia no reconocida dentro del bloque '" + contexto + "'.");
+            }
+            bloque = bloque.getBloque();
+        } while (bloque != null);
+    
+        if (dentroDeFuncion) {
+            String funcionActual = taulaSim.obtenerFuncionActual();
+            Descripcio desc = taulaSim.consultar(funcionActual);
+
+            if (desc instanceof DFuncion) {
+                DFuncion funcion = (DFuncion) desc;
+                if (!funcion.getTipoRetorno().equals(new TipoSubyacente(Tipus.VOID)) && !tieneReturnValido) {
+                    ErrorManager.addError("Error: La función '" + funcionActual + "' debe contener un 'return' válido.");
+                }
+            }
+        }
+
+        if (crearNuevoNivel) {
+            taulaSim.eliminarNivelAmbito();
+        }
     }
+    
+    
 
     public static SExpresion procesarExpresion(SExpresion expresion, TaulaSimbols taulaSim) {
         // Si la expresión es nula, devolver una expresión vacía
@@ -580,7 +638,7 @@ public class SemanticHelper {
         }
     
         // Si es una operación compuesta
-        if (expresion.getE1() != null && expresion.getE2() != null && expresion.getOperador() != null) {
+        if (expresion.getOperador() != null && !esOperadorComparacion(expresion.getOperador())) {
             // Procesar las subexpresiones
             SExpresion e1Procesada = procesarExpresion(expresion.getE1(), taulaSim);
             SExpresion e2Procesada = procesarExpresion(expresion.getE2(), taulaSim);
@@ -629,7 +687,7 @@ public class SemanticHelper {
             expresion.setTipo(new TipoSubyacente(Tipus.BOOLEAN));
 
             return expresion;
-    }
+        }
 
         // Si la expresion es un id
         if (expresion.getID() != null) {

@@ -69,15 +69,9 @@ Programa ::= ProgramaList
             ;
 
 ProgramaList ::= DecList ProgramaList
-            | LBRACE Main:main RBRACE 
-                {: SemanticHelper.procesarMain((SMain) main, taulaSim); :}
+            | LBRACE Bloque:bloque RBRACE 
+                {: SemanticHelper.procesarMain((SBloque) bloque, taulaSim); :}
             ;
-
-Main ::= Sentencia:sentencia Main:main
-            {: RESULT = new SMain((SMain) main, (SBase) sentencia); :}
-        | Sentencia:sentencia
-            {: RESULT = new SMain((SBase) sentencia); :}
-        ;
 
 DecList ::= DecFun 
             | DecClass 
@@ -97,7 +91,7 @@ Sentencia ::= DecConstante:s SEMICOLON      {: RESULT = s; :}
             | Asignacion:s SEMICOLON        {: RESULT = s; :}
             | LlamadaFuncion:s SEMICOLON    {: RESULT = s; :}
             | Return:s SEMICOLON            {: RESULT = s; :}
-            | If_sentencia:s                {: RESULT = s; :}
+            | If_Sentencia:s                {: RESULT = s; :}
             ;
 
 DecConstante ::= CONST Type:idType ID:id EQUAL Valor:valor 
@@ -159,15 +153,22 @@ ListaArgumentos ::= ListaArgumentos:lista COMMA Expresion:e
                     {: RESULT = new SListaArgumentos((SExpresion) e); :}
                 ;
 
-If_Sentencia ::= IF Expresion LBRACE Bloque RBRACE Elif_Lista ELSE LBRACE Bloque RBRACE
-                | IF Expresion LBRACE Bloque RBRACE Elif_Lista
-                | IF Expresion LBRACE Bloque RBRACE ELSE LBRACE Bloque RBRACE
-                | IF Expresion LBRACE Bloque RBRACE
+If_Sentencia ::= IF Expresion:expresion LBRACE Bloque:bloque1 RBRACE Elif_Lista:lista ELSE LBRACE Bloque:bloque2 RBRACE
+                    {: RESULT = new SIf((SExpresion) expresion, (SBloque) bloque1, (SElif) lista, (SBloque) bloque2); :}
+                | IF Expresion:expresion LBRACE Bloque:bloque1 RBRACE Elif_Lista:lista
+                    {: RESULT = new SIf((SExpresion) expresion, (SBloque) bloque1, (SElif) lista, null); :}
+                | IF Expresion:expresion LBRACE Bloque:bloque1 RBRACE ELSE LBRACE Bloque:bloque2 RBRACE
+                    {: RESULT = new SIf((SExpresion) expresion, (SBloque) bloque1, null, (SBloque) bloque2); :}
+                | IF Expresion:expresion LBRACE Bloque:bloque1 RBRACE
+                    {: RESULT = new SIf((SExpresion) expresion, (SBloque) bloque1, null, null); :}
                 ;
 
-Elif_Lista ::= Elif_Lista ELIF Expresion LBRACE Bloque RBRACE
-                | ELIF Expresion LBRACE Bloque RBRACE
-                ; 
+Elif_Lista ::= ELIF Expresion:expresion LBRACE Bloque:bloque RBRACE Elif_Lista:lista
+                    {: RESULT = new SElif((SElif) lista, (SExpresion) expresion, (SBloque) bloque); :}
+                | ELIF Expresion:expresion LBRACE Bloque:bloque RBRACE
+                    {: RESULT = new SElif((SExpresion) expresion, (SBloque) bloque); :}
+                ;
+
 
 Return ::= RETURN Expresion:expresion 
             {: RESULT = new SReturn((SExpresion) expresion); :}

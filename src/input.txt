@@ -1,8 +1,17 @@
 
-
+def int sumar(int a, int b) {
+    if (a > b) {
+        int he;
+        return a;
+    } else {
+        int be;
+        return b;
+    }
+    return a;
+}
 
 # Bloque Main
 {
     float i;
-    tupla x = (int 4, float i);
+    
 }
