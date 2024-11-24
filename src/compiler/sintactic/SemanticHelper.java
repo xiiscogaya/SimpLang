@@ -523,6 +523,25 @@ public class SemanticHelper {
         return lista;
     }
 
+
+    public static void procesarWhile(SExpresion expresion, SBloque bloque, TaulaSimbols taulaSim) {
+        // Procesamos la condición del while
+        SExpresion expresionProcesada = procesarExpresion(expresion, taulaSim);
+        if (expresionProcesada.isError()) {
+            return;
+        }
+
+        // Verificar que la condición sea de tipo booleano
+        if (!expresionProcesada.getTipo().equals(new TipoSubyacente(Tipus.BOOLEAN))) {
+            ErrorManager.addError("Error: La condición del 'while ' debe ser de tipo booleano, no " + expresionProcesada.getTipo());
+            return;
+        }
+
+        // Procesar el bloque del bucle
+        procesarBloque(bloque, taulaSim, true, "WHILE");
+
+    }
+
     
     
     public static void procesarMain(SBloque bloque, TaulaSimbols taulaSim) {
@@ -571,13 +590,16 @@ public class SemanticHelper {
             } else if (sentencia instanceof SIf) {
                 SIf ifSentencia = (SIf) sentencia;
                 procesarIf(ifSentencia.getExpresion(), ifSentencia.getBloque1(), ifSentencia.getLista(), ifSentencia.getBloque2(), taulaSim);
+            } else if (sentencia instanceof SWhile) {
+                SWhile whileSentencia = (SWhile) sentencia;
+                procesarWhile(whileSentencia.getExpresion(), whileSentencia.getBloque(), taulaSim);
             } else {
                 ErrorManager.addError("Error: Sentencia no reconocida dentro del bloque '" + contexto + "'.");
             }
             bloque = bloque.getBloque();
         } while (bloque != null);
     
-        if (dentroDeFuncion) {
+        if (dentroDeFuncion && !contexto.equals("WHILE")) {
             String funcionActual = taulaSim.obtenerFuncionActual();
             Descripcio desc = taulaSim.consultar(funcionActual);
 

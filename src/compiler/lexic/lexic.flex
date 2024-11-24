@@ -81,6 +81,7 @@ whitespace  = [ \t\n\r]+
 "if"            { return symbol(ParserSym.IF); }
 "elif"          { return symbol(ParserSym.ELIF); }
 "else"          { return symbol(ParserSym.ELSE); }
+"while"         { return symbol(ParserSym.WHILE); }
 
 "{"             { return symbol(ParserSym.LBRACE); }
 "}"             { return symbol(ParserSym.RBRACE); }

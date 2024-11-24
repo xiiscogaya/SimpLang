@@ -54,12 +54,12 @@ terminal INT, STRING, BOOL, FLOAT, VOID, BOOLEAN_LITERAL;
 terminal CONST, SEMICOLON;
 terminal LBRACE, RBRACE, LBRACKET, RBRACKET, OP_ASSIGN, EQUAL;
 terminal TUPLA, LPAREN, RPAREN, COMMA, ARRAY, DEF, CLASS, RETURN, OP_ARITMETICO, OP_LOGICO, OP_COMPARACION;
-terminal IF, ELIF, ELSE;
+terminal IF, ELIF, ELSE, WHILE;
 
 non terminal Programa, ProgramaList, DecList, Main, Sentencia, DecConstante, Valor, Type;
 non terminal DecVar, Asignacion, DecTupla, ListaParametros, DecArray, ListaDimensiones;
 non terminal DecFun, DecClass, ClassMemberList, ClassMember, Bloque, LlamadaFuncion, ListaArgumentos;
-non terminal Return, Expresion, ListaTupla, If_Sentencia, Elif_Lista;
+non terminal Return, Expresion, ListaTupla, If_Sentencia, Elif_Lista, While_Sentencia;
 
 precedence left OP_ARITMETICO;
 precedence left OP_LOGICO;
@@ -92,6 +92,7 @@ Sentencia ::= DecConstante:s SEMICOLON      {: RESULT = s; :}
             | LlamadaFuncion:s SEMICOLON    {: RESULT = s; :}
             | Return:s SEMICOLON            {: RESULT = s; :}
             | If_Sentencia:s                {: RESULT = s; :}
+            | While_Sentencia:s             {: RESULT = s; :}
             ;
 
 DecConstante ::= CONST Type:idType ID:id EQUAL Valor:valor 
@@ -167,6 +168,10 @@ Elif_Lista ::= ELIF Expresion:expresion LBRACE Bloque:bloque RBRACE Elif_Lista:l
                     {: RESULT = new SElif((SElif) lista, (SExpresion) expresion, (SBloque) bloque); :}
                 | ELIF Expresion:expresion LBRACE Bloque:bloque RBRACE
                     {: RESULT = new SElif((SExpresion) expresion, (SBloque) bloque); :}
+                ;
+
+While_Sentencia ::= WHILE Expresion:expresion LBRACE Bloque:bloque RBRACE
+                    {: RESULT = new SWhile((SExpresion) expresion, (SBloque) bloque); :}
                 ;
 
 

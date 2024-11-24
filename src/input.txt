@@ -1,13 +1,17 @@
-
-def int sumar(int a, int b) {
-    if (a > b) {
+def void heg(int x) {
+    while x < 7 {
         int he;
-        return a;
-    } else {
-        int be;
-        return b;
+        if x < 4 {
+            return;
+            int hw;
+        } else {
+            int hw;
+            
+        }
+        return;
     }
-    return a;
+    return;
+   
 }
 
 # Bloque Main
