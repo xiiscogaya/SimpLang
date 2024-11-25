@@ -1,20 +1,19 @@
 package compiler.simbols;
 
-public class SListaTupla {
+public class SListaTupla extends SBase{
     private SListaTupla lista;
-    private SType tipo;
-    private SExpresion expresion;
+    private SDecVar var;
 
     
-    public SListaTupla(SListaTupla lista, SType tipo, SExpresion expresion) {
+    public SListaTupla(SListaTupla lista, SDecVar var) {
+        super("SListaTupla", null);
         this.lista = lista;
-        this.tipo = tipo;
-        this.expresion = expresion;
+        this.var = var;
     }
 
-    public SListaTupla(SType tipo, SExpresion expresion) {
-        this.tipo = tipo;
-        this.expresion = expresion;
+    public SListaTupla(SDecVar var) {
+        super("SListaTupla", null);
+        this.var = var;
     }
 
 
@@ -24,18 +23,9 @@ public class SListaTupla {
     public void setLista(SListaTupla lista) {
         this.lista = lista;
     }
-    public SType getTipo() {
-        return tipo;
+    public SDecVar getVar() {
+        return var;
     }
-    public void setTipo(SType tipo) {
-        this.tipo = tipo;
-    }
-    public SExpresion getExpresion() {
-        return expresion;
-    }
-    public void setExpresion(SExpresion expresion) {
-        this.expresion = expresion;
-    }
-
+ 
 
 }

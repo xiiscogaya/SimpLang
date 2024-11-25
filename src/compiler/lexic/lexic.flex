@@ -82,6 +82,8 @@ whitespace  = [ \t\n\r]+
 "elif"          { return symbol(ParserSym.ELIF); }
 "else"          { return symbol(ParserSym.ELSE); }
 "while"         { return symbol(ParserSym.WHILE); }
+"for"           { return symbol(ParserSym.FOR); }
+
 
 "{"             { return symbol(ParserSym.LBRACE); }
 "}"             { return symbol(ParserSym.RBRACE); }
@@ -98,6 +100,7 @@ whitespace  = [ \t\n\r]+
 
 ";"             { return symbol(ParserSym.SEMICOLON); }
 ","             { return symbol(ParserSym.COMMA); }
+"."             { return symbol(ParserSym.DOT); }
 
 // Literales de cadena
 

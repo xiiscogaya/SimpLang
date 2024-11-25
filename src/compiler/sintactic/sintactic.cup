@@ -54,12 +54,13 @@ terminal INT, STRING, BOOL, FLOAT, VOID, BOOLEAN_LITERAL;
 terminal CONST, SEMICOLON;
 terminal LBRACE, RBRACE, LBRACKET, RBRACKET, OP_ASSIGN, EQUAL;
 terminal TUPLA, LPAREN, RPAREN, COMMA, ARRAY, DEF, CLASS, RETURN, OP_ARITMETICO, OP_LOGICO, OP_COMPARACION;
-terminal IF, ELIF, ELSE, WHILE;
+terminal IF, ELIF, ELSE, WHILE, FOR, DOT;
 
 non terminal Programa, ProgramaList, DecList, Main, Sentencia, DecConstante, Valor, Type;
 non terminal DecVar, Asignacion, DecTupla, ListaParametros, DecArray, ListaDimensiones;
 non terminal DecFun, DecClass, ClassMemberList, ClassMember, Bloque, LlamadaFuncion, ListaArgumentos;
 non terminal Return, Expresion, ListaTupla, If_Sentencia, Elif_Lista, While_Sentencia;
+non terminal For_Sentencia, Actualizacion, LlamadaArray, LlamadaTupla;
 
 precedence left OP_ARITMETICO;
 precedence left OP_LOGICO;
@@ -93,6 +94,7 @@ Sentencia ::= DecConstante:s SEMICOLON      {: RESULT = s; :}
             | Return:s SEMICOLON            {: RESULT = s; :}
             | If_Sentencia:s                {: RESULT = s; :}
             | While_Sentencia:s             {: RESULT = s; :}
+            | For_Sentencia:s               {: RESULT = s; :}
             ;
 
 DecConstante ::= CONST Type:idType ID:id EQUAL Valor:valor 
@@ -113,10 +115,10 @@ DecTupla ::= TUPLA ID:id EQUAL LPAREN ListaTupla:lista RPAREN
                 {: RESULT = new SDecTupla(id, (SListaTupla) lista); :}
             ;
 
-ListaTupla ::= Type:idType Expresion:expresion COMMA ListaTupla:lista
-                {: RESULT = new SListaTupla((SListaTupla) lista, (SType) idType, (SExpresion) expresion); :}
-            | Type:idType Expresion:expresion
-                {: RESULT = new SListaTupla((SType) idType, (SExpresion) expresion); :}
+ListaTupla ::= DecVar:var COMMA ListaTupla:lista
+                {: RESULT = new SListaTupla((SListaTupla) lista, (SDecVar) var); :}
+            | DecVar:var
+                {: RESULT = new SListaTupla((SDecVar) var); :}
             ;
 
 ListaDimensiones ::= LBRACKET Valor:size RBRACKET ListaDimensiones:lista
@@ -126,9 +128,11 @@ ListaDimensiones ::= LBRACKET Valor:size RBRACKET ListaDimensiones:lista
                 ;
 
 Asignacion ::= ID:id EQUAL Expresion:e 
-                {: RESULT = new SAsignacion(id, (SExpresion) e); :}
+                {: RESULT = new SAsignacion(id, "=", (SExpresion) e); :}
             | ID:id OP_ASSIGN:op Expresion:e 
-                {: RESULT = new SAsignacion(id, (SExpresion) e); :}
+                {: RESULT = new SAsignacion(id, (String) op, (SExpresion) e); :}
+            | LlamadaArray:array EQUAL Expresion:e
+                {: RESULT = new SAsignacion((SLlamadaArray) array, "=", (SExpresion) e); :}
             ;
 
 ListaParametros ::= Type:idType ID:id COMMA ListaParametros:lista  
@@ -146,6 +150,13 @@ LlamadaFuncion ::= ID:id LPAREN ListaArgumentos:lista RPAREN
                     TipoSubyacente tipoRetorno = SemanticHelper.obtenerTipoFuncion(id, taulaSim);
                     RESULT = new SLlamadaFuncion(id, (SListaArgumentos) lista, tipoRetorno); 
                 :}
+                ;
+LlamadaArray ::= ID:id ListaDimensiones:lista
+                    {: RESULT = new SLlamadaArray(id, (SListaDimensiones) lista); :}
+                ;
+
+LlamadaTupla ::= ID:id DOT ID:campo
+                    {: RESULT = new SLlamadaTupla(id, campo); :}
                 ;
 
 ListaArgumentos ::= ListaArgumentos:lista COMMA Expresion:e
@@ -174,6 +185,10 @@ While_Sentencia ::= WHILE Expresion:expresion LBRACE Bloque:bloque RBRACE
                     {: RESULT = new SWhile((SExpresion) expresion, (SBloque) bloque); :}
                 ;
 
+For_Sentencia ::= FOR LPAREN DecVar:init SEMICOLON Expresion:condicion SEMICOLON Asignacion: actuali RPAREN LBRACE Bloque:bloque RBRACE
+                    {: RESULT = new SFor((SDecVar) init, (SExpresion) condicion, (SAsignacion) actuali, (SBloque) bloque); :}
+                ;
+
 
 Return ::= RETURN Expresion:expresion 
             {: RESULT = new SReturn((SExpresion) expresion); :}
@@ -196,6 +211,10 @@ Expresion ::= Expresion:e1 OP_ARITMETICO:op Expresion:e2
                 {: RESULT = new SExpresion((SExpresion) e1, (SExpresion) e2, (String) op); :}
             | LlamadaFuncion:func
                 {: RESULT = new SExpresion((SLlamadaFuncion) func); :}
+            | LlamadaArray:array
+                {: RESULT = new SExpresion((SLlamadaArray) array); :}
+            | LlamadaTupla:tupla
+                {: RESULT = new SExpresion((SLlamadaTupla) tupla); :}
             | LPAREN Expresion:e RPAREN
                 {: RESULT = e; :}
             | Valor:valor

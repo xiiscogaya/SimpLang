@@ -10,6 +10,8 @@ public class SExpresion extends SBase {
     private SLlamadaFuncion llamadaFuncion;
     private TipoSubyacente tipo;
     private String id;
+    private SLlamadaArray arrayAcces;
+    private SLlamadaTupla tuplaAcces;
 
     // Constructor único para cualquier tipo de expresión
     public SExpresion(SExpresion e1, SExpresion e2, String operador) {
@@ -55,6 +57,16 @@ public class SExpresion extends SBase {
         this.tipo = null;
     }
 
+    public SExpresion(SLlamadaArray arrayAcces) {
+        super("SLlamadaArray", null);
+        this.arrayAcces = arrayAcces;
+    }
+
+    public SExpresion(SLlamadaTupla tuplaAcces) {
+        super("SLlamadaArray", null);
+        this.tuplaAcces = tuplaAcces;
+    }
+
     public SExpresion() {
         super();
     }
@@ -82,6 +94,14 @@ public class SExpresion extends SBase {
 
     public String getID () {
         return id;
+    }
+
+    public SLlamadaArray getArray() {
+        return arrayAcces;
+    }
+
+    public SLlamadaTupla getTupla() {
+        return tuplaAcces;
     }
 
     public void setTipo(TipoSubyacente tipo) {

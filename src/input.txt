@@ -1,21 +1,10 @@
-def void heg(int x) {
-    while x < 7 {
-        int he;
-        if x < 4 {
-            return;
-            int hw;
-        } else {
-            int hw;
-            
-        }
-        return;
-    }
-    return;
-   
-}
 
 # Bloque Main
 {
-    float i;
+
+    array int hola[4][6][7];
+    int i = hola[3][6][7];
+    hola[5][7][9] = 6;
+
     
 }

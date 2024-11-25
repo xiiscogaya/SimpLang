@@ -1,37 +1,40 @@
 package compiler.taulasimbols;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 // Descripción para tuplas en la tabla de símbolos
-public class DTupla extends Descripcio{
-    private final List<TipoSubyacente> listatipos; // Estructura de tipos de la tupla
-    private final List<Object> nombresParametros; // Valores de la tupla
+public class DTupla extends Descripcio {
+    private final Map<String, TipoSubyacente> campos; // Mapa que asocia nombres de campos con sus tipos
 
-    // Constructor que toma una lista de tipos y una lista de valores
+    // Constructor
     public DTupla() {
         super("tupla"); // Asigna el tipo "tupla" a esta descripción
-        this.listatipos = new ArrayList<>(); // Asignación directa de la lista de tipos
-        this.nombresParametros = new ArrayList<>(); // Asignación directa de la lista de valores
+        this.campos = new HashMap<>();
     }
 
-    // Método para obtener la lista de tipos
-    public List<TipoSubyacente> getTipos() {
-        return listatipos;
+    // Método para agregar un campo a la tupla
+    public void addParametro(TipoSubyacente tipo, String nombreCampo) {
+        campos.put(nombreCampo, tipo);
     }
 
-    // Método para obtener la lista de valores
-    public List<Object> getValores() {
-        return nombresParametros;
+    // Verificar si la tupla tiene un campo
+    public boolean tieneCampo(String nombreCampo) {
+        return campos.containsKey(nombreCampo);
     }
 
-    public void addParametro(TipoSubyacente tipo, String id) {
-        this.listatipos.add(tipo);
-        this.nombresParametros.add(id);
+    // Obtener el tipo de un campo
+    public TipoSubyacente getTipoCampo(String nombreCampo) {
+        return campos.get(nombreCampo);
+    }
+
+    // Método para obtener todos los campos (opcional, según lo que necesites)
+    public Map<String, TipoSubyacente> getCampos() {
+        return campos;
     }
 
     @Override
     public String toString() {
-        return "DTupla{tipos=" + listatipos + ", valores=" + nombresParametros + "}";
+        return "DTupla{campos=" + campos + "}";
     }
 }

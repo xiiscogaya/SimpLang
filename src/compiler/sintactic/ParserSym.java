@@ -15,6 +15,7 @@ public class ParserSym {
   public static final int LPAREN = 22;
   public static final int INT = 7;
   public static final int ARRAY = 25;
+  public static final int FOR = 36;
   public static final int RPAREN = 23;
   public static final int BOOLEAN_LITERAL = 12;
   public static final int SEMICOLON = 14;
@@ -22,6 +23,7 @@ public class ParserSym {
   public static final int COMMA = 24;
   public static final int CLASS = 27;
   public static final int IF = 32;
+  public static final int DOT = 37;
   public static final int ID = 2;
   public static final int EOF = 0;
   public static final int RETURN = 28;
@@ -80,7 +82,9 @@ public class ParserSym {
   "IF",
   "ELIF",
   "ELSE",
-  "WHILE"
+  "WHILE",
+  "FOR",
+  "DOT"
   };
 }
 

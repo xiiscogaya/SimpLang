@@ -24,7 +24,7 @@ public class SDecVar extends SBase{
         return id;
     }
 
-    public SExpresion getTipoExpresion() {
+    public SExpresion getExpresion() {
         return expresion;
     }
     
