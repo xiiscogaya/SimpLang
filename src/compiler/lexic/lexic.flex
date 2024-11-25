@@ -84,6 +84,9 @@ whitespace  = [ \t\n\r]+
 "while"         { return symbol(ParserSym.WHILE); }
 "for"           { return symbol(ParserSym.FOR); }
 
+"print"         { return symbol(ParserSym.PRINT); }
+"input"         { return symbol(ParserSym.INPUT); }
+
 
 "{"             { return symbol(ParserSym.LBRACE); }
 "}"             { return symbol(ParserSym.RBRACE); }

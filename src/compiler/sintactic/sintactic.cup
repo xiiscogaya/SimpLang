@@ -54,13 +54,13 @@ terminal INT, STRING, BOOL, FLOAT, VOID, BOOLEAN_LITERAL;
 terminal CONST, SEMICOLON;
 terminal LBRACE, RBRACE, LBRACKET, RBRACKET, OP_ASSIGN, EQUAL;
 terminal TUPLA, LPAREN, RPAREN, COMMA, ARRAY, DEF, CLASS, RETURN, OP_ARITMETICO, OP_LOGICO, OP_COMPARACION;
-terminal IF, ELIF, ELSE, WHILE, FOR, DOT;
+terminal IF, ELIF, ELSE, WHILE, FOR, DOT, PRINT, INPUT;
 
 non terminal Programa, ProgramaList, DecList, Main, Sentencia, DecConstante, Valor, Type;
 non terminal DecVar, Asignacion, DecTupla, ListaParametros, DecArray, ListaDimensiones;
 non terminal DecFun, DecClass, ClassMemberList, ClassMember, Bloque, LlamadaFuncion, ListaArgumentos;
 non terminal Return, Expresion, ListaTupla, If_Sentencia, Elif_Lista, While_Sentencia;
-non terminal For_Sentencia, Actualizacion, LlamadaArray, LlamadaTupla;
+non terminal For_Sentencia, Actualizacion, LlamadaArray, LlamadaTupla, Print_Sentencia, Input_Sentencia, ListaExpresiones;
 
 precedence left OP_ARITMETICO;
 precedence left OP_LOGICO;
@@ -95,6 +95,8 @@ Sentencia ::= DecConstante:s SEMICOLON      {: RESULT = s; :}
             | If_Sentencia:s                {: RESULT = s; :}
             | While_Sentencia:s             {: RESULT = s; :}
             | For_Sentencia:s               {: RESULT = s; :}
+            | Print_Sentencia:s SEMICOLON   {: RESULT = s; :}
+            | Input_Sentencia:s SEMICOLON   {: RESULT = s; :}
             ;
 
 DecConstante ::= CONST Type:idType ID:id EQUAL Valor:valor 
@@ -189,6 +191,19 @@ For_Sentencia ::= FOR LPAREN DecVar:init SEMICOLON Expresion:condicion SEMICOLON
                     {: RESULT = new SFor((SDecVar) init, (SExpresion) condicion, (SAsignacion) actuali, (SBloque) bloque); :}
                 ;
 
+Print_Sentencia ::= PRINT LPAREN ListaExpresiones:lista RPAREN
+                        {: RESULT = new SPrint((SListaExpresiones) lista); :}
+                    ;
+
+Input_Sentencia ::= INPUT LPAREN ID:id RPAREN
+                        {: RESULT = new SInput(id); :}
+                    ;
+
+ListaExpresiones ::= Expresion:e COMMA ListaExpresiones:lista
+                        {: RESULT = new SListaExpresiones((SListaExpresiones) lista, (SExpresion) e); :}
+                    | Expresion:e
+                        {: RESULT = new SListaExpresiones((SExpresion) e); :}
+                    ;
 
 Return ::= RETURN Expresion:expresion 
             {: RESULT = new SReturn((SExpresion) expresion); :}

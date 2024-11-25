@@ -11,6 +11,7 @@ public class ParserSym {
   public static final int STRING_LITERAL = 4;
   public static final int LBRACKET = 17;
   public static final int CONST = 13;
+  public static final int INPUT = 39;
   public static final int TUPLA = 21;
   public static final int LPAREN = 22;
   public static final int INT = 7;
@@ -45,6 +46,7 @@ public class ParserSym {
   public static final int DEF = 26;
   public static final int FLOAT_LITERAL = 5;
   public static final int ELIF = 33;
+  public static final int PRINT = 38;
   public static final int INT_LITERAL = 6;
   public static final String[] terminalNames = new String[] {
   "EOF",
@@ -84,7 +86,9 @@ public class ParserSym {
   "ELSE",
   "WHILE",
   "FOR",
-  "DOT"
+  "DOT",
+  "PRINT",
+  "INPUT"
   };
 }
 

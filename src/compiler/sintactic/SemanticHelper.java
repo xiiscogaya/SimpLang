@@ -657,6 +657,34 @@ public class SemanticHelper {
         taulaSim.eliminarNivelAmbito();
     }
 
+
+    // Procesamos la sentencia print
+    public static void procesarPrint(SListaExpresiones lista, TaulaSimbols taulaSim) {
+        while (lista != null) {
+            SExpresion expresionProcesada = procesarExpresion(lista.getExpresion(), taulaSim);
+            if (expresionProcesada.isError()) {
+                return;
+            }
+            lista = lista.getLista();
+        }
+    }
+
+    // Procesamos el Input
+    public static void procesarInput(String id, TaulaSimbols taulaSim) {
+        Descripcio desc = taulaSim.consultar(id);
+
+        if(desc == null) {
+            ErrorManager.addError("Error: La variable '" + id + "' no está declarada.");
+            return;
+        }
+
+        // Verificar que sea una variable y no otro tipo de símbolo
+        if (!(desc instanceof DVar)) {
+            ErrorManager.addError("Error: '" + id + "' no es una variable.");
+            return;
+        }
+    }
+
     
     
     public static void procesarMain(SBloque bloque, TaulaSimbols taulaSim) {
@@ -713,6 +741,12 @@ public class SemanticHelper {
             } else if (sentencia instanceof SFor) {
                 SFor forSentencia = (SFor) sentencia;
                 procesarFor(forSentencia.getInicializacion(), forSentencia.getCondicion(), forSentencia.getActualizacion(), forSentencia.getBloque(), taulaSim);
+            } else if (sentencia instanceof SPrint) {
+                SPrint printSentencia = (SPrint) sentencia;
+                procesarPrint(printSentencia.getLista(), taulaSim);
+            } else if (sentencia instanceof SInput) {
+                SInput inputSentencia = (SInput) sentencia;
+                procesarInput(inputSentencia.getId(), taulaSim);
             } else {
                 ErrorManager.addError("Error: Sentencia no reconocida dentro del bloque '" + contexto + "'.");
             }

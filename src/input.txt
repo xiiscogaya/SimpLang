@@ -2,9 +2,9 @@
 # Bloque Main
 {
 
-    array int hola[4][6][7];
-    int i = hola[3][6][7];
-    hola[5][7][9] = 6;
+    print("hola", 4, "que tal");
+    int hola;
+    input(hola);
 
     
 }
