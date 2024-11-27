@@ -50,7 +50,7 @@ public class TaulaSimbols {
             // Limpia las variables locales del nivel actual en la tabla de descripciones
             td.entrySet().removeIf(entry -> entry.getValue().np == nivelActual);
         } else {
-            ErrorManager.addError("Error: Intento de eliminar el ámbito global.");
+            ErrorManager.addError(3, "Error: Intento de eliminar el ámbito global.");
         }
     }
 
@@ -71,7 +71,7 @@ public class TaulaSimbols {
     public void posar(String id, Descripcio descripcio) {
         // Verifica si la variable ya existe en el nivel actual
         if (td.containsKey(id) && td.get(id).np == n) {
-            ErrorManager.addError("Error: Redefinición de la variable '" + id + "' en el mismo nivel.");
+            ErrorManager.addError(3, "Error: Redefinición de la variable '" + id + "' en el mismo nivel.");
             return; // No agrega el símbolo de nuevo
         }
 

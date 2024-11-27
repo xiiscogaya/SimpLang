@@ -4,7 +4,8 @@ import java.io.*;
 
 import java_cup.runtime.*;
 import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
-
+import java_cup.runtime.ComplexSymbolFactory.Location;
+import compiler.sintactic.ErrorManager;
 import compiler.sintactic.ParserSym;
 
 %%
@@ -31,8 +32,7 @@ id          = {letter}({letter}|{digit})*
 SChar       = [^\"\\\n\r] | {EscChar}
 EscChar     = \\[ntbrf\\\'\"]
 
-whitespace  = [ \t\n\r]+
-
+whitespace  = [ \n\t\r]+
 
 %{
     /***
@@ -43,30 +43,50 @@ whitespace  = [ \t\n\r]+
      Construcció d'un symbol sense atribut associat.
      **/
 
+     
+
     StringBuffer string = new StringBuffer();
     
+    /**
+     Construcció d'un symbol sense atribut associat.
+     **/
     private ComplexSymbol symbol(int type) {
-        return new ComplexSymbol(ParserSym.terminalNames[type], type);
+        // Sumar 1 per a que la primera línia i columna no sigui 0.
+        Location esquerra = new Location(yyline+1, yycolumn+1);
+        Location dreta = new Location(yyline+1, yycolumn+yytext().length()+1);
+
+        return new ComplexSymbol(ParserSym.terminalNames[type], type, esquerra, dreta);
     }
     
     /**
      Construcció d'un symbol amb un atribut associat.
      **/
     private Symbol symbol(int type, Object value) {
-        return new ComplexSymbol(ParserSym.terminalNames[type], type, value);
+        // Sumar 1 per a que la primera línia i columna no sigui 0.
+        Location esquerra = new Location(yyline+1, yycolumn+1);
+        Location dreta = new Location(yyline+1, yycolumn+yytext().length()+1);
+
+        return new ComplexSymbol(ParserSym.terminalNames[type], type, esquerra, dreta, value);
     }
+
 %}
 
 %%
 
 // Ignorar espacios en blanco
-{whitespace}    { /* No hacer nada, ignorar */ }
+{whitespace} { 
+            
+                
+                System.out.println("Espacio ignorado en línea: " + (yyline + 1));
+            }
+
 "#" [^\n]*      { /* Ignorar comentarios */ }
 
 
 
 // Palabras clave
-"int"           { return symbol(ParserSym.INT); }
+"int"           { System.out.println("Token 'int' encontrado en línea: " + yyline + ", columna: " + yycolumn);
+return symbol(ParserSym.INT); }
 "float"         { return symbol(ParserSym.FLOAT); }
 "string"        { return symbol(ParserSym.STRING); }
 "bool"          { return symbol(ParserSym.BOOL); }
@@ -75,7 +95,6 @@ whitespace  = [ \t\n\r]+
 "tupla"         { return symbol(ParserSym.TUPLA); }
 "array"         { return symbol(ParserSym.ARRAY); }
 "def"           { return symbol(ParserSym.DEF); }
-"class"         { return symbol(ParserSym.CLASS); }
 "return"        { return symbol(ParserSym.RETURN); }
 "true"|"false"  { return symbol(ParserSym.BOOLEAN_LITERAL); }
 "if"            { return symbol(ParserSym.IF); }
@@ -125,5 +144,6 @@ whitespace  = [ \t\n\r]+
 
 // Caracter no reconocido
 
-[^]             { System.err.println("Error léxico en línea " + (yyline+1) + ", columna " + (yycolumn+1) + ": caracter no reconocido '" + yytext() + "'");
-                return symbol(ParserSym.error);  }
+[^]             { 
+                ErrorManager.addError(1, "Error: línea " + (yyline+1) + ", columna " + (yycolumn+1) + ": caracter no reconocido '" + yytext() + "'");
+                  }
