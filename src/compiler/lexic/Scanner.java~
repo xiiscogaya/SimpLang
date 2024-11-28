@@ -11,6 +11,7 @@ import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import compiler.sintactic.ErrorManager;
 import compiler.sintactic.ParserSym;
+import compiler.sintactic.ErrorContext;
 
 
 // See https://github.com/jflex-de/jflex/issues/222
@@ -822,7 +823,11 @@ public class Scanner implements java_cup.runtime.Scanner {
             // fall through
           case 39: break;
           case 2:
-            { System.out.println("Espacio ignorado en línea: " + (yyline + 1));
+            { for (char c : yytext().toCharArray()) {
+                    if (c == '\n') {
+                        ErrorContext.setCurrentLine(yyline + 1); // Actualizar la línea global
+                    }
+                }
             }
             // fall through
           case 40: break;

@@ -1,7 +1,5 @@
 package compiler.simbols;
 
-import java.util.List;
-import compiler.taulasimbols.TipoSubyacente;
 
 public class SDecArray extends SBase {
     private SType tipo;

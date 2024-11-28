@@ -1,8 +1,6 @@
-# Bloque Main
-{
-    print("hola", 4, "que tal");
-    int 63;
-    int hola;
-    int hola;
-    int 8h;
+
+{   
+
+    const int h = 8.9;
+    
 }

@@ -11,6 +11,8 @@ public class SBase extends ComplexSymbol {
     private static int idAutoIncrement = 0;  // Identificador único autoincrementado para cada símbolo
     protected boolean isError;  // Indica si la instancia es "vacía" o contiene un error
 
+
+
     /**
      * Constructor para crear una instancia de SBase con un identificador y valor específico.
      * Utilizado normalmente en producciones sin error.

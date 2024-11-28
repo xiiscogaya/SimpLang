@@ -7,6 +7,7 @@ import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import compiler.sintactic.ErrorManager;
 import compiler.sintactic.ParserSym;
+import compiler.sintactic.ErrorContext;
 
 %%
 
@@ -77,7 +78,12 @@ whitespace  = [ \n\t\r]+
 {whitespace} { 
             
                 
-                System.out.println("Espacio ignorado en línea: " + (yyline + 1));
+                for (char c : yytext().toCharArray()) {
+                    if (c == '\n') {
+                        ErrorContext.setCurrentLine(yyline - 1); // Actualizar la línea global
+                    }
+                }
+            
             }
 
 "#" [^\n]*      { /* Ignorar comentarios */ }
