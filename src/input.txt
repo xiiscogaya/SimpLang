@@ -1,6 +1,6 @@
 
 {   
-
-    const int h = 8.9;
+    array int g[9][6][3];
+    tupla x = (int a = 8, float h = 9.8, string he = "hola");
     
 }

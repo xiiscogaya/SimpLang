@@ -12,6 +12,7 @@ public class SExpresion extends SBase {
     private String id;
     private SLlamadaArray arrayAcces;
     private SLlamadaTupla tuplaAcces;
+    private String varGenerada;
 
     // Constructor único para cualquier tipo de expresión
     public SExpresion(SExpresion e1, SExpresion e2, String operador) {
@@ -102,6 +103,14 @@ public class SExpresion extends SBase {
 
     public SLlamadaTupla getTupla() {
         return tuplaAcces;
+    }
+
+    public String getVarGenerada() {
+        return varGenerada;
+    }
+
+    public void setVarGenerada(String varGenerada) {
+        this.varGenerada = varGenerada;
     }
 
     public void setTipo(TipoSubyacente tipo) {

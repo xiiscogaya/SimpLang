@@ -387,7 +387,7 @@ public class Scanner implements java_cup.runtime.Scanner {
     /**
      Construcció d'un symbol sense atribut associat.
      **/
-    private ComplexSymbol symbol(int type) {
+    private Symbol symbol(int type) {
         // Sumar 1 per a que la primera línia i columna no sigui 0.
         Location esquerra = new Location(yyline+1, yycolumn+1);
         Location dreta = new Location(yyline+1, yycolumn+yytext().length()+1);
@@ -398,7 +398,7 @@ public class Scanner implements java_cup.runtime.Scanner {
     /**
      Construcció d'un symbol amb un atribut associat.
      **/
-    private Symbol symbol(int type, Object value) {
+    private ComplexSymbol symbol(int type, Object value) {
         // Sumar 1 per a que la primera línia i columna no sigui 0.
         Location esquerra = new Location(yyline+1, yycolumn+1);
         Location dreta = new Location(yyline+1, yycolumn+yytext().length()+1);
@@ -823,11 +823,7 @@ public class Scanner implements java_cup.runtime.Scanner {
             // fall through
           case 39: break;
           case 2:
-            { for (char c : yytext().toCharArray()) {
-                    if (c == '\n') {
-                        ErrorContext.setCurrentLine(yyline - 1); // Actualizar la línea global
-                    }
-                }
+            { /* Ignorar */
             }
             // fall through
           case 40: break;
@@ -938,8 +934,7 @@ public class Scanner implements java_cup.runtime.Scanner {
             // fall through
           case 61: break;
           case 24:
-            { System.out.println("Token 'int' encontrado en línea: " + yyline + ", columna: " + yycolumn);
-return symbol(ParserSym.INT);
+            { return symbol(ParserSym.INT);
             }
             // fall through
           case 62: break;

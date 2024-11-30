@@ -6,6 +6,7 @@ import java_cup.runtime.*;
 
 import compiler.simbols.*;
 import compiler.taulasimbols.*;
+import compiler.codigo_intermedio.*;
 
 import java.io.PrintStream;
 import java.util.HashMap;
@@ -18,22 +19,27 @@ class Parser;
 parser code {:
 
     public static TaulaSimbols taulaSim = new TaulaSimbols(); 
+    public static CodigoIntermedio codigoIntermedio = new CodigoIntermedio();
+
+    public static ComplexSymbolFactory factory = new ComplexSymbolFactory();
+
+    public int getLine(Symbol cur_token) {
+        ComplexSymbol token = (ComplexSymbol) cur_token;
+        Location l = token.getLeft();
+        return l.getLine();
+        
+    }
 
     @Override
     public void syntax_error(Symbol cur_token) {
-        ComplexSymbol token = (ComplexSymbol) cur_token;
-        Location l = token.getLeft();
-        String mensaje = "Error sintáctico en línea " + l.getLine() +
+        String mensaje = "Error sintáctico en línea " + getLine(cur_token) +
                      ": se encontró '" + (cur_token.value != null ? cur_token.value : cur_token.sym) + "'";
         ErrorManager.addError(2, mensaje);
     }
 
     @Override
     public void unrecovered_syntax_error(Symbol cur_token) {
-        ComplexSymbol token = (ComplexSymbol) cur_token;
-        Location l = token.getLeft();
-
-        String mensaje = "Error sintáctico no recuperable en línea " + l.getLine() +
+        String mensaje = "Error sintáctico no recuperable en línea " + getLine(cur_token) +
                         ": se encontró '" + (cur_token.value != null ? cur_token.value : cur_token.sym) + "'";
         
         ErrorManager.addError(2, mensaje); // 2 indica error sintáctico
@@ -47,7 +53,8 @@ terminal String ID;
 terminal String STRING_LITERAL;
 terminal FLOAT_LITERAL, INT_LITERAL;
 terminal INT, STRING, BOOL, FLOAT, VOID, BOOLEAN_LITERAL;
-terminal CONST, SEMICOLON;
+terminal CONST;
+terminal SEMICOLON;
 terminal LBRACE, RBRACE, LBRACKET, RBRACKET, OP_ASSIGN, EQUAL;
 terminal TUPLA, LPAREN, RPAREN, COMMA, ARRAY, DEF, RETURN, OP_ARITMETICO, OP_LOGICO, OP_COMPARACION;
 terminal IF, ELIF, ELSE, WHILE, FOR, DOT, PRINT, INPUT;
@@ -69,7 +76,7 @@ ProgramaList ::= DecFun ProgramaList
             | Main
             ;
 Main ::= LBRACE Bloque:bloque RBRACE 
-            {: SemanticHelper.procesarMain((SBloque) bloque, taulaSim); :}
+            {: SemanticHelper.procesarMain((SBloque) bloque, taulaSim, codigoIntermedio); :}
         | error RBRACE
         ;
 
@@ -139,9 +146,8 @@ ListaParametros ::= Type:idType ID:id COMMA ListaParametros:lista
                     ;
 
 DecFun ::= DEF Type:idType ID:id LPAREN ListaParametros:params RPAREN LBRACE Bloque:bloque RBRACE
-            {: SemanticHelper.procesarDecFuncion((SType) idType, id, (SListaParametros) params, (SBloque) bloque, taulaSim); :}
+                {: SemanticHelper.procesarDecFuncion((SType) idType, id, (SListaParametros) params, (SBloque) bloque, taulaSim, codigoIntermedio); :}
             | error RBRACE 
-            
             ;
 
 LlamadaFuncion ::= ID:id LPAREN ListaArgumentos:lista RPAREN 

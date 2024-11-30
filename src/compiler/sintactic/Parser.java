@@ -10,6 +10,7 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 import java_cup.runtime.*;
 import compiler.simbols.*;
 import compiler.taulasimbols.*;
+import compiler.codigo_intermedio.*;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.List;
@@ -408,22 +409,27 @@ public class Parser extends java_cup.runtime.lr_parser {
 
 
     public static TaulaSimbols taulaSim = new TaulaSimbols(); 
+    public static CodigoIntermedio codigoIntermedio = new CodigoIntermedio();
+
+    public static ComplexSymbolFactory factory = new ComplexSymbolFactory();
+
+    public int getLine(Symbol cur_token) {
+        ComplexSymbol token = (ComplexSymbol) cur_token;
+        Location l = token.getLeft();
+        return l.getLine();
+        
+    }
 
     @Override
     public void syntax_error(Symbol cur_token) {
-        ComplexSymbol token = (ComplexSymbol) cur_token;
-        Location l = token.getLeft();
-        String mensaje = "Error sintáctico en línea " + l.getLine() +
+        String mensaje = "Error sintáctico en línea " + getLine(cur_token) +
                      ": se encontró '" + (cur_token.value != null ? cur_token.value : cur_token.sym) + "'";
         ErrorManager.addError(2, mensaje);
     }
 
     @Override
     public void unrecovered_syntax_error(Symbol cur_token) {
-        ComplexSymbol token = (ComplexSymbol) cur_token;
-        Location l = token.getLeft();
-
-        String mensaje = "Error sintáctico no recuperable en línea " + l.getLine() +
+        String mensaje = "Error sintáctico no recuperable en línea " + getLine(cur_token) +
                         ": se encontró '" + (cur_token.value != null ? cur_token.value : cur_token.sym) + "'";
         
         ErrorManager.addError(2, mensaje); // 2 indica error sintáctico
@@ -505,7 +511,7 @@ class CUP$Parser$actions {
 		int bloqueleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
 		int bloqueright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
 		Object bloque = (Object)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
-		 SemanticHelper.procesarMain((SBloque) bloque, taulaSim); 
+		 SemanticHelper.procesarMain((SBloque) bloque, taulaSim, codigoIntermedio); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("Main",2, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
@@ -934,7 +940,7 @@ class CUP$Parser$actions {
 		int bloqueleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
 		int bloqueright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
 		Object bloque = (Object)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
-		 SemanticHelper.procesarDecFuncion((SType) idType, id, (SListaParametros) params, (SBloque) bloque, taulaSim); 
+		 SemanticHelper.procesarDecFuncion((SType) idType, id, (SListaParametros) params, (SBloque) bloque, taulaSim, codigoIntermedio); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("DecFun",13, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-8)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;

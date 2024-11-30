@@ -51,7 +51,7 @@ whitespace  = [ \n\t\r]+
     /**
      Construcció d'un symbol sense atribut associat.
      **/
-    private ComplexSymbol symbol(int type) {
+    private Symbol symbol(int type) {
         // Sumar 1 per a que la primera línia i columna no sigui 0.
         Location esquerra = new Location(yyline+1, yycolumn+1);
         Location dreta = new Location(yyline+1, yycolumn+yytext().length()+1);
@@ -62,7 +62,7 @@ whitespace  = [ \n\t\r]+
     /**
      Construcció d'un symbol amb un atribut associat.
      **/
-    private Symbol symbol(int type, Object value) {
+    private ComplexSymbol symbol(int type, Object value) {
         // Sumar 1 per a que la primera línia i columna no sigui 0.
         Location esquerra = new Location(yyline+1, yycolumn+1);
         Location dreta = new Location(yyline+1, yycolumn+yytext().length()+1);
@@ -75,24 +75,14 @@ whitespace  = [ \n\t\r]+
 %%
 
 // Ignorar espacios en blanco
-{whitespace} { 
-            
-                
-                for (char c : yytext().toCharArray()) {
-                    if (c == '\n') {
-                        ErrorContext.setCurrentLine(yyline - 1); // Actualizar la línea global
-                    }
-                }
-            
-            }
+{whitespace}    { /* Ignorar */ }
 
 "#" [^\n]*      { /* Ignorar comentarios */ }
 
 
 
 // Palabras clave
-"int"           { System.out.println("Token 'int' encontrado en línea: " + yyline + ", columna: " + yycolumn);
-return symbol(ParserSym.INT); }
+"int"           { return symbol(ParserSym.INT); }
 "float"         { return symbol(ParserSym.FLOAT); }
 "string"        { return symbol(ParserSym.STRING); }
 "bool"          { return symbol(ParserSym.BOOL); }
