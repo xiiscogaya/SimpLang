@@ -8,6 +8,26 @@ public class TipoSubyacente {
         this.tipoBasico = tipoBasico;
     }
 
+    public TipoSubyacente(String tipo) {
+        switch (tipo) {
+            case "int":
+                this.tipoBasico = Tipus.INT;
+                break;
+            case "bool":
+                this.tipoBasico = Tipus.BOOLEAN;
+                break;
+            case "caracter":
+                this.tipoBasico = Tipus.CHAR;
+                break;
+            case "float":
+                this.tipoBasico = Tipus.FLOAT;
+                break;
+            case "void":
+                this.tipoBasico = Tipus.VOID;
+                break;
+        }
+    }
+
     public Tipus getTipoBasico() {
         return tipoBasico;
     }
@@ -42,8 +62,6 @@ public class TipoSubyacente {
                 return 2; // En Java, el char ocupa 2 bytes (UTF-16)
             case FLOAT:
                 return 4; // Tamaño típico de float en Java
-            case STRING:
-                return -1; // Indica que el tamaño es dinámico o no limitado
             default:
                 throw new IllegalArgumentException("Tipo no reconocido: " + tipoBasico);
         }
@@ -55,17 +73,13 @@ public class TipoSubyacente {
     public static String getNomTSB(Tipus tipoBasico) {
         switch (tipoBasico) {
             case INT:
-                return "enter";
+                return "int";
             case BOOLEAN:
-                return "boolean";
+                return "bool";
             case CHAR:
                 return "caracter";
             case FLOAT:
-                return "real";
-            case ARRAY:
-                return "array";
-            case STRING:
-                return "string";
+                return "float";
             case VOID:
                 return "void";
             default:

@@ -5,7 +5,7 @@ import java.util.List;
 
 public class SDecFun extends SBase {
     private String nombre;
-    private TipoSubyacente tipoRetorno;
+    private String tipoRetorno;
     private List<TipoSubyacente> tiposParametros;
     private List<String> nombresParametros;
 
@@ -18,7 +18,7 @@ public class SDecFun extends SBase {
      * @param nombresParametros Lista de nombres de los parámetros.
      * @param cuerpo Cuerpo de la función (bloque de código).
      */
-    public SDecFun(String nombre, TipoSubyacente tipoRetorno, List<TipoSubyacente> tiposParametros, List<String> nombresParametros) {
+    public SDecFun(String nombre, String tipoRetorno, List<TipoSubyacente> tiposParametros, List<String> nombresParametros) {
         super("SDecFun", null); // Indica que este es un nodo de declaración de función en el AST
         this.nombre = nombre;
         this.tipoRetorno = tipoRetorno;
@@ -39,7 +39,7 @@ public class SDecFun extends SBase {
         return nombre;
     }
 
-    public TipoSubyacente getTipoRetorno() {
+    public String getTipoRetorno() {
         return tipoRetorno;
     }
 

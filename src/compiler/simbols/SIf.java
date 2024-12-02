@@ -5,10 +5,12 @@ public class SIf extends SBase {
     private SBloque bloqueIf;     // Bloque principal
     private SElif listaElseIf;    // Lista de else-if (opcional)
     private SBloque bloqueElse;   // Bloque else (opcional)
+    private int line;
 
     // Constructor con else y else-if
-    public SIf(SExpresion expresion, SBloque bloqueIf, SElif listaElseIf, SBloque bloqueElse) {
+    public SIf(int line, SExpresion expresion, SBloque bloqueIf, SElif listaElseIf, SBloque bloqueElse) {
         super("SIf", null);
+        this.line = line;
         this.expresion = expresion;
         this.bloqueIf = bloqueIf;
         this.listaElseIf = listaElseIf;
@@ -16,8 +18,9 @@ public class SIf extends SBase {
     }
 
     // Constructor sin else
-    public SIf(SExpresion expresion, SBloque bloqueIf, SElif listaElseIf) {
+    public SIf(int line, SExpresion expresion, SBloque bloqueIf, SElif listaElseIf) {
         super("SIf", null);
+        this.line = line;
         this.expresion = expresion;
         this.bloqueIf = bloqueIf;
         this.listaElseIf = listaElseIf;
@@ -25,8 +28,9 @@ public class SIf extends SBase {
     }
 
     // Constructor sin else y else-if
-    public SIf(SExpresion expresion, SBloque bloqueIf) {
+    public SIf(int line, SExpresion expresion, SBloque bloqueIf) {
         super("SIf", null);
+        this.line = line;
         this.expresion = expresion;
         this.bloqueIf = bloqueIf;
         this.listaElseIf = null;
@@ -34,6 +38,10 @@ public class SIf extends SBase {
     }
 
     // Getters y setters
+    public int getLine() {
+        return line;
+    }
+    
     public SExpresion getExpresion() {
         return expresion;
     }

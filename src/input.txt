@@ -1,6 +1,22 @@
+def int h(int a, int b) {
+    return a;
+}
+
+def int hh(int a, int b) {
+    if a6 < b {
+        int i;
+        i = 0.9;
+    }
+    return a;
+}
 
 {   
-    array int g[9][6][3];
-    tupla x = (int a = 8, float h = 9.8, string he = "hola");
+
+    const int a = 9;
+    const int a = 8.5;
+    int a8;
+    a8 = 9;    
+    array int he[8][6];
+    he[7][5] = 5.8;
     
 }

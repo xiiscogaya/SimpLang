@@ -17,9 +17,13 @@ public class SemanticHelper {
      * @param taulaSim      Tabla de Símbolos
      *
     */
-    public static void processConstantDeclaration(SType idType, String id, SValor valor, int currentLine, TaulaSimbols taulaSim, CodigoIntermedio codigoIntermedio) {
+    public static void processConstantDeclaration(SDecConstante constante, TaulaSimbols taulaSim, CodigoIntermedio codigoIntermedio) {
         // Comprobar si en la producción anterior se ha producido un error
         // Solo puede venir un fallo de la producción Valor, no de la Type
+
+        SValor valor = constante.getValor();
+        String id = constante.getId();
+        String type = constante.getTipo();
         if (procesarValor(valor).isError()) {
             // No procesamos nada más ya que se ha producido un error
             return;
@@ -27,17 +31,17 @@ public class SemanticHelper {
 
         // Verificar si el ID ya está definido en el ámbito actual
         if (taulaSim.consultar(id) != null) {
-            ErrorManager.addError(3 , "Error: Redefinición de constante '" + id + "' en línea " + currentLine + ".");
+            ErrorManager.addError(3 , "Error: Redefinición de constante '" + id + "' en línea " + constante.getLine() + ".");
             return;
         }
 
         // Verificar que el tipo de valor coincida con el tipo de la constante
-        if (!valor.getTipo().equals(idType.getTipo())) {
-            ErrorManager.addError(3 , "Error: Tipo incompatible en constante '" + id + "' en línea " + currentLine + ".");
+        if (!TipoSubyacente.getNomTSB(valor.getTipo().getTipoBasico()).equals(type)) {
+            ErrorManager.addError(3 , "Error: Tipo incompatible en constante '" + id + "' en línea " + constante.getLine() + ".");
             return;  // Retorna null para indicar que hubo un error
         }
         // Crear la descripción de la constante usando DConst
-        DConst descripcionConstante = new DConst(valor.getValor(), idType.getTipo());
+        DConst descripcionConstante = new DConst(valor.getValor(), new TipoSubyacente(type));
         taulaSim.posar(id, descripcionConstante);
 
         // Generar código intermedio
@@ -59,11 +63,14 @@ public class SemanticHelper {
      * @param DecTupla      Booleano para indicar si es una declaración de una tupla
      * @param taulaSim      Tabla de Símbolos
      */
-    public static void processVarDeclaration(SType idType, String id, SExpresion expresion, Boolean forSentencia, Boolean DecTupla, TaulaSimbols taulaSim, CodigoIntermedio codigoIntermedio) {
-        int currentLine = 012345; // Obtener línea actual
+    public static void processVarDeclaration(SDecVar variable, Boolean forSentencia, Boolean DecTupla, TaulaSimbols taulaSim, CodigoIntermedio codigoIntermedio) {
+        SExpresion expresion = variable.getExpresion();
+        String id = variable.getId();
+        String type = variable.getTipo();
+        
         // Verificamos que si es la declaracion de un for, sea con expresion
         if (forSentencia && expresion == null) {
-            ErrorManager.addError(3 , "Error: Declaración de la variable en el for sin valor inicial en línea " + currentLine + ".");
+            ErrorManager.addError(3 , "Error: Declaración de la variable en el for sin valor inicial en línea " + variable.getLine() + ".");
             return;
         }
         
@@ -74,7 +81,7 @@ public class SemanticHelper {
 
         // Verificar si el ID ya está definido en el ámbito actual
         if (taulaSim.consultar(id) != null) {
-            ErrorManager.addError(3 , "Error: Redefinición de la variable '" + id + "' en línea " + currentLine + ".");
+            ErrorManager.addError(3 , "Error: Redefinición de la variable '" + id + "' en línea " + variable.getLine() + ".");
             return;
         }
     
@@ -84,15 +91,17 @@ public class SemanticHelper {
                 return;
             }
     
-            if (!expresion.getTipo().equals(idType.getTipo())) {
-                ErrorManager.addError(3 , "Error: Tipo incompatible en variable '" + id + "' en línea " + currentLine + ".");
+            if (!TipoSubyacente.getNomTSB(expresion.getTipo().getTipoBasico()).equals(type)) {
+                ErrorManager.addError(3 , "Error: Tipo incompatible en variable '" + id + "' en línea " + variable.getLine() + ".");
                 return;
             }
         }
+
+        variable.setTipoBasico(new TipoSubyacente(type));
         
         if (!DecTupla) {
             // Si no hay errores, la variable ya está creada, simplemente valida y registra su descripción
-            DVar descripcionVariable = new DVar(idType.getTipo());
+            DVar descripcionVariable = new DVar(variable.getTipoBasico());
             taulaSim.posar(id, descripcionVariable);
         }
 
@@ -112,16 +121,20 @@ public class SemanticHelper {
      * @param dimension     Nodo asociado a las dimensiones del array
      * @param taulaSim      Tabla de Símbolos
      */
-    public static void processArray(SType tipo, String id, SListaDimensiones dimension, TaulaSimbols taulaSim, CodigoIntermedio codigoIntermedio) {
+    public static void processArray(SDecArray array, TaulaSimbols taulaSim, CodigoIntermedio codigoIntermedio) {
+        SListaDimensiones dimension = array.getDimensiones();
+        String id = array.getId();
+        String tipo = array.getTipo();
+        
         Descripcio desc = taulaSim.consultar(id);
         
         // Consultamos el id en la tabla de símbolos
         if (desc != null) {
-            ErrorManager.addError(3 , "Error: Redefinición de mismo nombre en el array " + id +  " en línea " + 012345 + ".");
+            ErrorManager.addError(3 , "Error: Redefinición de mismo nombre en el array " + id +  " en línea " + array.getLine() + ".");
             return;
         }
         
-        DArray desc_array = new DArray(tipo.getTipo());
+        DArray desc_array = new DArray(new TipoSubyacente(tipo));
         SListaDimensiones dimensionesProcesadas = procesarDimension(id, dimension, desc_array, taulaSim);
         if (dimensionesProcesadas.isError()) {
             return;
@@ -129,9 +142,9 @@ public class SemanticHelper {
         taulaSim.posar(id, desc_array);
 
         
-        int baseSize = TipoSubyacente.sizeOf(tipo.getTipo().getTipoBasico());
+        int baseSize = TipoSubyacente.sizeOf(new TipoSubyacente(tipo).getTipoBasico());
         if (baseSize == -1) {
-            ErrorManager.addError(3, "Error: Tipo de tamaño dinámico no soportado para arrays, en línea " + 012345 + ".");
+            ErrorManager.addError(3, "Error: Tipo de tamaño dinámico no soportado para arrays, en línea " + array.getLine() + ".");
             return;
         }
 
@@ -174,14 +187,17 @@ public class SemanticHelper {
      * @param lista         Nodo asociado a la lista de atributos
      * @param taulaSim      Tabla de Símbolos
      */
-    public static void procesarTupla(String id, SListaTupla lista, TaulaSimbols taulaSim,CodigoIntermedio codigoIntermedio) {
+    public static void procesarTupla(SDecTupla tupla, TaulaSimbols taulaSim, CodigoIntermedio codigoIntermedio) {
+        SListaTupla lista = tupla.getListaParametros();
+        String id = tupla.getId();
+        
         // Comprobar si hay error en los parametros
         if (taulaSim.consultar(id) != null) {
-            ErrorManager.addError(3 , "Error: Redefinición de la tupla '" + id + "' en línea " + 012345 + ".");
+            ErrorManager.addError(3 , "Error: Redefinición de la tupla '" + id + "' en línea " + tupla.getLine() + ".");
             return;
         }
 
-        DTupla tupla = new DTupla();
+        DTupla tuplaDef = new DTupla();
 
         // Inicializar el espacio total que ocupará la tupla
 
@@ -190,24 +206,23 @@ public class SemanticHelper {
 
         do {
             SDecVar variable = lista.getVar();
-            TipoSubyacente tipo = variable.getTipo().getTipo();
-            
-            processVarDeclaration(variable.getTipo(), variable.getId(), variable.getExpresion(), false, true, taulaSim, codigoIntermedio);
+
+            processVarDeclaration(variable, false, true, taulaSim, codigoIntermedio);
 
             // Calcular el tamaño del atributo
-            int atributoSize = TipoSubyacente.sizeOf(tipo.getTipoBasico());
+            int atributoSize = TipoSubyacente.sizeOf(variable.getTipoBasico().getTipoBasico());
             String atributoSizeVar = codigoIntermedio.nuevaVariableTemporal();
             codigoIntermedio.agregarInstruccion("COPY", String.valueOf(atributoSize), "", atributoSizeVar);
 
             codigoIntermedio.agregarInstruccion("ADD", atributoSizeVar, totalSizeVar, totalSizeVar);
 
-            tupla.addParametro(lista.getVar().getTipo().getTipo(), lista.getVar().getId());
+            tuplaDef.addParametro(lista.getVar().getTipoBasico(), lista.getVar().getId());
 
             lista = lista.getLista();
 
         } while (lista != null);
 
-        taulaSim.posar(id, tupla);
+        taulaSim.posar(id, tuplaDef);
 
         codigoIntermedio.agregarInstruccion("ALLOC", totalSizeVar, "", id);
         taulaSim.imprimirTabla();
@@ -224,8 +239,11 @@ public class SemanticHelper {
      * @param forActualizacion  Boolean para indicar si pertenece a una sentencia for
      * @param taulaSim          Tabla de Símbolos
      */
-    public static void processAsignacion(String id, SExpresion expresion, String op, SLlamadaArray array, Boolean forActualizacion, TaulaSimbols taulaSim, CodigoIntermedio codigoIntermedio) {
-          
+    public static void processAsignacion(SAsignacion asignacion, Boolean forActualizacion, TaulaSimbols taulaSim, CodigoIntermedio codigoIntermedio) {
+        String id = asignacion.getId();
+        SExpresion expresion = asignacion.getExpresion();
+        String op = asignacion.getOperacion();
+        SLlamadaArray array = asignacion.getArray();
         if (array == null) {
         // Verificar si el valor tiene errores
             if (procesarExpresion(expresion, taulaSim, codigoIntermedio).isError()) {
@@ -237,26 +255,33 @@ public class SemanticHelper {
         
             // Verificar si la variable está declarada
             if (desc == null) {
-                ErrorManager.addError(3 , "Error: La variable '" + id + "' no está declarada en línea " + 012345 + ".");
+                ErrorManager.addError(3 , "Error: La variable '" + id + "' no está declarada en línea " + asignacion.getLine() + ".");
                 return;
             }
         
             // Verificar que sea una variable y no otro tipo de símbolo
             if (!(desc instanceof DVar)) {
-                ErrorManager.addError(3 , "Error: '" + id + "' no es una variable.");
+                ErrorManager.addError(3 , "Error: '" + id + "' no es una variable, en la linea " + asignacion.getLine() + ".");
                 return;
             }
         
             // Verificar compatibilidad de tipo
             DVar variable = (DVar) desc;
             if (!variable.getTipoSubyacente().equals(expresion.getTipo())) {
-                ErrorManager.addError(3 , "Error: Tipo incompatible en asignación a '" + id + "' en línea " + 012345 + ".");
+                ErrorManager.addError(3 , "Error: Tipo incompatible en asignación a '" + id + "' en línea " + asignacion.getLine() + ".");
                 return;
             }
 
             if (forActualizacion && op == "=") {
-                ErrorManager.addError(3 , "Error: Tipo incompatible de asignacion no disponible en un for, en línea " + 012345 + ".");
+                ErrorManager.addError(3 , "Error: Tipo incompatible de asignacion no disponible en un for, en línea " + asignacion.getLine() + ".");
                 
+            }
+
+            if (op.equals("=")) {
+                codigoIntermedio.agregarInstruccion("COPY", expresion.getVarGenerada(), "", id);
+            } else {
+                String temporal = codigoIntermedio.generarExpresion(op.replace("=", ""), id, expresion.getVarGenerada());
+                codigoIntermedio.agregarInstruccion("COPY", temporal, "", id);
             }
         } else {
             SLlamadaArray llamadaProcesada = procesarLlamadaArray(array, taulaSim);
@@ -267,7 +292,7 @@ public class SemanticHelper {
             // Consultar el array en la tabla de símbolos
             Descripcio desc = taulaSim.consultar(array.getArrayName());
             if (desc == null || !(desc instanceof DArray)) {
-                ErrorManager.addError(3 , "Error: '" + array.getArrayName() + "' no es un array válido, en línea " + 012345 + ".");
+                ErrorManager.addError(3 , "Error: '" + array.getArrayName() + "' no es un array válido, en línea " + asignacion.getLine() + ".");
                 return;
             }
 
@@ -281,7 +306,7 @@ public class SemanticHelper {
 
             // Verificar que el tipo de la expresión coincide con el tipo del array
             if (!array_local.getTipo().equals(expresionProcesada.getTipo())) {
-                ErrorManager.addError(3 , "Error: Tipo incompatible en la asignación al array '" + array.getArrayName() + "' en línea " + 012345 + ".");
+                ErrorManager.addError(3 , "Error: Tipo incompatible en la asignación al array '" + array.getArrayName() + "' en línea " + asignacion.getLine() + ".");
                 return;
             }
         }
@@ -329,8 +354,9 @@ public class SemanticHelper {
                     }
                     break;
                     
-                case STRING:
+                case CHAR:
                     // No hacemos nada
+                    sim_valor.setTamañoChar(valor.length());
                     return sim_valor;
                 case BOOLEAN:
                     // No hacemos nada
@@ -407,16 +433,16 @@ public class SemanticHelper {
      * @param cuerpo                Bloque que contiene las sentencias de la función
      * @param taulaSim              Tabla de Símbolos
      */
-    public static void procesarDecFuncion(SType tipoRetorno, String id, SListaParametros parametros, SBloque cuerpo, TaulaSimbols taulaSim, CodigoIntermedio codigoIntermedio) {
+    public static void procesarDecFuncion(int line, String tipoRetorno, String id, SListaParametros parametros, SBloque cuerpo, TaulaSimbols taulaSim, CodigoIntermedio codigoIntermedio) {
         // Verificar si la función ya está declarada en el ámbito global
         if (taulaSim.consultar(id) != null) {
-            ErrorManager.addError(3 , "Error: Redefinición de la función '" + id + "', en línea " + 012345 + ".");
+            ErrorManager.addError(3 , "Error: Redefinición de la función '" + id + "', en línea " + line + ".");
             return;
         }
     
         // Registrar la función en la tabla de descripciones
         DFuncion descripcionFuncion = new DFuncion(
-            tipoRetorno.getTipo(),
+            new TipoSubyacente(tipoRetorno),
             new ArrayList<>(),
             new ArrayList<>()
         );
@@ -432,17 +458,17 @@ public class SemanticHelper {
     
         // Registrar los parámetros en el nuevo ámbito
         do {
-            TipoSubyacente tipoParametro = parametros.getTipo().getTipo();
+            String tipoParametro = parametros.getTipo();
             String nombreParametro = parametros.getID();
     
             // Verificar si el nombre del parámetro ya existe en el ámbito actual
             if (taulaSim.consultar(nombreParametro) != null) {
-                ErrorManager.addError(3 , "Error: Redefinición del parámetro '" + nombreParametro + "' en la función '" + id + "', en línea " + 012345 + ".");
+                ErrorManager.addError(3 , "Error: Redefinición del parámetro '" + nombreParametro + "' en la función '" + id + "', en línea " + line + ".");
                 continue;
             }
     
             // Registrar el parámetro como una variable
-            DVar variable = new DVar(tipoParametro);
+            DVar variable = new DVar(new TipoSubyacente(tipoParametro));
             taulaSim.posar(nombreParametro, variable);
             parametros = parametros.getParametro();
         } while (parametros != null);
@@ -471,7 +497,7 @@ public class SemanticHelper {
     
         // Verificar que la función existe y es una descripción de función
         if (desc == null || !(desc instanceof DFuncion)) {
-            ErrorManager.addError(3 , "Error: La función '" + llamadaFuncion.getIdFuncion() + "' no está declarada, en línea " + 012345 + ".");
+            ErrorManager.addError(3 , "Error: La función '" + llamadaFuncion.getIdFuncion() + "' no está declarada, en línea " + llamadaFuncion.getLine() + ".");
             return;
         }
     
@@ -501,13 +527,13 @@ public class SemanticHelper {
         Descripcio desc = taulaSim.consultar(llamadaArray.getArrayName());
         // Comprobamos si no es null
         if (desc == null) {
-            ErrorManager.addError(3 , "Error: El ID " + llamadaArray.getArrayName() + " no esta inicializado, en línea " + 012345 + ".");
+            ErrorManager.addError(3 , "Error: El ID " + llamadaArray.getArrayName() + " no esta inicializado, en línea " + llamadaArray.getLine() + ".");
             return new SLlamadaArray();
         }
         
         // Comprobamos si el id es un array
         if (!(desc instanceof DArray)) {
-            ErrorManager.addError(3 , "Error: '" + llamadaArray.getArrayName() + "' no es un array, en línea " + 012345 + ".");
+            ErrorManager.addError(3 , "Error: '" + llamadaArray.getArrayName() + "' no es un array, en línea " + llamadaArray.getLine() + ".");
             return new SLlamadaArray();
         }
         
@@ -520,7 +546,7 @@ public class SemanticHelper {
                 return new SLlamadaArray();
             }
             if (!valor_procesado.getTipo().equals(new TipoSubyacente(Tipus.INT))) {
-                ErrorManager.addError(3 , "Error: La dimension del array no es un entero, sino que es " + valor_procesado.getTipo() + ", en línea " + 012345 + ".");
+                ErrorManager.addError(3 , "Error: La dimension del array no es un entero, sino que es " + valor_procesado.getTipo() + ", en línea " + llamadaArray.getLine() + ".");
             }
             dimensiones = dimensiones.getListaDimensiones();
         } while (dimensiones != null);
@@ -539,18 +565,18 @@ public class SemanticHelper {
         Descripcio desc = taulaSim.consultar(llamadaTupla.getTuplaName());
 
         if (desc == null) {
-            ErrorManager.addError(3 , "Error: El ID " + llamadaTupla.getTuplaName() + " no esta inicializado, en línea " + 012345 + ".");
+            ErrorManager.addError(3 , "Error: El ID " + llamadaTupla.getTuplaName() + " no esta inicializado, en línea " + llamadaTupla.getLine() + ".");
             return new SLlamadaTupla();
         }
 
         if (!(desc instanceof DTupla)) {
-            ErrorManager.addError(3 , "Error: " + llamadaTupla.getTuplaName() + " no es una Tupla, en línea " + 012345 + ".");
+            ErrorManager.addError(3 , "Error: " + llamadaTupla.getTuplaName() + " no es una Tupla, en línea " + llamadaTupla.getLine() + ".");
             return new SLlamadaTupla();
         }
 
         DTupla tupla = (DTupla) desc;
         if (!tupla.tieneCampo(llamadaTupla.getFieldName())) {
-            ErrorManager.addError(3 , "Error: El campo '" + llamadaTupla.getFieldName() + "' no existe en la tupla '" + llamadaTupla.getTuplaName() + "', en línea " + 012345 + ".");
+            ErrorManager.addError(3 , "Error: El campo '" + llamadaTupla.getFieldName() + "' no existe en la tupla '" + llamadaTupla.getTuplaName() + "', en línea " + llamadaTupla.getLine() + ".");
             return new SLlamadaTupla();
         }
 
@@ -567,7 +593,12 @@ public class SemanticHelper {
      * @param taulaSim          Tabla de Símbolos
      */
 
-    public static void procesarIf(SExpresion expresion, SBloque bloqueIf, SElif listaElseIf, SBloque bloqueElse, TaulaSimbols taulaSim, CodigoIntermedio codigoIntermedio) {
+    public static void procesarIf(SIf ifSentencia, TaulaSimbols taulaSim, CodigoIntermedio codigoIntermedio) {
+        SExpresion expresion = ifSentencia.getExpresion();
+        SBloque bloqueIf = ifSentencia.getBloque1();
+        SElif listaElseIf = ifSentencia.getLista();
+        SBloque bloqueElse = ifSentencia.getBloque2();
+
         // Procesar la condición del if principal
         SExpresion expresionProcesada = procesarExpresion(expresion, taulaSim, codigoIntermedio);
         if (expresionProcesada.isError()) {
@@ -576,7 +607,7 @@ public class SemanticHelper {
     
         // Verificar que la condición sea de tipo booleano
         if (!expresionProcesada.getTipo().equals(new TipoSubyacente(Tipus.BOOLEAN))) {
-            ErrorManager.addError(3 , "Error: La condición del 'if' debe ser de tipo booleano, no " + expresionProcesada.getTipo() + ", en línea " + 012345 + ".");
+            ErrorManager.addError(3 , "Error: La condición del 'if' debe ser de tipo booleano, no " + expresionProcesada.getTipo() + ", en línea " + ifSentencia.getLine() + ".");
             return;
         }
     
@@ -617,7 +648,7 @@ public class SemanticHelper {
 
             // Verificar que la condición sea de tipo booleano
             if (!condicion.getTipo().equals(new TipoSubyacente(Tipus.BOOLEAN))) {
-                ErrorManager.addError(3 , "Error: La condición del 'else-if' debe ser de tipo booleano, no " + condicion.getTipo() + ", en línea " + 012345 + ".");
+                ErrorManager.addError(3 , "Error: La condición del 'else-if' debe ser de tipo booleano, no " + condicion.getTipo() + ", en línea " + listaLocal.getLine() + ".");
                 return new SElif();
             }
 
@@ -640,7 +671,9 @@ public class SemanticHelper {
      * @param bloque            Sentencias que se ejecutarán si se cumple la condición
      * @param taulaSim          Tabla de Símbolos
      */
-    public static void procesarWhile(SExpresion expresion, SBloque bloque, TaulaSimbols taulaSim, CodigoIntermedio codigoIntermedio) {
+    public static void procesarWhile(SWhile whileSentencia, TaulaSimbols taulaSim, CodigoIntermedio codigoIntermedio) {
+        SExpresion expresion = whileSentencia.getExpresion();
+        SBloque bloque = whileSentencia.getBloque();
         // Procesamos la condición del while
         SExpresion expresionProcesada = procesarExpresion(expresion, taulaSim, codigoIntermedio);
         if (expresionProcesada.isError()) {
@@ -649,7 +682,7 @@ public class SemanticHelper {
 
         // Verificar que la condición sea de tipo booleano
         if (!expresionProcesada.getTipo().equals(new TipoSubyacente(Tipus.BOOLEAN))) {
-            ErrorManager.addError(3 , "Error: La condición del 'while ' debe ser de tipo booleano, no " + expresionProcesada.getTipo() + ", en línea " + 012345 + ".");
+            ErrorManager.addError(3 , "Error: La condición del 'while ' debe ser de tipo booleano, no " + expresionProcesada.getTipo() + ", en línea " + whileSentencia.getLine() + ".");
             return;
         }
 
@@ -671,7 +704,7 @@ public class SemanticHelper {
         //Creamos un nuevo nivel de ámbito
         taulaSim.nuevoNivelAmbito();
         // Procesamos la incialización como la declaración de una variable
-        processVarDeclaration(init.getTipo(), init.getId(), init.getExpresion(), true, false, taulaSim, codigoIntermedio);
+        processVarDeclaration(init, true, false, taulaSim, codigoIntermedio);
 
         // Procesamos la condición
         SExpresion condicionProcesada= procesarExpresion(condicion, taulaSim, codigoIntermedio);
@@ -687,7 +720,7 @@ public class SemanticHelper {
         }
 
         // Procesamos la actualizacion
-        processAsignacion(actualizacion.getId(), actualizacion.getExpresion(), actualizacion.getOperacion(), null, true, taulaSim, codigoIntermedio);
+        processAsignacion(actualizacion, true, taulaSim, codigoIntermedio);
         // Procesamos el cuerpo del bucle
         procesarBloque(cuerpo, taulaSim, false, "FOR", codigoIntermedio);
 
@@ -719,17 +752,18 @@ public class SemanticHelper {
      * @param id            Identificador donde se guardará la info introducida
      * @param taulaSim      Tabla de Símbolos
      */
-    public static void procesarInput(String id, TaulaSimbols taulaSim) {
+    public static void procesarInput(SInput input, TaulaSimbols taulaSim) {
+        String id = input.getId();
         Descripcio desc = taulaSim.consultar(id);
 
         if(desc == null) {
-            ErrorManager.addError(3 , "Error: La variable '" + id + "' no está declarada, en línea " + 012345 + ".");
+            ErrorManager.addError(3 , "Error: La variable '" + id + "' no está declarada, en línea " + input.getLine() + ".");
             return;
         }
 
         // Verificar que sea una variable y no otro tipo de símbolo
         if (!(desc instanceof DVar)) {
-            ErrorManager.addError(3 , "Error: '" + id + "' no es una variable, en línea " + 012345 + ".");
+            ErrorManager.addError(3 , "Error: '" + id + "' no es una variable, en línea " + input.getLine() + ".");
             return;
         }
     }
@@ -769,39 +803,39 @@ public class SemanticHelper {
             bloque = bloque.getBloque();
             if (sentencia instanceof SDecConstante) {
                 SDecConstante decConst = (SDecConstante) sentencia;
-                processConstantDeclaration(decConst.getTipo(), decConst.getId(), decConst.getValor(), 0, taulaSim, codigoIntermedio);
+                processConstantDeclaration(decConst, taulaSim, codigoIntermedio);
             } else if (sentencia instanceof SDecVar) {
                 SDecVar decVar = (SDecVar) sentencia;
-                processVarDeclaration(decVar.getTipo(), decVar.getId(), decVar.getExpresion(), false, false, taulaSim, codigoIntermedio);
+                processVarDeclaration(decVar, false, false, taulaSim, codigoIntermedio);
             } else if (sentencia instanceof SDecArray) {
                 SDecArray decArray = (SDecArray) sentencia;
-                processArray(decArray.getTipo(), decArray.getId(), decArray.getDimensiones(), taulaSim, codigoIntermedio);
+                processArray(decArray, taulaSim, codigoIntermedio);
             } else if (sentencia instanceof SDecTupla) {
                 SDecTupla decTupla = (SDecTupla) sentencia;
-                procesarTupla(decTupla.getId(), decTupla.getListaParametros(), taulaSim, codigoIntermedio);
+                procesarTupla(decTupla, taulaSim, codigoIntermedio);
             } else if (sentencia instanceof SAsignacion) {
                 SAsignacion asignacion = (SAsignacion) sentencia;
-                processAsignacion(asignacion.getId(), asignacion.getExpresion(), asignacion.getOperacion(), asignacion.getArray(), false, taulaSim, codigoIntermedio);
+                processAsignacion(asignacion, false, taulaSim, codigoIntermedio);
             } else if (sentencia instanceof SReturn) {
+                SReturn retorno = (SReturn) sentencia;
                 if (!dentroDeFuncion) {     // Si no estamos dentro de una función, es un error
-                    ErrorManager.addError(3 , "Error: Sentencia 'return' no permitida en el contexto '" + contexto + "', en línea " + 012345 + ".");
+                    ErrorManager.addError(3 , "Error: Sentencia 'return' no permitida en el contexto '" + contexto + "', en línea " + retorno.getLine() + ".");
                     continue;
                 }
-                SReturn retorno = (SReturn) sentencia;
                 procesarReturn(retorno, taulaSim, codigoIntermedio);
                 tieneReturnValido = true;
             } else if (sentencia instanceof SLlamadaFuncion) {
                 SLlamadaFuncion llamadaFuncion = (SLlamadaFuncion) sentencia;
                 procesarLlamadaFuncion(llamadaFuncion, taulaSim, codigoIntermedio);
                 if (!llamadaFuncion.isEsVoid() && !dentroDeFuncion) {
-                    ErrorManager.addError(3 , "Error: Llamada a función con retorno no utilizada dentro del bloque '" + contexto + "', en línea " + 012345 + ".");
+                    ErrorManager.addError(3 , "Error: Llamada a función con retorno no utilizada dentro del bloque '" + contexto + "', en línea " + llamadaFuncion.getLine() + ".");
                 }
             } else if (sentencia instanceof SIf) {
                 SIf ifSentencia = (SIf) sentencia;
-                procesarIf(ifSentencia.getExpresion(), ifSentencia.getBloque1(), ifSentencia.getLista(), ifSentencia.getBloque2(), taulaSim, codigoIntermedio);
+                procesarIf(ifSentencia, taulaSim, codigoIntermedio);
             } else if (sentencia instanceof SWhile) {
                 SWhile whileSentencia = (SWhile) sentencia;
-                procesarWhile(whileSentencia.getExpresion(), whileSentencia.getBloque(), taulaSim,codigoIntermedio);
+                procesarWhile(whileSentencia, taulaSim, codigoIntermedio);
             } else if (sentencia instanceof SFor) {
                 SFor forSentencia = (SFor) sentencia;
                 procesarFor(forSentencia.getInicializacion(), forSentencia.getCondicion(), forSentencia.getActualizacion(), forSentencia.getBloque(), taulaSim, codigoIntermedio);
@@ -810,9 +844,9 @@ public class SemanticHelper {
                 procesarPrint(printSentencia.getLista(), taulaSim, codigoIntermedio);
             } else if (sentencia instanceof SInput) {
                 SInput inputSentencia = (SInput) sentencia;
-                procesarInput(inputSentencia.getId(), taulaSim);
+                procesarInput(inputSentencia, taulaSim);
             } else {
-                ErrorManager.addError(3 , "Error: Sentencia no reconocida dentro del bloque '" + contexto + "', en línea " + 012345 + ".");
+                ErrorManager.addError(3 , "Error: Sentencia no reconocida dentro del bloque '" + contexto + "'.");
             }
         } 
     
@@ -824,7 +858,7 @@ public class SemanticHelper {
                 DFuncion funcion = (DFuncion) desc;
                 if (!funcion.getTipoRetorno().equals(new TipoSubyacente(Tipus.VOID)) && !tieneReturnValido) {
                     // Si no es void y no hay return, es un error
-                    ErrorManager.addError(3 , "Error: La función '" + funcionActual + "' debe contener un 'return' válido en todas las rutas posibles, en línea " + 012345 + ".");
+                    ErrorManager.addError(3 , "Error: La función '" + funcionActual + "' debe contener un 'return' válido en todas las rutas posibles.");
                 }
             }
 
@@ -847,7 +881,7 @@ public class SemanticHelper {
     public static SExpresion procesarExpresion(SExpresion expresion, TaulaSimbols taulaSim, CodigoIntermedio codigoIntermedio) {
         // Si la expresión es nula, devolver una expresión vacía
         if (expresion == null) {
-            ErrorManager.addError(3 , "Error: Expresión nula detectada en " + expresion + ", en línea " + 012345 + ".");
+            ErrorManager.addError(3 , "Error: Expresión nula detectada en " + expresion + ", en línea " + expresion.getLine() + ".");
             return new SExpresion();
         }
     
@@ -870,7 +904,7 @@ public class SemanticHelper {
             procesarLlamadaFuncion(llamadaFuncion, taulaSim, codigoIntermedio);
 
             if (llamadaFuncion.isEsVoid()) {
-                ErrorManager.addError(3 , "Error: No se puede usar una función 'void' como parte de una expresión, en línea " + 012345 + ".");
+                ErrorManager.addError(3 , "Error: No se puede usar una función 'void' como parte de una expresión, en línea " + expresion.getLine() + ".");
                 return new SExpresion(); // Devolver expresión vacía en caso de error
             }
     
@@ -880,7 +914,7 @@ public class SemanticHelper {
                 TipoSubyacente tipoRetorno = ((DFuncion) desc).getTipoRetorno();
                 expresion.setTipo(tipoRetorno);
             } else {
-                ErrorManager.addError(3 , "Error: La función '" + llamadaFuncion.getIdFuncion() + "' no está declarada correctamente, en línea " + 012345 + ".");
+                ErrorManager.addError(3 , "Error: La función '" + llamadaFuncion.getIdFuncion() + "' no está declarada correctamente, en línea " + expresion.getLine() + ".");
                 return new SExpresion(); // Devolver expresión vacía
             }
     
@@ -901,7 +935,7 @@ public class SemanticHelper {
             if (desc instanceof DArray) {
                 expresion.setTipo(((DArray) desc).getTipo());
             } else {
-                ErrorManager.addError(3 , "Error interno: El ID '" + arrayProcesado.getArrayName() + "' no corresponde a un array, en línea " + 012345 + ".");
+                ErrorManager.addError(3 , "Error interno: El ID '" + arrayProcesado.getArrayName() + "' no corresponde a un array, en línea " + expresion.getLine() + ".");
                 return new SExpresion();
             }
             return expresion;
@@ -923,11 +957,11 @@ public class SemanticHelper {
                 if (tipoCampo != null) {
                     expresion.setTipo(tipoCampo);
                 } else {
-                    ErrorManager.addError(3 , "Error interno: El campo '" + tuplaProcesada.getFieldName() + "' no tiene un tipo asociado, en línea " + 012345 + ".");
+                    ErrorManager.addError(3 , "Error interno: El campo '" + tuplaProcesada.getFieldName() + "' no tiene un tipo asociado, en línea " + expresion.getLine() + ".");
                     return new SExpresion();
                 }
             } else {
-                ErrorManager.addError(3 , "Error interno: El ID '" + tuplaProcesada.getTuplaName() + "' no corresponde a una tupla, en línea " + 012345 + ".");
+                ErrorManager.addError(3 , "Error interno: El ID '" + tuplaProcesada.getTuplaName() + "' no corresponde a una tupla, en línea " + expresion.getLine() + ".");
                 return new SExpresion();
             }
             return expresion;
@@ -940,20 +974,20 @@ public class SemanticHelper {
             SExpresion e2Procesada = procesarExpresion(expresion.getE2(), taulaSim, codigoIntermedio);
 
             if (e1Procesada.getTipo() == null || e2Procesada.getTipo() == null) {
-                ErrorManager.addError(3 , "Error: Tipos inválidos en los operandos de la operación '" + expresion.getOperador() + "', en línea " + 012345 + ".");
+                ErrorManager.addError(3 , "Error: Tipos inválidos en los operandos de la operación '" + expresion.getOperador() + "', en línea " + expresion.getLine() + ".");
                 return new SExpresion();
             }
 
             // Verificar compatibilidad de tipos
             if (!e1Procesada.getTipo().esCompatibleCon(e2Procesada.getTipo())) {
-                ErrorManager.addError(3 , "Error: Tipos incompatibles en la operación '" + expresion.getOperador() + "', en línea " + 012345 + ".");
+                ErrorManager.addError(3 , "Error: Tipos incompatibles en la operación '" + expresion.getOperador() + "', en línea " + expresion.getLine() + ".");
                 return new SExpresion();
             }
 
             // Determinar el tipo de la operación según el operador
             TipoSubyacente tipoResultado = determinarTipoOperacion(e1Procesada.getTipo(), e2Procesada.getTipo(), expresion.getOperador());
             if (tipoResultado == null) {
-                ErrorManager.addError(3 , "Error: Operación '" + expresion.getOperador() + "' no válida para los tipos proporcionados, en línea " + 012345 + ".");
+                ErrorManager.addError(3 , "Error: Operación '" + expresion.getOperador() + "' no válida para los tipos proporcionados, en línea " + expresion.getLine() + ".");
                 return new SExpresion();
             }
 
@@ -978,7 +1012,7 @@ public class SemanticHelper {
 
             // Validar tipos: Solo se permiten comparaciones entre tipos numéricos
             if (!e1Procesada.getTipo().esNumerico() || !e2Procesada.getTipo().esNumerico()) {
-                ErrorManager.addError(3 , "Error: Operadores de comparación solo válidos para tipos numéricos, en línea " + 012345 + ".");
+                ErrorManager.addError(3 , "Error: Operadores de comparación solo válidos para tipos numéricos, en línea " + expresion.getLine() + ".");
                 return new SExpresion();
             }
 
@@ -995,7 +1029,7 @@ public class SemanticHelper {
         if (expresion.getID() != null) {
             Descripcio expr_id = taulaSim.consultar(expresion.getID());
             if (expr_id == null) {
-                ErrorManager.addError(3 , "Error: ID no declarado, expresión inválida, en línea " + 012345 + ".");
+                ErrorManager.addError(3 , "Error: ID no declarado, expresión inválida, en línea " + expresion.getLine() + ".");
                 return new SExpresion();
             }
 
@@ -1016,7 +1050,7 @@ public class SemanticHelper {
                 DVar id_table = (DVar) expr_id;
                 expresion.setTipo(id_table.getTipoSubyacente());
             } else {
-                ErrorManager.addError(3 , "Error: El id de una expresión debe ser una variable o constante, en línea " + 012345 + ".");
+                ErrorManager.addError(3 , "Error: El id de una expresión debe ser una variable o constante, en línea " + expresion.getLine() + ".");
                 return new SExpresion();
             }
         
@@ -1024,7 +1058,7 @@ public class SemanticHelper {
         }
 
         // Si llega aquí, la expresión no es válida
-        ErrorManager.addError(3 , "Error: Expresión inválida, en línea " + 012345 + ".");
+        ErrorManager.addError(3 , "Error: Expresión inválida, en línea " + expresion.getLine() + ".");
         return new SExpresion();
     }
 
@@ -1053,18 +1087,20 @@ public class SemanticHelper {
     public static SListaDimensiones procesarDimension(String id, SListaDimensiones dimension, DArray desc_array, TaulaSimbols taulaSim) {
         
         SListaDimensiones dimension_local = dimension;
+        int i = 1;
         do {
             SValor valor_procesado = procesarValor(dimension_local.getSize());
             if (valor_procesado.isError()) {
                 return new SListaDimensiones(); // Valor con rangos incorrectos
             }
             if (!valor_procesado.getTipo().equals(new TipoSubyacente(Tipus.INT))) {
-                ErrorManager.addError(3 , "Error: La dimension del array no es un entero, sino que es " + valor_procesado.getTipo() + ", en línea " + 012345 + ".");
+                ErrorManager.addError(3 , "Error: La dimension número " + i + " del array no es un entero, sino que es " + valor_procesado.getTipo() + ", en línea " + dimension_local.getLine() + ".");
                 return new SListaDimensiones();
             }
 
             desc_array.addDimension(valor_procesado.getValor());
             dimension_local = dimension_local.getListaDimensiones();
+            i++;
         } while (dimension_local != null);
 
         return dimension; 
@@ -1085,11 +1121,11 @@ public class SemanticHelper {
         SListaParametros parametro_local = parametro;
         do {
             if (taulaSim.consultar(parametro_local.getID()) != null ) {
-                ErrorManager.addError(3 , "Error: Redefinición del parámetro '" + parametro_local.getID() + "', en línea " + 012345 + ".");
+                ErrorManager.addError(3 , "Error: Redefinición del parámetro '" + parametro_local.getID() + "', en línea " + parametro_local.getLine() + ".");
                 return new SListaParametros();
             }
 
-            descD.addParametro(parametro_local.getTipo().getTipo(), parametro_local.getID());
+            descD.addParametro(new TipoSubyacente(parametro_local.getTipo()), parametro_local.getID());
 
             parametro_local = parametro_local.getParametro();
         } while ((parametro_local != null));
@@ -1171,7 +1207,7 @@ public class SemanticHelper {
             }
             SExpresion expresion = procesarExpresion(lista_local.getExpresion(), taulaSim, codigoIntermedio);
             if (!funcion.getListaTipos().get(i).equals(expresion.getTipo())) {
-                ErrorManager.addError(3 , "Error: El tipo de la expresion que es: " + expresion.getTipo() + " no coincide con el tipo de la funcion que es: " + funcion.getListaTipos().get(i) + ", en línea " + 012345 + ".");
+                ErrorManager.addError(3 , "Error: El tipo de la expresion que es: " + expresion.getTipo() + " no coincide con el tipo de la funcion que es: " + funcion.getListaTipos().get(i) + ", en línea " + lista_local.getLine() + ".");
                 return new SListaArgumentos();
             }
             i++;
@@ -1193,12 +1229,12 @@ public class SemanticHelper {
     
         // Verificar que la función existe y es una descripción de función
         if (desc == null) {
-            ErrorManager.addError(3 , "Error: La función '" + idFuncion + "' no está declarada, en línea " + 012345 + ".");
+            ErrorManager.addError(3 , "Error: La función '" + idFuncion + "' no está declarada.");
             return null; // Retorna null si no existe
         }
     
         if (!(desc instanceof DFuncion)) {
-            ErrorManager.addError(3 , "Error: '" + idFuncion + "' no es una función en línea " + 012345 + ".");
+            ErrorManager.addError(3 , "Error: '" + idFuncion + "' no es una función.");
             return null; // Retorna null si no es una función
         }
     

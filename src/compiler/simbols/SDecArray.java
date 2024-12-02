@@ -1,13 +1,16 @@
 package compiler.simbols;
 
+import java_cup.reduce_action;
 
 public class SDecArray extends SBase {
-    private SType tipo;
+    private String tipo;
     private String id;
     private SListaDimensiones dimensiones;
+    private int line;
 
-    public SDecArray(SType tipo, String id, SListaDimensiones dimensiones) {
+    public SDecArray(int line, String tipo, String id, SListaDimensiones dimensiones) {
         super("SDecArray", null);
+        this.line = line;
         this.tipo = tipo;
         this.id = id;
         this.dimensiones = dimensiones;
@@ -17,7 +20,11 @@ public class SDecArray extends SBase {
         super();
     }
 
-    public SType getTipo() {
+    public int getLine() {
+        return line;
+    }
+
+    public String getTipo() {
         return tipo;
     }
 

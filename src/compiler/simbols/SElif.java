@@ -4,16 +4,19 @@ public class SElif extends SBase{
     private SElif lista;
     private SExpresion expresion;
     private SBloque bloque;
+    private int line;
 
-    public SElif(SElif lista, SExpresion expresion, SBloque bloque) {
+    public SElif(int line, SElif lista, SExpresion expresion, SBloque bloque) {
         super("SElif", null);
+        this.line = line;
         this.lista = lista;
         this.expresion = expresion;
         this.bloque = bloque;
     }
 
-    public SElif(SExpresion expresion, SBloque bloque) {
+    public SElif(int line, SExpresion expresion, SBloque bloque) {
         super("SElif", null);
+        this.line = line;
         this.expresion = expresion;
         this.bloque = bloque;
     }
@@ -23,7 +26,10 @@ public class SElif extends SBase{
         super();
     }
 
-
+    public int getLine() {
+        return line;
+    }
+    
     public SElif getLista() {
         return lista;
     }

@@ -2,12 +2,14 @@ package compiler.simbols;
 
 
 public class SDecConstante extends SBase{
-    private SType tipo;
+    private String tipo;
     private String id;
     private SValor valor;
+    private int line;
 
-    public SDecConstante(SType tipo, String id, SValor valor) {
+    public SDecConstante(int line, String tipo, String id, SValor valor) {
         super("SDecConstante", valor);
+        this.line = line;
         this.tipo = tipo;
         this.id = id;
         this.valor = valor;
@@ -17,7 +19,7 @@ public class SDecConstante extends SBase{
         super();
     }
 
-    public SType getTipo() {
+    public String getTipo() {
         return tipo;
     }
 
@@ -27,6 +29,10 @@ public class SDecConstante extends SBase{
 
     public SValor getValor() {
         return valor;
+    }
+
+    public int getLine() {
+        return line;
     }
 
     @Override

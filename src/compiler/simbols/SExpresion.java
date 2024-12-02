@@ -13,10 +13,12 @@ public class SExpresion extends SBase {
     private SLlamadaArray arrayAcces;
     private SLlamadaTupla tuplaAcces;
     private String varGenerada;
+    private int line;
 
     // Constructor único para cualquier tipo de expresión
-    public SExpresion(SExpresion e1, SExpresion e2, String operador) {
+    public SExpresion(int line, SExpresion e1, SExpresion e2, String operador) {
         super("SExpresion", null);
+        this.line = line;
         this.e1 = e1;
         this.e2 = e2;
         this.operador = operador;
@@ -25,8 +27,9 @@ public class SExpresion extends SBase {
         this.tipo = tipo;
     }
 
-    public SExpresion(SLlamadaFuncion llamadaFuncion) {
+    public SExpresion(int line, SLlamadaFuncion llamadaFuncion) {
         super("SExpresion", null);
+        this.line = line;
         this.llamadaFuncion = llamadaFuncion;
         this.e1 = null;
         this.e2 = null;
@@ -36,8 +39,9 @@ public class SExpresion extends SBase {
         this.id = null;
     }
 
-    public SExpresion(SValor valor) {
+    public SExpresion(int line, SValor valor) {
         super("SExpresion", null);
+        this.line = line;
         this.llamadaFuncion = null;
         this.e1 = null;
         this.e2 = null;
@@ -47,8 +51,9 @@ public class SExpresion extends SBase {
         this.id = null;
     }
 
-    public SExpresion(String id) {
+    public SExpresion(int line, String id) {
         super("SExpresion", null);
+        this.line= line;
         this.llamadaFuncion = null;
         this.e1 = null;
         this.e2 = null;
@@ -58,13 +63,15 @@ public class SExpresion extends SBase {
         this.tipo = null;
     }
 
-    public SExpresion(SLlamadaArray arrayAcces) {
+    public SExpresion(int line, SLlamadaArray arrayAcces) {
         super("SLlamadaArray", null);
+        this.line = line;
         this.arrayAcces = arrayAcces;
     }
 
-    public SExpresion(SLlamadaTupla tuplaAcces) {
+    public SExpresion(int line, SLlamadaTupla tuplaAcces) {
         super("SLlamadaArray", null);
+        this.line = line;
         this.tuplaAcces = tuplaAcces;
     }
 
@@ -73,6 +80,10 @@ public class SExpresion extends SBase {
     }
 
     // Getters
+    public int getLine() {
+        return line;
+    }
+
     public SExpresion getE1() {
         return e1;
     }

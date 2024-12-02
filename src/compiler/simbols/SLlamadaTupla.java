@@ -1,17 +1,24 @@
 package compiler.simbols;
 
+
 public class SLlamadaTupla extends SBase{
     private String tuplaName;
     private String fieldName;
+    private int line;
 
-    public SLlamadaTupla(String tuplaName, String fieldName) {
+    public SLlamadaTupla(int line, String tuplaName, String fieldName) {
         super("SLlamadaTupla", null);
+        this.line = line;
         this.tuplaName = tuplaName;
         this.fieldName = fieldName;
     }
 
     public SLlamadaTupla() {
         super();
+    }
+
+    public int getLine() {
+        return line;
     }
 
     public String getTuplaName() {

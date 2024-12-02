@@ -8,56 +8,48 @@ package compiler.sintactic;
 /** CUP generated class containing symbol constants. */
 public class ParserSym {
   /* terminals */
-  public static final int STRING_LITERAL = 3;
-  public static final int LBRACKET = 16;
-  public static final int CONST = 12;
-  public static final int INPUT = 37;
-  public static final int TUPLA = 20;
-  public static final int LPAREN = 21;
-  public static final int INT = 6;
-  public static final int ARRAY = 24;
-  public static final int FOR = 34;
-  public static final int RPAREN = 22;
-  public static final int BOOLEAN_LITERAL = 11;
-  public static final int SEMICOLON = 13;
-  public static final int BOOL = 8;
-  public static final int COMMA = 23;
-  public static final int IF = 30;
-  public static final int DOT = 35;
+  public static final int INPUT = 33;
+  public static final int OP_ASSIGN = 14;
+  public static final int ELSE = 28;
+  public static final int SEMICOLON = 9;
+  public static final int RPAREN = 18;
+  public static final int RBRACE = 11;
+  public static final int EQUAL = 15;
+  public static final int WHILE = 29;
+  public static final int OP_ARITMETICO = 23;
+  public static final int OP_COMPARACION = 25;
+  public static final int TUPLA = 16;
+  public static final int BOOLEAN_LITERAL = 7;
+  public static final int RETURN = 22;
+  public static final int IF = 26;
+  public static final int LPAREN = 17;
+  public static final int LBRACKET = 12;
+  public static final int LBRACE = 10;
   public static final int ID = 2;
+  public static final int RBRACKET = 13;
+  public static final int STRING_LITERAL = 3;
+  public static final int INT_LITERAL = 6;
+  public static final int TYPE = 4;
+  public static final int COMMA = 19;
   public static final int EOF = 0;
-  public static final int RETURN = 26;
-  public static final int OP_ARITMETICO = 27;
-  public static final int RBRACKET = 17;
-  public static final int EQUAL = 19;
+  public static final int DEF = 21;
+  public static final int ELIF = 27;
+  public static final int PRINT = 32;
+  public static final int DOT = 31;
+  public static final int CONST = 8;
   public static final int error = 1;
-  public static final int OP_ASSIGN = 18;
-  public static final int VOID = 10;
-  public static final int LBRACE = 14;
-  public static final int ELSE = 32;
-  public static final int OP_COMPARACION = 29;
-  public static final int OP_LOGICO = 28;
-  public static final int WHILE = 33;
-  public static final int FLOAT = 9;
-  public static final int RBRACE = 15;
-  public static final int STRING = 7;
-  public static final int DEF = 25;
-  public static final int FLOAT_LITERAL = 4;
-  public static final int ELIF = 31;
-  public static final int PRINT = 36;
-  public static final int INT_LITERAL = 5;
+  public static final int OP_LOGICO = 24;
+  public static final int FOR = 30;
+  public static final int FLOAT_LITERAL = 5;
+  public static final int ARRAY = 20;
   public static final String[] terminalNames = new String[] {
   "EOF",
   "error",
   "ID",
   "STRING_LITERAL",
+  "TYPE",
   "FLOAT_LITERAL",
   "INT_LITERAL",
-  "INT",
-  "STRING",
-  "BOOL",
-  "FLOAT",
-  "VOID",
   "BOOLEAN_LITERAL",
   "CONST",
   "SEMICOLON",

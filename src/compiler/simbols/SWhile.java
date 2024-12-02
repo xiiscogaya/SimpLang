@@ -3,14 +3,19 @@ package compiler.simbols;
 public class SWhile extends SBase{
     private SExpresion expresion;
     private SBloque bloque;
+    private int line;
 
     
-    public SWhile(SExpresion expresion, SBloque bloque) {
+    public SWhile(int line, SExpresion expresion, SBloque bloque) {
         super("SWhile", null);
+        this.line = line;
         this.expresion = expresion;
         this.bloque = bloque;
     }
 
+    public int getLine() {
+        return line;
+    }
 
     public SExpresion getExpresion() {
         return expresion;

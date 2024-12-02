@@ -4,25 +4,32 @@ package compiler.simbols;
 public class SListaArgumentos extends SBase {
     private SListaArgumentos argumentos;
     private SExpresion expresion;
+    private int line;
 
     /**
      * Constructor para cuando haya más argumentos
      */
-    public SListaArgumentos(SListaArgumentos argumentos, SExpresion expresion) {
+    public SListaArgumentos(int line, SListaArgumentos argumentos, SExpresion expresion) {
         super("SListaArgumentos", null);
+        this.line = line;
         this.argumentos = argumentos;
         this.expresion = expresion;
     }
 
     // Constructor para cuando no haya más argumentos
-    public SListaArgumentos(SExpresion expresion) {
+    public SListaArgumentos(int line, SExpresion expresion) {
         super("SListaArgumentos", null);
+        this.line = line;
         this.argumentos =null;
         this.expresion = expresion;
     }
 
     public SListaArgumentos() {
         super();
+    }
+
+    public int getLine() {
+        return line;
     }
 
     /**

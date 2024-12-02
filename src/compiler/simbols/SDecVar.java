@@ -1,12 +1,17 @@
 package compiler.simbols;
 
+import compiler.taulasimbols.TipoSubyacente;
+
 public class SDecVar extends SBase{
-    private SType tipo;
+    private String tipo;
     private String id;
     private SExpresion expresion;
+    private TipoSubyacente tipoBasico;
+    private int line;
 
-    public SDecVar(SType tipo, String id, SExpresion expresion) {
+    public SDecVar(int line, String tipo, String id, SExpresion expresion) {
         super("SDecVar", null);
+        this.line = line;
         this.tipo = tipo;
         this.id = id;
         this.expresion = expresion;
@@ -16,7 +21,11 @@ public class SDecVar extends SBase{
         super();
     }
 
-    public SType getTipo() {
+    public int getLine() {
+        return line;
+    }
+
+    public String getTipo() {
         return tipo;
     }
 
@@ -26,6 +35,14 @@ public class SDecVar extends SBase{
 
     public SExpresion getExpresion() {
         return expresion;
+    }
+
+    public TipoSubyacente getTipoBasico() {
+        return tipoBasico;
+    }
+
+    public void setTipoBasico(TipoSubyacente tipoBasico) {
+        this.tipoBasico = tipoBasico;
     }
     
     @Override

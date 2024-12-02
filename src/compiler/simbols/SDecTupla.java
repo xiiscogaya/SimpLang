@@ -4,6 +4,7 @@ package compiler.simbols;
 public class SDecTupla extends SBase {
     private String id;
     private SListaTupla listaParametros;  // Contiene tanto tipos como valores
+    private int line;
 
     /**
      * Constructor para crear una instancia de SDecTupla con el id y los parámetros.
@@ -11,8 +12,9 @@ public class SDecTupla extends SBase {
      * @param id Identificador de la tupla.
      * @param listaParametros Lista de tipos y valores de los parámetros.
      */
-    public SDecTupla(String id, SListaTupla listaParametros) {
+    public SDecTupla(int line, String id, SListaTupla listaParametros) {
         super("SDecTupla", listaParametros);  // Inicializa con el nombre y la lista de parámetros
+        this.line = line;
         this.id = id;
         this.listaParametros = listaParametros;
     }
@@ -22,6 +24,10 @@ public class SDecTupla extends SBase {
      */
     public SDecTupla() {
         super();  // Llama al constructor vacío de SBase y marca como error
+    }
+
+    public int getLine() {
+        return line;
     }
 
     public String getId() {

@@ -7,7 +7,6 @@ import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import compiler.sintactic.ErrorManager;
 import compiler.sintactic.ParserSym;
-import compiler.sintactic.ErrorContext;
 
 %%
 
@@ -56,7 +55,11 @@ whitespace  = [ \n\t\r]+
         Location esquerra = new Location(yyline+1, yycolumn+1);
         Location dreta = new Location(yyline+1, yycolumn+yytext().length()+1);
 
-        return new ComplexSymbol(ParserSym.terminalNames[type], type, esquerra, dreta);
+        ComplexSymbol cs = new ComplexSymbol(ParserSym.terminalNames[type], type, esquerra, dreta);
+        cs.left = yyline + 1;
+        cs.right = yycolumn + 1;
+
+        return cs;
     }
     
     /**
@@ -67,7 +70,11 @@ whitespace  = [ \n\t\r]+
         Location esquerra = new Location(yyline+1, yycolumn+1);
         Location dreta = new Location(yyline+1, yycolumn+yytext().length()+1);
 
-        return new ComplexSymbol(ParserSym.terminalNames[type], type, esquerra, dreta, value);
+        ComplexSymbol cs = new ComplexSymbol(ParserSym.terminalNames[type], type, esquerra, dreta, value);
+        cs.left = yyline + 1;
+        cs.right = yycolumn + 1;
+
+        return cs;
     }
 
 %}
@@ -82,11 +89,7 @@ whitespace  = [ \n\t\r]+
 
 
 // Palabras clave
-"int"           { return symbol(ParserSym.INT); }
-"float"         { return symbol(ParserSym.FLOAT); }
-"string"        { return symbol(ParserSym.STRING); }
-"bool"          { return symbol(ParserSym.BOOL); }
-"void"          { return symbol(ParserSym.VOID); }
+"int"|"float"|"string"|"bool"|"void"          { return symbol(ParserSym.TYPE, yytext()); }
 "const"         { return symbol(ParserSym.CONST); }
 "tupla"         { return symbol(ParserSym.TUPLA); }
 "array"         { return symbol(ParserSym.ARRAY); }

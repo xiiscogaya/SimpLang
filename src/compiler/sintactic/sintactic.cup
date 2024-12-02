@@ -51,15 +51,15 @@ parser code {:
 
 terminal String ID;
 terminal String STRING_LITERAL;
-terminal FLOAT_LITERAL, INT_LITERAL;
-terminal INT, STRING, BOOL, FLOAT, VOID, BOOLEAN_LITERAL;
+terminal String TYPE;
+terminal FLOAT_LITERAL, INT_LITERAL, BOOLEAN_LITERAL;
 terminal CONST;
 terminal SEMICOLON;
 terminal LBRACE, RBRACE, LBRACKET, RBRACKET, OP_ASSIGN, EQUAL;
 terminal TUPLA, LPAREN, RPAREN, COMMA, ARRAY, DEF, RETURN, OP_ARITMETICO, OP_LOGICO, OP_COMPARACION;
 terminal IF, ELIF, ELSE, WHILE, FOR, DOT, PRINT, INPUT;
 
-non terminal Programa, ProgramaList, Main, Sentencia, DecConstante, Valor, Type;
+non terminal Programa, ProgramaList, Main, Sentencia, DecConstante, Valor;
 non terminal DecVar, Asignacion, DecTupla, ListaParametros, DecArray, ListaDimensiones;
 non terminal DecFun, Bloque, LlamadaFuncion, ListaArgumentos;
 non terminal Return, Expresion, ListaTupla, If_Sentencia, Elif_Lista, While_Sentencia;
@@ -101,22 +101,22 @@ Sentencia ::= DecConstante:s SEMICOLON      {: RESULT = s; :}
             | error SEMICOLON
             ;
 
-DecConstante ::= CONST Type:idType ID:id EQUAL Valor:valor 
-                    {: RESULT = new SDecConstante((SType) idType, id, (SValor) valor); :}
+DecConstante ::= CONST:c TYPE:type ID:id EQUAL Valor:valor 
+                    {: RESULT = new SDecConstante(cleft, type, id, (SValor) valor); :}
                 ;
 
-DecVar ::= Type:idType ID:id EQUAL Expresion:e 
-            {: RESULT = new SDecVar((SType) idType, id, (SExpresion) e); :}
-        | Type:idType ID:id 
-            {: RESULT = new SDecVar((SType) idType, id, null); :}
+DecVar ::= TYPE:type ID:id EQUAL Expresion:e 
+            {: RESULT = new SDecVar(typeleft, type, id, (SExpresion) e); :}
+        | TYPE:type ID:id 
+            {: RESULT = new SDecVar(typeleft, type, id, null); :}
         ;
 
-DecArray ::= ARRAY Type:idType ID:id ListaDimensiones:lista
-                {: RESULT = new SDecArray((SType) idType, id, (SListaDimensiones) lista); :}
+DecArray ::= ARRAY:a TYPE:type ID:id ListaDimensiones:lista
+                {: RESULT = new SDecArray(aleft, type, id, (SListaDimensiones) lista); :}
             ;
 
-DecTupla ::= TUPLA ID:id EQUAL LPAREN ListaTupla:lista RPAREN
-                {: RESULT = new SDecTupla(id, (SListaTupla) lista); :}
+DecTupla ::= TUPLA:t ID:id EQUAL LPAREN ListaTupla:lista RPAREN
+                {: RESULT = new SDecTupla(tleft, id, (SListaTupla) lista); :}
             ;
 
 ListaTupla ::= DecVar:var COMMA ListaTupla:lista
@@ -126,68 +126,68 @@ ListaTupla ::= DecVar:var COMMA ListaTupla:lista
             ;
 
 ListaDimensiones ::= LBRACKET Valor:size RBRACKET ListaDimensiones:lista
-                    {: RESULT = new SListaDimensiones((SValor) size, (SListaDimensiones) lista); :}
+                    {: RESULT = new SListaDimensiones(sizeleft, (SValor) size, (SListaDimensiones) lista); :}
                 | LBRACKET Valor:size RBRACKET
-                    {: RESULT = new SListaDimensiones((SValor) size, null); :}
+                    {: RESULT = new SListaDimensiones(sizeleft, (SValor) size, null); :}
                 ;
 
 Asignacion ::= ID:id EQUAL Expresion:e 
-                {: RESULT = new SAsignacion(id, "=", (SExpresion) e); :}
+                {: RESULT = new SAsignacion(idleft, id, "=", (SExpresion) e); :}
             | ID:id OP_ASSIGN:op Expresion:e 
-                {: RESULT = new SAsignacion(id, (String) op, (SExpresion) e); :}
+                {: RESULT = new SAsignacion(idleft, id, (String) op, (SExpresion) e); :}
             | LlamadaArray:array EQUAL Expresion:e
-                {: RESULT = new SAsignacion((SLlamadaArray) array, "=", (SExpresion) e); :}
+                {: RESULT = new SAsignacion(arrayleft, (SLlamadaArray) array, "=", (SExpresion) e); :}
             ;
 
-ListaParametros ::= Type:idType ID:id COMMA ListaParametros:lista  
-                        {: RESULT = new SListaParametros((SType) idType, id, (SListaParametros) lista); :}
-                    | Type:idType ID:id
-                        {: RESULT = new SListaParametros((SType) idType, id); :}
+ListaParametros ::= TYPE:type ID:id COMMA ListaParametros:lista  
+                        {: RESULT = new SListaParametros(typeleft, type, id, (SListaParametros) lista); :}
+                    | TYPE:type ID:id
+                        {: RESULT = new SListaParametros(typeleft, type, id); :}
                     ;
 
-DecFun ::= DEF Type:idType ID:id LPAREN ListaParametros:params RPAREN LBRACE Bloque:bloque RBRACE
-                {: SemanticHelper.procesarDecFuncion((SType) idType, id, (SListaParametros) params, (SBloque) bloque, taulaSim, codigoIntermedio); :}
+DecFun ::= DEF:d TYPE:type ID:id LPAREN ListaParametros:params RPAREN LBRACE Bloque:bloque RBRACE
+                {: SemanticHelper.procesarDecFuncion(dleft, type, id, (SListaParametros) params, (SBloque) bloque, taulaSim, codigoIntermedio); :}
             | error RBRACE 
             ;
 
 LlamadaFuncion ::= ID:id LPAREN ListaArgumentos:lista RPAREN 
                 {: 
                     TipoSubyacente tipoRetorno = SemanticHelper.obtenerTipoFuncion(id, taulaSim);
-                    RESULT = new SLlamadaFuncion(id, (SListaArgumentos) lista, tipoRetorno); 
+                    RESULT = new SLlamadaFuncion(idleft, id, (SListaArgumentos) lista, tipoRetorno); 
                 :}
                 ;
 LlamadaArray ::= ID:id ListaDimensiones:lista
-                    {: RESULT = new SLlamadaArray(id, (SListaDimensiones) lista); :}
+                    {: RESULT = new SLlamadaArray(idleft, id, (SListaDimensiones) lista); :}
                 ;
 
 LlamadaTupla ::= ID:id DOT ID:campo
-                    {: RESULT = new SLlamadaTupla(id, campo); :}
+                    {: RESULT = new SLlamadaTupla(idleft, id, campo); :}
                 ;
 
 ListaArgumentos ::= ListaArgumentos:lista COMMA Expresion:e
-                    {: RESULT = new SListaArgumentos((SListaArgumentos) lista, (SExpresion) e); :}
+                    {: RESULT = new SListaArgumentos(listaleft, (SListaArgumentos) lista, (SExpresion) e); :}
                 | Expresion:e
-                    {: RESULT = new SListaArgumentos((SExpresion) e); :}
+                    {: RESULT = new SListaArgumentos(eleft, (SExpresion) e); :}
                 ;
 
-If_Sentencia ::= IF Expresion:expresion LBRACE Bloque:bloque1 RBRACE Elif_Lista:lista ELSE LBRACE Bloque:bloque2 RBRACE
-                    {: RESULT = new SIf((SExpresion) expresion, (SBloque) bloque1, (SElif) lista, (SBloque) bloque2); :}
-                | IF Expresion:expresion LBRACE Bloque:bloque1 RBRACE Elif_Lista:lista
-                    {: RESULT = new SIf((SExpresion) expresion, (SBloque) bloque1, (SElif) lista, null); :}
-                | IF Expresion:expresion LBRACE Bloque:bloque1 RBRACE ELSE LBRACE Bloque:bloque2 RBRACE
-                    {: RESULT = new SIf((SExpresion) expresion, (SBloque) bloque1, null, (SBloque) bloque2); :}
-                | IF Expresion:expresion LBRACE Bloque:bloque1 RBRACE
-                    {: RESULT = new SIf((SExpresion) expresion, (SBloque) bloque1, null, null); :}
+If_Sentencia ::= IF:i Expresion:expresion LBRACE Bloque:bloque1 RBRACE Elif_Lista:lista ELSE LBRACE Bloque:bloque2 RBRACE
+                    {: RESULT = new SIf(ileft, (SExpresion) expresion, (SBloque) bloque1, (SElif) lista, (SBloque) bloque2); :}
+                | IF:i Expresion:expresion LBRACE Bloque:bloque1 RBRACE Elif_Lista:lista
+                    {: RESULT = new SIf(ileft, (SExpresion) expresion, (SBloque) bloque1, (SElif) lista, null); :}
+                | IF:i Expresion:expresion LBRACE Bloque:bloque1 RBRACE ELSE LBRACE Bloque:bloque2 RBRACE
+                    {: RESULT = new SIf(ileft, (SExpresion) expresion, (SBloque) bloque1, null, (SBloque) bloque2); :}
+                | IF:i Expresion:expresion LBRACE Bloque:bloque1 RBRACE
+                    {: RESULT = new SIf(ileft, (SExpresion) expresion, (SBloque) bloque1, null, null); :}
                 ;
 
-Elif_Lista ::= ELIF Expresion:expresion LBRACE Bloque:bloque RBRACE Elif_Lista:lista
-                    {: RESULT = new SElif((SElif) lista, (SExpresion) expresion, (SBloque) bloque); :}
-                | ELIF Expresion:expresion LBRACE Bloque:bloque RBRACE
-                    {: RESULT = new SElif((SExpresion) expresion, (SBloque) bloque); :}
+Elif_Lista ::= ELIF:e Expresion:expresion LBRACE Bloque:bloque RBRACE Elif_Lista:lista
+                    {: RESULT = new SElif(eleft, (SElif) lista, (SExpresion) expresion, (SBloque) bloque); :}
+                | ELIF:e Expresion:expresion LBRACE Bloque:bloque RBRACE
+                    {: RESULT = new SElif(eleft, (SExpresion) expresion, (SBloque) bloque); :}
                 ;
 
-While_Sentencia ::= WHILE Expresion:expresion LBRACE Bloque:bloque RBRACE
-                    {: RESULT = new SWhile((SExpresion) expresion, (SBloque) bloque); :}
+While_Sentencia ::= WHILE:w Expresion:expresion LBRACE Bloque:bloque RBRACE
+                    {: RESULT = new SWhile(wleft, (SExpresion) expresion, (SBloque) bloque); :}
                 ;
 
 For_Sentencia ::= FOR LPAREN DecVar:init SEMICOLON Expresion:condicion SEMICOLON Asignacion: actuali RPAREN LBRACE Bloque:bloque RBRACE
@@ -198,8 +198,8 @@ Print_Sentencia ::= PRINT LPAREN ListaExpresiones:lista RPAREN
                         {: RESULT = new SPrint((SListaExpresiones) lista); :}
                     ;
 
-Input_Sentencia ::= INPUT LPAREN ID:id RPAREN
-                        {: RESULT = new SInput(id); :}
+Input_Sentencia ::= INPUT:i LPAREN ID:id RPAREN
+                        {: RESULT = new SInput(ileft, id); :}
                     ;
 
 ListaExpresiones ::= Expresion:e COMMA ListaExpresiones:lista
@@ -208,37 +208,30 @@ ListaExpresiones ::= Expresion:e COMMA ListaExpresiones:lista
                         {: RESULT = new SListaExpresiones((SExpresion) e); :}
                     ;
 
-Return ::= RETURN Expresion:expresion 
-            {: RESULT = new SReturn((SExpresion) expresion); :}
-        | RETURN 
-            {: RESULT = new SReturn(); :}
+Return ::= RETURN:r Expresion:expresion 
+            {: RESULT = new SReturn(rleft, (SExpresion) expresion); :}
+        | RETURN:r 
+            {: RESULT = new SReturn(rleft); :}
         ;
 
-Type ::= INT     {: RESULT = new SType(new TipoSubyacente(Tipus.INT)); :}
-       | FLOAT   {: RESULT = new SType(new TipoSubyacente(Tipus.FLOAT)); :}
-       | BOOL    {: RESULT = new SType(new TipoSubyacente(Tipus.BOOLEAN)); :}
-       | STRING  {: RESULT = new SType(new TipoSubyacente(Tipus.STRING)); :}
-       | VOID    {: RESULT = new SType(new TipoSubyacente(Tipus.VOID)); :}
-       ;
-
 Expresion ::= Expresion:e1 OP_ARITMETICO:op Expresion:e2
-                {: RESULT = new SExpresion((SExpresion) e1, (SExpresion) e2, (String) op); :}
+                {: RESULT = new SExpresion(e1left, (SExpresion) e1, (SExpresion) e2, (String) op); :}
             | Expresion:e1 OP_LOGICO:op Expresion:e2
-                {: RESULT = new SExpresion((SExpresion) e1, (SExpresion) e2, (String) op); :}
+                {: RESULT = new SExpresion(e1left, (SExpresion) e1, (SExpresion) e2, (String) op); :}
             | Expresion:e1 OP_COMPARACION:op Expresion:e2
-                {: RESULT = new SExpresion((SExpresion) e1, (SExpresion) e2, (String) op); :}
+                {: RESULT = new SExpresion(e1left, (SExpresion) e1, (SExpresion) e2, (String) op); :}
             | LlamadaFuncion:func
-                {: RESULT = new SExpresion((SLlamadaFuncion) func); :}
+                {: RESULT = new SExpresion(funcleft, (SLlamadaFuncion) func); :}
             | LlamadaArray:array
-                {: RESULT = new SExpresion((SLlamadaArray) array); :}
+                {: RESULT = new SExpresion(arrayleft, (SLlamadaArray) array); :}
             | LlamadaTupla:tupla
-                {: RESULT = new SExpresion((SLlamadaTupla) tupla); :}
+                {: RESULT = new SExpresion(tuplaleft, (SLlamadaTupla) tupla); :}
             | LPAREN Expresion:e RPAREN
                 {: RESULT = e; :}
             | Valor:valor
-                {: RESULT = new SExpresion((SValor) valor); :}
+                {: RESULT = new SExpresion(valorleft, (SValor) valor); :}
             | ID:id
-                {: RESULT = new SExpresion((String) id); :}
+                {: RESULT = new SExpresion(idleft, (String) id); :}
             ;
 
 Valor ::= INT_LITERAL:v
@@ -246,7 +239,7 @@ Valor ::= INT_LITERAL:v
         | FLOAT_LITERAL:v
             {: RESULT = new SValor(new TipoSubyacente(Tipus.FLOAT), (String) v); :}
         | STRING_LITERAL:v
-            {: RESULT = new SValor(new TipoSubyacente(Tipus.STRING), (String) v); :}
+            {: RESULT = new SValor(new TipoSubyacente(Tipus.CHAR), (String) v); :}
         | BOOLEAN_LITERAL:v
             {: RESULT = new SValor(new TipoSubyacente(Tipus.BOOLEAN), (String) v); :}
         ;

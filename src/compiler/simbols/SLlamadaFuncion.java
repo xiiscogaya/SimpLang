@@ -7,6 +7,7 @@ public class SLlamadaFuncion extends SBase {
     private SListaArgumentos argumentos; // Lista de expresiones que son los argumentos de la llamada
     private TipoSubyacente tipoRetorno; // Tipo de retorno de la función
     private boolean esVoid;     // Indica si una función es void
+    private int line;
 
     /**
      * Constructor de SLLamadaFuncion
@@ -15,12 +16,17 @@ public class SLlamadaFuncion extends SBase {
      * @param argumentos  Lista de argumentos (como expresiones).
      * @param tipoRetorno Tipo de retorno de la función.
      */
-    public SLlamadaFuncion(String idFuncion, SListaArgumentos argumentos, TipoSubyacente tipoRetorno) {
+    public SLlamadaFuncion(int line, String idFuncion, SListaArgumentos argumentos, TipoSubyacente tipoRetorno) {
         super("SLlamadaFuncion", null);
+        this.line = line;
         this.idFuncion = idFuncion;
         this.argumentos = argumentos;
         this.tipoRetorno = tipoRetorno;
         this.esVoid = false; // Por defecto asumimos que no es void
+    }
+
+    public int getLine() {
+        return line;
     }
 
     /**

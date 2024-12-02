@@ -5,17 +5,20 @@ public class SAsignacion extends SBase{
     private SExpresion expresion;
     private String operacion;
     private SLlamadaArray array;
+    private int line;
 
-    public SAsignacion(String id, String operacion, SExpresion expresion) {
+    public SAsignacion(int line, String id, String operacion, SExpresion expresion) {
         super("SAsignacion", null);
+        this.line = line;
         this.id = id;
         this.operacion = operacion;
         this.expresion = expresion;
         this.array = null;
     }
 
-    public SAsignacion(SLlamadaArray array, String operacion, SExpresion expresion) {
+    public SAsignacion(int line, SLlamadaArray array, String operacion, SExpresion expresion) {
         super("SAsignacion", null);
+        this.line = line;
         this.array = array;
         this.operacion = operacion;
         this.expresion = expresion;
@@ -23,6 +26,10 @@ public class SAsignacion extends SBase{
 
     public SAsignacion() {
         super();
+    }
+
+    public int getLine() {
+        return line;
     }
 
     public String getId() {
