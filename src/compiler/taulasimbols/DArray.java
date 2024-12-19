@@ -27,6 +27,6 @@ public class DArray extends Descripcio {
 
     @Override
     public String toString() {
-        return "DArray{" + "tipo=" + tipo + ", dimensiones=" + dimensiones + "}";
+        return "DArray{" + "tipo=" + tipo + ", dimensiones=" + dimensiones + " idUnico=" + idUnico + "}";
     }
 }

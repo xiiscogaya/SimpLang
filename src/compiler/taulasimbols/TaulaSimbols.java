@@ -8,13 +8,10 @@ import compiler.sintactic.ErrorManager;
 
 public class TaulaSimbols {
     private int n = 1; // Nivel de ámbito actual
-    private final Stack<Integer> ta; // Tabla de ámbitos
     private final Map<String, EntradaDesc> td; // Tabla de descripciones
     private final Stack<String> funcionActual; // Pila para registrar la función actual
 
     public TaulaSimbols() {
-        this.ta = new Stack<>();
-        this.ta.push(0); // Inicializa el primer nivel en ta
         this.td = new HashMap<>();
         this.funcionActual = new Stack<>();
     }
@@ -35,7 +32,6 @@ public class TaulaSimbols {
      */
     public void nuevoNivelAmbito() {
         n++;
-        ta.push(n); // Añadir el nuevo nivel al stack
     }
 
     /**
@@ -44,7 +40,6 @@ public class TaulaSimbols {
     public void eliminarNivelAmbito() {
         if (n > 1) {
             int nivelActual = n;
-            ta.pop(); // Elimina el nivel actual del stack
             n--; // Reduce el nivel de ámbito actual
 
             // Limpia las variables locales del nivel actual en la tabla de descripciones
@@ -59,8 +54,6 @@ public class TaulaSimbols {
      */
     public void buidar() {
         n = 1;
-        ta.clear();
-        ta.push(0);
         td.clear();
         funcionActual.clear();
     }
@@ -123,13 +116,6 @@ public class TaulaSimbols {
             EntradaDesc desc = entry.getValue();
             System.out.printf("ID: %s, Tipo: %s, Nivel: %d%n",
                     id, desc.descripcio, desc.np);
-        }
-
-        // Imprimir los niveles de ámbitos
-        System.out.println("\nTabla de Ámbitos (ta):");
-        System.out.println("Niveles de Ámbito en la Pila:");
-        for (int i = 0; i < ta.size(); i++) {
-            System.out.printf("Nivel %d%n", ta.get(i));
         }
 
         System.out.println("===============================================");

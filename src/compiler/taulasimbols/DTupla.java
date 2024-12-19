@@ -51,6 +51,6 @@ public class DTupla extends Descripcio {
 
     @Override
     public String toString() {
-        return "DTupla{campos=" + campos + "}";
+        return "DTupla{campos=" + campos + " idUnico=" + idUnico + "}";
     }
 }

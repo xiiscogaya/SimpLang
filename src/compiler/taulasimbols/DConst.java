@@ -13,7 +13,7 @@ public class DConst extends Descripcio {
 
     @Override
     public String toString() {
-        return String.format("DConst{valor=%s, tipoSubyacente=%s}", valor, tipoSubyacente);
+        return String.format("DConst{valor=%s, tipoSubyacente=%s, idUnico=%s}", valor, tipoSubyacente, idUnico);
     }
 
     public Object getValor() {

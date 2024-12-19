@@ -1,9 +1,14 @@
 package compiler.taulasimbols;
 
 public class Descripcio {
-    String tipo;
+    private static int contador = 0;
+    public String idUnico;
+    public String tipo;
 
-    Descripcio(String tipo) {
+    public Descripcio(String tipo) {
         this.tipo = tipo;
+        this.idUnico = "ID" + (contador++);
     }
+    
+
 }

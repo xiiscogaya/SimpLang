@@ -48,7 +48,7 @@ public class SemanticHelper {
         // Generar código intermedio
         String valorLiteral = valor.getValor();
         codigoIntermedio.registrarVariable(id, taulaSim.obtenerFuncionActual(), TipoSubyacente.sizeOf(descripcionConstante.tipoSubyacente.getTipoBasico()), descripcionConstante);
-        codigoIntermedio.agregarInstruccion("COPY", valorLiteral, "", id);
+        codigoIntermedio.agregarInstruccion("COPY", valorLiteral, "", descripcionConstante.idUnico);
 
         taulaSim.imprimirTabla();
         
@@ -212,6 +212,7 @@ public class SemanticHelper {
             ErrorManager.addError(3, "Error, los tipos de la asignación no son iguales, en la línea " + asignacion.getLine());
             return;
         }
+
         if (referencia.varGenerada != null) {
             codigoIntermedio.agregarInstruccion("IND_ASS", expresion.getVarGenerada(), referencia.varGenerada, referencia.getId());
         } else {

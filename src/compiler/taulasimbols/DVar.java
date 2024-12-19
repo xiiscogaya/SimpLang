@@ -10,7 +10,7 @@ public class DVar extends Descripcio{
 
     @Override
     public String toString() {
-        return String.format("DVar{tipoSubyacente=%s}", tipoSubyacente);
+        return String.format("DVar{tipoSubyacente=%s, idUnico=%s}", tipoSubyacente, idUnico);
     }
 
     public TipoSubyacente getTipoSubyacente() {

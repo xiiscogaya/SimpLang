@@ -8,42 +8,18 @@ import java.util.Map;
 import compiler.taulasimbols.Descripcio;
 
 public class CodigoIntermedio {
-    public static class Instruccion {
-        public String operador;
-        public String operando1;
-        public String operando2;
-        public String destino;
-
-        public Instruccion(String operador, String operando1, String operando2, String destino) {
-            this.operador = operador;
-            this.operando1 = operando1;
-            this.operando2 = operando2;
-            this.destino = destino;
-        }
-
-        @Override
-        public String toString() {
-            if (operando2 == null || operando2.isEmpty()) {
-                return String.format("%s %s -> %s", operador, operando1, destino);
-            }
-            if (operador.equals("IND_ASS")) {
-                return String.format("%s, %s -> %s[%s]", operador, operando1, destino, operando2);
-            }
-            return String.format("%s %s, %s -> %s", operador, operando1, operando2, destino);
-        }
-    }
 
     private Map<String, Variable> tablaVariables;
-    private int contadorVariablesTemporales;
     private Map<String, Procedimiento> tablaProcedimientos;
     private List<Instruccion> instrucciones;
     private int contadorEtiquetas;
+    private int contadorVariablesTemporales;
 
     public CodigoIntermedio() {
         this.tablaVariables = new HashMap<>();
-        this.contadorVariablesTemporales = 0;
         this.tablaProcedimientos = new HashMap<>();
         this.instrucciones = new ArrayList<>();
+        this.contadorVariablesTemporales = 0;
         this.contadorEtiquetas = 0;
     }
 
@@ -72,32 +48,6 @@ public class CodigoIntermedio {
     public void imprimirCodigo() {
         for (Instruccion instr : instrucciones) {
             System.out.println(instr);
-        }
-    }
-
-    public static class  Variable {
-        public String nombreFuncion;
-        public int tamañoTotal;
-        public Descripcio descripcio;
-
-        public Variable(String nombreFuncion, int tamañoTotal, Descripcio descripcio) {
-            this.nombreFuncion = nombreFuncion;
-            this.tamañoTotal = tamañoTotal;
-            this.descripcio = descripcio;
-        }        
-    }
-
-    public static class Procedimiento {
-        public String nombre;
-        public int numParametros;
-        public String etiquetaInicio;
-        public Boolean yaAnalizado;
-
-        public Procedimiento(String nombre, int numParametros, String etiquetaInicio, Boolean yaAnalizado) {
-            this.nombre = nombre;
-            this.numParametros = numParametros;
-            this.etiquetaInicio = etiquetaInicio;
-            this.yaAnalizado = yaAnalizado;
         }
     }
 
@@ -142,22 +92,11 @@ public class CodigoIntermedio {
         agregarInstruccion(etiquetaFin + ":", "", "", "");
     }
 
-    // Generación de código para acceso a arrays
-    public String generarAccesoArray(String nombreArray, String indice) {
-        String temporal = nuevaVariableTemporal();
-        agregarInstruccion("load", nombreArray + "[" + indice + "]", "", temporal);
-        return temporal;
-    }
-
-    public void generarAsignacionArray(String nombreArray, String indice, String valor) {
-        agregarInstruccion("store", valor, "", nombreArray + "[" + indice + "]");
-    }
-
     public void imprimirTablaVariables() {
         System.out.println("Tabla de Variables:");
-        System.out.println("-----------------------------------------------------------");
-        System.out.println("| Nombre     | Función            | Tamaño  | Descripción  |");
-        System.out.println("-----------------------------------------------------------");
+        System.out.println("-----------------------------------------------------------------------------------------------------");
+        System.out.println("|  Nombre  | Función            | Tamaño  | Descripción                              |");
+        System.out.println("-----------------------------------------------------------------------------------------------------");
     
         for (Map.Entry<String, Variable> entry : tablaVariables.entrySet()) {
             String nombre = entry.getKey();
@@ -168,13 +107,13 @@ public class CodigoIntermedio {
                 String tamaño = variable.tamañoTotal > 0 ? String.valueOf(variable.tamañoTotal) : "N/A";
                 String descripcion = variable.descripcio != null ? variable.descripcio.toString() : "N/A";
     
-                System.out.printf("| %-10s | %-18s | %-7s | %-12s |\n", nombre, funcion, tamaño, descripcion);
+                System.out.printf("| %-10s | %-18s | %-7s | %-25s |\n", nombre, funcion, tamaño, descripcion);
             } else {
-                System.out.printf("| %-10s | %-18s | %-7s | %-12s |\n", nombre, "N/A", "N/A", "N/A");
+                System.out.printf("| %-10s | %-18s | %-7s | %-25s |\n", nombre, "N/A", "N/A", "N/A");
             }
         }
     
-        System.out.println("-----------------------------------------------------------");
+        System.out.println("-----------------------------------------------------------------------------------------------------");
     }
     
     public void imprimirTablaProcedimientos() {

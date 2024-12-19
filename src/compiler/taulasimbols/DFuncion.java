@@ -50,7 +50,7 @@ public class DFuncion extends Descripcio {
                 sb.append(", ");
             }
         }
-        sb.append("]}");
+        sb.append("]}").append("idUnico=").append(idUnico);
         return sb.toString();
     }
 }
