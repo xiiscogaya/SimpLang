@@ -1,10 +1,13 @@
 package compiler.simbols;
 
+import compiler.taulasimbols.TipoSubyacente;
 
 public class SLlamadaTupla extends SBase{
     private String tuplaName;
     private String fieldName;
     private int line;
+    public TipoSubyacente tipoTupla;
+    public String varGenerada;
 
     public SLlamadaTupla(int line, String tuplaName, String fieldName) {
         super("SLlamadaTupla", null);

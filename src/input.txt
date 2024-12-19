@@ -1,22 +1,18 @@
-def int h(int a, int b) {
-    return a;
-}
 
-def int hh(int a, int b) {
-    if a6 < b {
-        int i;
-        i = 0.9;
-    }
-    return a;
-}
 
 {   
 
-    const int a = 9;
-    const int a = 8.5;
-    int a8;
-    a8 = 9;    
-    array int he[8][6];
-    he[7][5] = 5.8;
-    
+    const int i = 9;
+    const float ij =8.7;
+    const bool io = true;
+    tupla x = (i, ij, io);
+
+    x.i = 8;
+
+    array float hf[9];
+    hf[10] = 8.0;
+
+    float iop;
+    iop = hf[8];
+
 }

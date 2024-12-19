@@ -1,12 +1,12 @@
 package compiler.simbols;
 
 public class SListaDimensiones extends SBase{
-    private SValor size;
+    private String size;
     private SListaDimensiones lista;
     private int line;
     
 
-    public SListaDimensiones(int line, SValor size, SListaDimensiones lista) {
+    public SListaDimensiones(int line, String size, SListaDimensiones lista) {
         super("SListaDimensiones", null);
         this.line = line;
         this.size = size;
@@ -21,7 +21,7 @@ public class SListaDimensiones extends SBase{
         return line;
     }
 
-    public SValor getSize() {
+    public String getSize() {
         return size;
     }
 

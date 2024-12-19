@@ -1,6 +1,6 @@
 package compiler.taulasimbols;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 // Descripción para tuplas en la tabla de símbolos
@@ -10,7 +10,7 @@ public class DTupla extends Descripcio {
     // Constructor
     public DTupla() {
         super("tupla"); // Asigna el tipo "tupla" a esta descripción
-        this.campos = new HashMap<>();
+        this.campos = new LinkedHashMap<>();
     }
 
     // Método para agregar un campo a la tupla
@@ -21,6 +21,22 @@ public class DTupla extends Descripcio {
     // Verificar si la tupla tiene un campo
     public boolean tieneCampo(String nombreCampo) {
         return campos.containsKey(nombreCampo);
+    }
+
+    // Obtener desplazamiento
+    public int obtenerDesplazamiento(String nombreCampo) {
+        int desplazamiento = 0;
+        for (Map.Entry<String, TipoSubyacente> entry : campos.entrySet()) {
+            String campoActual = entry.getKey();
+            TipoSubyacente tipoActual = entry.getValue();
+
+            if (campoActual.equals(nombreCampo)) {
+                return desplazamiento;
+            }
+
+            desplazamiento += TipoSubyacente.sizeOf(tipoActual.getTipoBasico());
+        }
+        return desplazamiento;
     }
 
     // Obtener el tipo de un campo

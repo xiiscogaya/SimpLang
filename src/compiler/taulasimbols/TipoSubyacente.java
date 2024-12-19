@@ -16,9 +16,6 @@ public class TipoSubyacente {
             case "bool":
                 this.tipoBasico = Tipus.BOOLEAN;
                 break;
-            case "caracter":
-                this.tipoBasico = Tipus.CHAR;
-                break;
             case "float":
                 this.tipoBasico = Tipus.FLOAT;
                 break;
@@ -58,8 +55,6 @@ public class TipoSubyacente {
                 return 1; // En Java, el boolean ocupa 1 byte
             case INT:
                 return 4; // En Java, el int ocupa 4 bytes
-            case CHAR:
-                return 2; // En Java, el char ocupa 2 bytes (UTF-16)
             case FLOAT:
                 return 4; // Tamaño típico de float en Java
             default:
@@ -76,8 +71,6 @@ public class TipoSubyacente {
                 return "int";
             case BOOLEAN:
                 return "bool";
-            case CHAR:
-                return "caracter";
             case FLOAT:
                 return "float";
             case VOID:

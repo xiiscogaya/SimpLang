@@ -25,6 +25,10 @@ public class SLlamadaFuncion extends SBase {
         this.esVoid = false; // Por defecto asumimos que no es void
     }
 
+    public SLlamadaFuncion() {
+        super();
+    }
+
     public int getLine() {
         return line;
     }

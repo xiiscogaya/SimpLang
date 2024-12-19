@@ -2,30 +2,32 @@ package compiler.simbols;
 
 public class SListaTupla extends SBase{
     private SListaTupla lista;
-    private SDecVar var;
+    private String id;
 
     
-    public SListaTupla(SListaTupla lista, SDecVar var) {
+    public SListaTupla(SListaTupla lista, String id) {
         super("SListaTupla", null);
         this.lista = lista;
-        this.var = var;
+        this.id = id;
     }
 
-    public SListaTupla(SDecVar var) {
+    public SListaTupla(String id) {
         super("SListaTupla", null);
-        this.var = var;
+        this.id = id;
     }
 
-
+    public SListaTupla() {
+        super();
+    }
+    
     public SListaTupla getLista() {
         return lista;
     }
     public void setLista(SListaTupla lista) {
         this.lista = lista;
     }
-    public SDecVar getVar() {
-        return var;
+    public String getID() {
+        return id;
     }
- 
 
 }

@@ -29,8 +29,6 @@ import compiler.sintactic.ParserSym;
 digit       = [0-9]
 letter      = [a-zA-Z_]
 id          = {letter}({letter}|{digit})*
-SChar       = [^\"\\\n\r] | {EscChar}
-EscChar     = \\[ntbrf\\\'\"]
 
 whitespace  = [ \n\t\r]+
 
@@ -95,12 +93,13 @@ whitespace  = [ \n\t\r]+
 "array"         { return symbol(ParserSym.ARRAY); }
 "def"           { return symbol(ParserSym.DEF); }
 "return"        { return symbol(ParserSym.RETURN); }
-"true"|"false"  { return symbol(ParserSym.BOOLEAN_LITERAL); }
+"true"|"false"  { return symbol(ParserSym.BOOLEAN_LITERAL, yytext()); }
 "if"            { return symbol(ParserSym.IF); }
 "elif"          { return symbol(ParserSym.ELIF); }
 "else"          { return symbol(ParserSym.ELSE); }
 "while"         { return symbol(ParserSym.WHILE); }
-"for"           { return symbol(ParserSym.FOR); }
+"repeat"        { return symbol(ParserSym.REPEAT); }
+"until"         { return symbol(ParserSym.UNTIL); }
 
 "print"         { return symbol(ParserSym.PRINT); }
 "input"         { return symbol(ParserSym.INPUT); }
@@ -112,7 +111,6 @@ whitespace  = [ \n\t\r]+
 ")"             { return symbol(ParserSym.RPAREN); }
 "["             { return symbol(ParserSym.LBRACKET); }
 "]"             { return symbol(ParserSym.RBRACKET); }
-"+="|"-="|"*="|"/="     { return symbol(ParserSym.OP_ASSIGN, yytext()); }
 "&&"|"||"               { return symbol(ParserSym.OP_ARITMETICO, yytext()); }
 "<"|">"|">="|"<="|"=="|"!="     { return symbol(ParserSym.OP_LOGICO, yytext()) ;}
 "="             { return symbol(ParserSym.EQUAL); }
@@ -122,13 +120,6 @@ whitespace  = [ \n\t\r]+
 ";"             { return symbol(ParserSym.SEMICOLON); }
 ","             { return symbol(ParserSym.COMMA); }
 "."             { return symbol(ParserSym.DOT); }
-
-// Literales de cadena
-
-\"{SChar}*\"    {   String contenidoSinComillas = yytext().substring(1, yytext().length() - 1);
-                    return symbol(ParserSym.STRING_LITERAL, contenidoSinComillas); 
-                }
-
 
 // Literales de punto flotante o enteros
 -?[0-9]+\.[0-9]+    { return symbol(ParserSym.FLOAT_LITERAL, yytext()); }

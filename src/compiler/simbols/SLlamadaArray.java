@@ -1,11 +1,16 @@
 package compiler.simbols;
 
+import compiler.taulasimbols.TipoSubyacente;
+
 public class SLlamadaArray extends SBase {
     private String arrayName;
-    private SListaDimensiones dimensiones;
+    private SListaDimensionesRef dimensiones;
     private int line;
+    private String varGenerada;
+    public TipoSubyacente tipoArray;
 
-    public SLlamadaArray(int line, String arrayName, SListaDimensiones dimensiones) {
+
+    public SLlamadaArray(int line, String arrayName, SListaDimensionesRef dimensiones) {
         super("SLlamadaArray", null);
         this.line = line;
         this.arrayName = arrayName;
@@ -28,12 +33,20 @@ public class SLlamadaArray extends SBase {
         this.arrayName = arrayName;
     }
 
-    public SListaDimensiones getDimensiones() {
+    public SListaDimensionesRef getDimensiones() {
         return dimensiones;
     }
 
-    public void setDimensiones(SListaDimensiones dimensiones) {
+    public void setDimensiones(SListaDimensionesRef dimensiones) {
         this.dimensiones = dimensiones;
+    }
+
+    public String getVarGenerada() {
+        return varGenerada;
+    }
+
+    public void setVarGenerada(String varGenerada) {
+        this.varGenerada = varGenerada;
     }
     
 }

@@ -1,0 +1,156 @@
+package compiler.sintactic;
+
+import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
+import java_cup.runtime.ComplexSymbolFactory.Location;
+import java_cup.runtime.*;
+
+import compiler.simbols.*;
+import compiler.taulasimbols.*;
+import compiler.codigo_intermedio.*;
+
+import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+
+
+class Parser;
+
+parser code {:
+
+    public static TaulaSimbols taulaSim = new TaulaSimbols(); 
+    public static CodigoIntermedio codigoIntermedio = new CodigoIntermedio();
+
+    public static ComplexSymbolFactory factory = new ComplexSymbolFactory();
+
+    public int getLine(Symbol cur_token) {
+        ComplexSymbol token = (ComplexSymbol) cur_token;
+        Location l = token.getLeft();
+        return l.getLine();
+        
+    }
+
+    @Override
+    public void syntax_error(Symbol cur_token) {
+        String mensaje = "Error sintáctico en línea " + getLine(cur_token) +
+                     ": se encontró '" + (cur_token.value != null ? cur_token.value : cur_token.sym) + "'";
+        ErrorManager.addError(2, mensaje);
+    }
+
+    @Override
+    public void unrecovered_syntax_error(Symbol cur_token) {
+        String mensaje = "Error sintáctico no recuperable en línea " + getLine(cur_token) +
+                        ": se encontró '" + (cur_token.value != null ? cur_token.value : cur_token.sym) + "'";
+        
+        ErrorManager.addError(2, mensaje); // 2 indica error sintáctico
+
+        // Detener el análisis sintáctico
+        done_parsing();
+    }
+:}
+
+
+terminal String ID;
+terminal String STRING_LITERAL;
+terminal String TYPE;
+terminal FLOAT_LITERAL, INT_LITERAL, BOOLEAN_LITERAL;
+terminal CONST;
+terminal SEMICOLON;
+terminal LBRACE, RBRACE, LBRACKET, RBRACKET, OP_ASSIGN, EQUAL;
+terminal TUPLA, LPAREN, RPAREN, COMMA, ARRAY, DEF, RETURN, OP_ARITMETICO, OP_LOGICO, OP_COMPARACION;
+terminal IF, ELIF, ELSE, WHILE, FOR, DOT, PRINT, INPUT;
+
+non terminal Programa, ProgramaList, Main, Sentencia, DecConstante, Valor;
+non terminal DecVar, Asignacion, DecTupla, ListaParametros, DecArray, ListaDimensiones;
+non terminal DecFun, Bloque, LlamadaFuncion, ListaArgumentos;
+non terminal Return, Expresion, ListaTupla, If_Sentencia, Elif_Lista, While_Sentencia;
+non terminal For_Sentencia, LlamadaArray, LlamadaTupla, Print_Sentencia, Input_Sentencia, ListaExpresiones;
+
+precedence left OP_ARITMETICO;
+precedence left OP_LOGICO;
+precedence left OP_COMPARACION;
+
+Programa ::= ProgramaList
+            ;
+
+ProgramaList ::= DecFun ProgramaList
+                | Main
+                ;
+
+
+Main ::= LBRACE Bloque:bloque RBRACE 
+            {: SemanticHelper.procesarMain((SBloque) bloque, taulaSim, codigoIntermedio); :}
+        | error RBRACE
+        ;
+
+Bloque ::= Sentencia:sentencia Bloque:bloque
+            {: RESULT = new SBloque((SBloque) bloque, (SBase) sentencia); :}
+        | Sentencia:sentencia
+            {: RESULT = new SBloque((SBase) sentencia); :}
+        ;
+
+Sentencia ::= DecConstante:s SEMICOLON      {: RESULT = s; :}
+            | DecVar:s SEMICOLON            {: RESULT = s; :}
+            | DecArray:s SEMICOLON          {: RESULT = s; :}
+            | DecTupla:s SEMICOLON          {: RESULT = s; :}
+            | Return:s SEMICOLON            {: RESULT = s; :}
+            | If_Sentencia:s                {: RESULT = s; :}
+            | While_Sentencia:s             {: RESULT = s; :}
+            | For_Sentencia:s               {: RESULT = s; :}
+            | Print_Sentencia:s SEMICOLON   {: RESULT = s; :}
+            | Input_Sentencia:s SEMICOLON   {: RESULT = s; :}
+            | Asignacion:s SEMICOLON        {: RESULT = s; :}
+            | Return:s SEMICOLON            {: RESULT = s; :}
+            | error SEMICOLON
+            ;
+
+DecFun ::= DEF:d TYPE:type ID:id LPAREN ListaParametros:params RPAREN LBRACE Bloque:bloque RBRACE
+                {: SemanticHelper.procesarDecFuncion(dleft, type, id, (SListaParametros) params, (SBloque) bloque, taulaSim, codigoIntermedio); :}
+            | error RBRACE 
+            ;
+
+DecConstante ::= CONST:c TYPE:type ID:id EQUAL Valor:valor 
+                    {: RESULT = new SDecConstante(cleft, type, id, (SValor) valor); :}
+                ;
+
+DecVar ::= TYPE:type ID:id 
+                {: RESULT = new SDecVar(typeleft, type, id, null); :}
+            ;
+
+DecArray ::= ARRAY:a TYPE:type ID:id ListaDimensiones:lista
+                {: RESULT = new SDecArray(aleft, type, id, (SListaDimensiones) lista); :}
+            ;
+
+DecTupla ::= TUPLA:t ID:id EQUAL LPAREN ListaTupla:lista RPAREN
+                {: RESULT = new SDecTupla(tleft, id, (SListaTupla) lista); :}
+            ;
+
+ListaTupla ::= ID COMMA ListaTupla:lista
+            | ID
+            ;
+
+ListaDimensiones ::= LBRACKET Expresion:size RBRACKET ListaDimensiones:lista
+                | LBRACKET Expresion:size RBRACKET
+                ;
+
+ListaParametros ::= TYPE:type ID:id COMMA ListaParametros:lista  
+                    | TYPE:type ID:id
+                    ;
+
+Asignacion ::= Referencia EQUAL Expresion:e 
+            ;
+
+Expresion ::= Expresion:e1 OP_ARITMETICO:op Expresion:e2
+            | Expresion:e1 OP_LOGICO:op Expresion:e2
+            | Expresion:e1 OP_COMPARACION:op Expresion:e2
+            | LPAREN Expresion:e RPAREN
+            | Valor:valor
+            | Referencia
+            ;
+
+Referencia ::= ID
+            | LlamadaTupla
+            | LlamadaArray
+            | LlamadaFuncion
+            ;
+

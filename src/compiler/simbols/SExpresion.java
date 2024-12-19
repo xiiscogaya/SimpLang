@@ -7,12 +7,9 @@ public class SExpresion extends SBase {
     private SExpresion e2;
     private String operador;
     private SValor valor;
-    private SLlamadaFuncion llamadaFuncion;
     private TipoSubyacente tipo;
-    private String id;
-    private SLlamadaArray arrayAcces;
-    private SLlamadaTupla tuplaAcces;
     private String varGenerada;
+    private SReferencia referencia;
     private int line;
 
     // Constructor único para cualquier tipo de expresión
@@ -22,57 +19,19 @@ public class SExpresion extends SBase {
         this.e1 = e1;
         this.e2 = e2;
         this.operador = operador;
-        this.valor = null;
-        this.llamadaFuncion = null;
-        this.tipo = tipo;
-    }
-
-    public SExpresion(int line, SLlamadaFuncion llamadaFuncion) {
-        super("SExpresion", null);
-        this.line = line;
-        this.llamadaFuncion = llamadaFuncion;
-        this.e1 = null;
-        this.e2 = null;
-        this.operador = null;
-        this.valor = null;
-        this.tipo = llamadaFuncion.getTipoRetorno();
-        this.id = null;
     }
 
     public SExpresion(int line, SValor valor) {
         super("SExpresion", null);
         this.line = line;
-        this.llamadaFuncion = null;
-        this.e1 = null;
-        this.e2 = null;
-        this.operador = null;
         this.valor = valor;
         this.tipo = valor.getTipo();
-        this.id = null;
     }
 
-    public SExpresion(int line, String id) {
-        super("SExpresion", null);
-        this.line= line;
-        this.llamadaFuncion = null;
-        this.e1 = null;
-        this.e2 = null;
-        this.operador = null;
-        this.valor = null;
-        this.id = id;
-        this.tipo = null;
-    }
-
-    public SExpresion(int line, SLlamadaArray arrayAcces) {
-        super("SLlamadaArray", null);
+    public SExpresion(int line, SReferencia referencia) {
+        super("SReferencia", null);
         this.line = line;
-        this.arrayAcces = arrayAcces;
-    }
-
-    public SExpresion(int line, SLlamadaTupla tuplaAcces) {
-        super("SLlamadaArray", null);
-        this.line = line;
-        this.tuplaAcces = tuplaAcces;
+        this.referencia = referencia;
     }
 
     public SExpresion() {
@@ -104,20 +63,12 @@ public class SExpresion extends SBase {
         return tipo;
     }
 
-    public String getID () {
-        return id;
-    }
-
-    public SLlamadaArray getArray() {
-        return arrayAcces;
-    }
-
-    public SLlamadaTupla getTupla() {
-        return tuplaAcces;
-    }
-
     public String getVarGenerada() {
         return varGenerada;
+    }
+
+    public SReferencia getReferencia() {
+        return referencia;
     }
 
     public void setVarGenerada(String varGenerada) {
@@ -126,8 +77,5 @@ public class SExpresion extends SBase {
 
     public void setTipo(TipoSubyacente tipo) {
         this.tipo = tipo;
-    }
-    public SLlamadaFuncion getLlamadaFuncion() {
-        return llamadaFuncion;
     }
 }
