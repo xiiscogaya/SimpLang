@@ -96,6 +96,7 @@ Sentencia ::= DecConstante:s SEMICOLON      {: RESULT = s; :}
             | Repeat_Until:s                {: RESULT = s; :}
             | Print_Sentencia:s SEMICOLON   {: RESULT = s; :}
             | Input_Sentencia:s SEMICOLON   {: RESULT = s; :}
+            | LlamadaFuncion:s SEMICOLON    {: RESULT = s; :}
             | error SEMICOLON
             ;
 
@@ -168,7 +169,7 @@ LlamadaTupla ::= ID:id DOT ID:campo
                     {: RESULT = new SLlamadaTupla(idleft, id, campo); :}
                 ;
 
-ListaArgumentos ::= ListaArgumentos:lista COMMA Expresion:e
+ListaArgumentos ::= Expresion:e COMMA ListaArgumentos:lista
                     {: RESULT = new SListaArgumentos(listaleft, (SListaArgumentos) lista, (SExpresion) e); :}
                 | Expresion:e
                     {: RESULT = new SListaArgumentos(eleft, (SExpresion) e); :}
@@ -194,7 +195,7 @@ While_Sentencia ::= WHILE:w Expresion:expresion LBRACE Bloque:bloque RBRACE
                     {: RESULT = new SWhile(wleft, (SExpresion) expresion, (SBloque) bloque); :}
                 ;
 
-Repeat_Until ::= REPEAT:r Bloque:bloque UNTIL Expresion:e SEMICOLON
+Repeat_Until ::= REPEAT:r LBRACE Bloque:bloque RBRACE UNTIL Expresion:e SEMICOLON
                     {: RESULT = new SRepeatUntil(rleft, (SBloque) bloque, (SExpresion) e); :}
                 ;
 

@@ -4,8 +4,9 @@ import compiler.taulasimbols.TipoSubyacente;
 
 public class SReferencia extends SBase {
     private SBase llamada;
-    private String id;
-    public String tipoLlamada;
+    public String nameid;
+
+    public String idUnico;
     public TipoSubyacente tipoSubyacente;
     public String varGenerada;
 
@@ -14,20 +15,20 @@ public class SReferencia extends SBase {
         this.llamada = llamada;
     }
 
-    public SReferencia(String id) {
+    public SReferencia(String nameid) {
         super("SReferencia", null);
-        this.id = id;
+        this.nameid = nameid;
     }
 
     public SBase getLlamada() {
         return llamada;
     } 
 
-    public void setID(String id) {
-        this.id = id;
+    public void setIdUnico(String idUnico) {
+        this.idUnico = idUnico;
     }
 
-    public String getId() {
-        return id;
+    public String getIdUnico() {
+        return idUnico;
     }
 }

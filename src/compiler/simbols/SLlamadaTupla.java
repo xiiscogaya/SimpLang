@@ -8,6 +8,7 @@ public class SLlamadaTupla extends SBase{
     private int line;
     public TipoSubyacente tipoTupla;
     public String varGenerada;
+    public String idUnico;
 
     public SLlamadaTupla(int line, String tuplaName, String fieldName) {
         super("SLlamadaTupla", null);

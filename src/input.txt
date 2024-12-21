@@ -1,18 +1,11 @@
-
+def float io(int a, float b) {
+    a = 7;
+    b =9.3;
+    return a + b;
+}
 
 {   
 
-    const int i = 9;
-    const float ij =8.7;
-    const bool io = true;
-    tupla x = (i, ij, io);
-
-    x.i = 8;
-
-    array float hf[9];
-    hf[10] = 8.0;
-
-    float iop;
-    iop = hf[8];
-
+    float i;
+    i = io(3, 8.7);
 }

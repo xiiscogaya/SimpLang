@@ -5,11 +5,13 @@ public class Procedimiento {
     public int numParametros;
     public String etiquetaInicio;
     public Boolean yaAnalizado;
+    public int ocupacionLocales;
 
-    public Procedimiento(String nombre, int numParametros, String etiquetaInicio, Boolean yaAnalizado) {
+    public Procedimiento(String nombre, int numParametros, String etiquetaInicio, Boolean yaAnalizado,int ocupacionLocales) {
         this.nombre = nombre;
         this.numParametros = numParametros;
         this.etiquetaInicio = etiquetaInicio;
         this.yaAnalizado = yaAnalizado;
+        this.ocupacionLocales = ocupacionLocales;
     }
 }

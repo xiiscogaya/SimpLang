@@ -20,7 +20,9 @@ public class Instruccion {
         }
         if (operador.equals("IND_ASS")) {
             return String.format("%s, %s -> %s[%s]", operador, operando1, destino, operando2);
-        }
+        } 
+        if (operador.equals("IND_VAL"))
+            return String.format("%s, %s[%s] -> %s", operador, operando1, operando2, destino);
         return String.format("%s %s, %s -> %s", operador, operando1, operando2, destino);
     }
 }

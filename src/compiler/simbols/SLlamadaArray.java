@@ -8,6 +8,7 @@ public class SLlamadaArray extends SBase {
     private int line;
     private String varGenerada;
     public TipoSubyacente tipoArray;
+    public String idUnico;
 
 
     public SLlamadaArray(int line, String arrayName, SListaDimensionesRef dimensiones) {

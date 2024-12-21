@@ -16,6 +16,10 @@ public class SRepeatUntil extends SBase{
         super();
     }
 
+    public int getLine() {
+        return line;
+    }
+
     public SBloque getBloque() {
         return bloque;
     }

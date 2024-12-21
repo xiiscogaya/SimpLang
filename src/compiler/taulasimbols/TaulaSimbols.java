@@ -1,6 +1,8 @@
 package compiler.taulasimbols;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
@@ -26,6 +28,34 @@ public class TaulaSimbols {
             this.np = np;
         }
     }
+
+    private final List<LlamadaPendiente> llamadasPendientes = new ArrayList<>();
+
+    // Clase interna para representar llamadas pendientes
+    private static class LlamadaPendiente {
+        String nombreFuncion;
+        int linea;
+
+        public LlamadaPendiente(String nombreFuncion, int linea) {
+            this.nombreFuncion = nombreFuncion;
+            this.linea = linea;
+        }
+    }
+
+    public void registrarLlamadaPendiente(String nombreFuncion, int linea) {
+        llamadasPendientes.add(new LlamadaPendiente(nombreFuncion, linea));
+    }
+
+    public void validarLlamadasPendientes() {
+        for (LlamadaPendiente llamada : llamadasPendientes) {
+            if (consultar(llamada.nombreFuncion) == null) {
+                ErrorManager.addError(3, "Error: La función '" + llamada.nombreFuncion + "' llamada en línea " + llamada.linea + " no está declarada.");
+            }
+        }
+    }
+    
+    
+
 
     /**
      * Añadir un nuevo nivel de ámbito
@@ -102,6 +132,43 @@ public class TaulaSimbols {
     public String obtenerFuncionActual() {
         return funcionActual.isEmpty() ? null : funcionActual.peek();
     }
+
+    /**
+     * 
+     */
+    public int calcularOcupacionLocales() {
+        int ocupacion = 0;
+    
+        // Recorre la tabla de descripciones para el nivel actual
+        for (Map.Entry<String, EntradaDesc> entry : td.entrySet()) {
+            EntradaDesc entrada = entry.getValue();
+            if (entrada.np == n) { // Si la variable pertenece al nivel actual
+                Descripcio descripcio = entrada.descripcio;
+    
+                // Calcula el tamaño según el tipo de la variable
+                if (descripcio instanceof DVar) {
+                    DVar var = (DVar) descripcio;
+                    ocupacion += TipoSubyacente.sizeOf(var.getTipoSubyacente().getTipoBasico());
+                } else if (descripcio instanceof DArray) {
+                    DArray array = (DArray) descripcio;
+                    int baseSize = TipoSubyacente.sizeOf(array.getTipo().getTipoBasico());
+                    int totalSize = baseSize;
+                    for (Object dimension : array.getDimensiones()) {
+                        totalSize *= Integer.parseInt((String) dimension);
+                    }
+                    ocupacion += totalSize;
+                } else if (descripcio instanceof DTupla) {
+                    DTupla tupla = (DTupla) descripcio;
+                    for (TipoSubyacente tipo : tupla.getCampos().values()) {
+                        ocupacion += TipoSubyacente.sizeOf(tipo.getTipoBasico());
+                    }
+                }
+            }
+        }
+    
+        return ocupacion;
+    }
+    
 
     /**
      * Imprimir el estado de la tabla de símbolos (para depuración)

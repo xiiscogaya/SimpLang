@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import compiler.sintactic.ErrorManager;
 import compiler.taulasimbols.Descripcio;
 
 public class CodigoIntermedio {
@@ -37,13 +38,28 @@ public class CodigoIntermedio {
         instrucciones.add(new Instruccion(operador, operando1, operando2, destino));
     }
 
-    public void registrarVariable(String nombre, String nombreFuncion, int tamañoTotal, Descripcio descripcio) {
-        tablaVariables.put(nombre, new Variable(nombreFuncion, tamañoTotal, descripcio));
+    public void registrarVariable(String idUnico, String nombre, String nombreFuncion, int tamañoTotal, Descripcio descripcio) {
+        tablaVariables.put(idUnico, new Variable(nombre, nombreFuncion, tamañoTotal, descripcio));
     }
 
-    public void registrarProcedimiento(String nombre, int numParametros, String etiquetaInicio, Boolean yaAnalizado) {
-        tablaProcedimientos.put(nombre, new Procedimiento(nombre, numParametros, etiquetaInicio, yaAnalizado));
+    public void registrarProcedimiento(String idUnico, String nombre, int numParametros, String etiquetaInicio, Boolean yaAnalizado, int ocupacionLocales) {
+        tablaProcedimientos.put(idUnico, new Procedimiento(nombre, numParametros, etiquetaInicio, yaAnalizado, ocupacionLocales));
     }
+
+    public String obtenerEtiquetaInicio(String idUnico) {
+        // Buscar el procedimiento en la tabla de procedimientos
+        Procedimiento procedimiento = tablaProcedimientos.get(idUnico);
+    
+        // Verificar si el procedimiento existe
+        if (procedimiento == null) {
+            ErrorManager.addError(3, "Error: No se encontro el id: " + idUnico + " en la tabla de procedimientos");
+            return null; // Retorna null si no se encuentra
+        }
+    
+        // Retornar la etiqueta de inicio del procedimiento
+        return procedimiento.etiquetaInicio;
+    }
+    
 
     public void imprimirCodigo() {
         for (Instruccion instr : instrucciones) {
@@ -59,9 +75,30 @@ public class CodigoIntermedio {
     }
 
     // Generación de código para condicionales
-    public void generarCondicional(String condicion, String etiquetaVerdadero, String etiquetaFalso) {
-        agregarInstruccion("if", condicion, "", etiquetaVerdadero);
-        agregarInstruccion("goto", "", "", etiquetaFalso);
+    public void generarIf(String operador, String operando1, String operando2, String destino) {
+        switch (operador) {
+            case "<":
+                agregarInstruccion("IF_LT", operando1, operando2, destino);
+                break;
+            case ">":
+                agregarInstruccion("IF_GT", operando1, operando2, destino);
+                break;
+            case ">=":
+                agregarInstruccion("IF_GE", operando1, operando2, destino);
+                break;
+            case "<=":
+                agregarInstruccion("IF_LE", operando1, operando2, destino);
+                break;
+            case "==":
+                agregarInstruccion("IF_EQ", operando1, operando2, destino);
+                break;
+            case "!=":
+                agregarInstruccion("IF_NE", operando1, operando2, destino);
+                break;
+            default:
+                break;
+        }
+        
     }
 
     // Generación de código para bloques if-else
@@ -95,21 +132,22 @@ public class CodigoIntermedio {
     public void imprimirTablaVariables() {
         System.out.println("Tabla de Variables:");
         System.out.println("-----------------------------------------------------------------------------------------------------");
-        System.out.println("|  Nombre  | Función            | Tamaño  | Descripción                              |");
+        System.out.println("|  IDUnico |   Nombre  | Función            | Tamaño  | Descripción                              |");
         System.out.println("-----------------------------------------------------------------------------------------------------");
     
         for (Map.Entry<String, Variable> entry : tablaVariables.entrySet()) {
-            String nombre = entry.getKey();
+            String idUnico = entry.getKey();
             Variable variable = entry.getValue();
     
             if (variable != null) {
+                String nombre = variable.nombre != null ? variable.nombre : "N/A";
                 String funcion = variable.nombreFuncion != null ? variable.nombreFuncion : "Global";
                 String tamaño = variable.tamañoTotal > 0 ? String.valueOf(variable.tamañoTotal) : "N/A";
                 String descripcion = variable.descripcio != null ? variable.descripcio.toString() : "N/A";
     
-                System.out.printf("| %-10s | %-18s | %-7s | %-25s |\n", nombre, funcion, tamaño, descripcion);
+                System.out.printf("| %-10s | %-10s | %-18s | %-7s | %-25s |\n", idUnico, nombre, funcion, tamaño, descripcion);
             } else {
-                System.out.printf("| %-10s | %-18s | %-7s | %-25s |\n", nombre, "N/A", "N/A", "N/A");
+                System.out.printf("| %-10s | %-10s | %-18s | %-7s | %-25s |\n", idUnico, "N/A", "N/A", "N/A", "N/A");
             }
         }
     
@@ -123,14 +161,13 @@ public class CodigoIntermedio {
         System.out.println("---------------------------------------------------");
     
         for (Map.Entry<String, Procedimiento> entry : tablaProcedimientos.entrySet()) {
-            String nombre = entry.getKey();
+            String idUnico = entry.getKey();
             Procedimiento procedimiento = entry.getValue();
     
             if (procedimiento != null) {
-                System.out.printf("| %-14s | %-20d | %-8s |\n", 
-                                  nombre, procedimiento.numParametros, procedimiento.etiquetaInicio);
+                System.out.printf("| %-10s | %-14s | %-20d | %-8s |\n", idUnico, procedimiento.nombre, procedimiento.numParametros, procedimiento.etiquetaInicio);
             } else {
-                System.out.printf("| %-14s | %-20s | %-8s |\n", nombre, "N/A", "N/A");
+                System.out.printf("| %10-s | %-14s | %-20s | %-8s |\n", idUnico, "N/A", "N/A", "N/A");
             }
         }
     
