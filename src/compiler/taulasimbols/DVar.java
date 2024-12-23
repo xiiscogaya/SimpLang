@@ -13,6 +13,10 @@ public class DVar extends Descripcio{
         return String.format("DVar{tipoSubyacente=%s, idUnico=%s}", tipoSubyacente, idUnico);
     }
 
+    public DVar crearCopiaLigera() {
+        return new DVar(this.tipoSubyacente);
+    }
+
     public TipoSubyacente getTipoSubyacente() {
         return tipoSubyacente;
     }

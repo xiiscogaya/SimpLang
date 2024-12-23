@@ -16,6 +16,10 @@ public class DConst extends Descripcio {
         return String.format("DConst{valor=%s, tipoSubyacente=%s, idUnico=%s}", valor, tipoSubyacente, idUnico);
     }
 
+    public DConst crearCopiaLigera() {
+        return new DConst(this.valor, this.tipoSubyacente);
+    }
+
     public Object getValor() {
         return valor;
     }

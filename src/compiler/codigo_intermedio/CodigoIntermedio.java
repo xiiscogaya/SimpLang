@@ -24,6 +24,20 @@ public class CodigoIntermedio {
         this.contadorEtiquetas = 0;
     }
 
+    public List<Instruccion> obtenerInstrucciones() {
+        return this.instrucciones;
+    }
+
+    // Obtener lista de variables
+    public Map<String, Variable> getTablaVariables() {
+        return this.tablaVariables;
+    }
+
+    // Obtener lista de procedimientos
+    public Map<String, Procedimiento> getTablaProcedimientos() {
+        return this.tablaProcedimientos;
+    }
+
     public String nuevaVariableTemporal() {
         String temporal = "t" + contadorVariablesTemporales++;
         tablaVariables.put(temporal, null);

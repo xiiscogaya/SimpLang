@@ -1,11 +1,8 @@
-def float io(int a, float b) {
-    a = 7;
-    b =9.3;
-    return a + b;
-}
 
-{   
 
-    float i;
-    i = io(3, 8.7);
+{
+    int a;
+    a = 10;
+
+    const float h=8.7;
 }

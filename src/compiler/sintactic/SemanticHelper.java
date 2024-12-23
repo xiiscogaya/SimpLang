@@ -8,6 +8,8 @@ import compiler.simbols.*;
 
 public class SemanticHelper {
 
+    private static boolean hasReturn = false;
+
     /**
      * Método para procesar la declaración de las constantes, siempre con valor literal
      * 
@@ -352,6 +354,7 @@ public class SemanticHelper {
             } else {
                 codigoIntermedio.agregarInstruccion("RTN", "", "", funcionActual);
             }
+            hasReturn = true;
             return;
         }
     
@@ -367,6 +370,8 @@ public class SemanticHelper {
         }
 
         codigoIntermedio.agregarInstruccion("RTN", "", "", funcionActual);
+        hasReturn = true;
+
     }
     
 
@@ -381,6 +386,8 @@ public class SemanticHelper {
      * @param taulaSim              Tabla de Símbolos
      */
     public static void procesarDecFuncion(int line, String tipoRetorno, String id, SListaParametros parametros, SBloque cuerpo, TaulaSimbols taulaSim, CodigoIntermedio codigoIntermedio) {
+        hasReturn = false;
+        
         // Verificar si la función ya está declarada en el ámbito global
         if (taulaSim.consultar(id) != null) {
             ErrorManager.addError(3 , "Error: Redefinición de la función '" + id + "', en línea " + line + ".");
@@ -430,6 +437,10 @@ public class SemanticHelper {
         int ocupacionLocales = taulaSim.calcularOcupacionLocales();
         codigoIntermedio.registrarProcedimiento(descripcionFuncion.idUnico, id, descripcionFuncion.getNombresParametros().size(), etiquetaSubprograma, false, ocupacionLocales);
 
+        if (descripcionFuncion.getTipoRetorno().equals(new TipoSubyacente(Tipus.VOID)) && !hasReturn) {
+            codigoIntermedio.agregarInstruccion("RTN", "", "", descripcionFuncion.idUnico);
+        }
+        
         // Eliminar el ámbito de la función
         taulaSim.eliminarNivelAmbito();
 
@@ -596,9 +607,8 @@ public class SemanticHelper {
 
         if (listaElseIf != null || bloqueElse != null) {
             codigoIntermedio.agregarInstruccion("GOTO", "", "", etiquetafinal);
-
-            codigoIntermedio.agregarInstruccion("SKIP", "", "", etiqueta);
         }
+        codigoIntermedio.agregarInstruccion("SKIP", "", "", etiqueta);
         
         // Procesamos los else-if si existen
         if (listaElseIf != null) {
@@ -743,8 +753,10 @@ public class SemanticHelper {
             if (expresionProcesada.isError()) {
                 return;
             }
+            codigoIntermedio.agregarInstruccion("PARAM_S", "", "", expresionProcesada.getVarGenerada());
             lista = lista.getLista();
         }
+        codigoIntermedio.agregarInstruccion("PRINT", "", "", "");
     }
 
     /**
@@ -753,7 +765,7 @@ public class SemanticHelper {
      * @param id            Identificador donde se guardará la info introducida
      * @param taulaSim      Tabla de Símbolos
      */
-    public static void procesarInput(SInput input, TaulaSimbols taulaSim) {
+    public static void procesarInput(SInput input, TaulaSimbols taulaSim, CodigoIntermedio codigoIntermedio) {
         String id = input.getId();
         Descripcio desc = taulaSim.consultar(id);
 
@@ -767,6 +779,8 @@ public class SemanticHelper {
             ErrorManager.addError(3 , "Error: '" + id + "' no es una variable, en línea " + input.getLine() + ".");
             return;
         }
+
+        codigoIntermedio.agregarInstruccion("INPUT", "", "", desc.idUnico);
     }
 
     
@@ -780,6 +794,7 @@ public class SemanticHelper {
         procesarBloque(bloque, taulaSim, false, "Main", codigoIntermedio);
         codigoIntermedio.imprimirCodigo();
         codigoIntermedio.imprimirTablaVariables();
+        codigoIntermedio.imprimirTablaProcedimientos();
 
         // Validar las llamadas a funciones pendientes
         taulaSim.validarLlamadasPendientes();
@@ -801,7 +816,6 @@ public class SemanticHelper {
         
         boolean dentroDeFuncion = taulaSim.obtenerFuncionActual() != null;
         boolean tieneReturnValido = false;
-
     
         while (bloque != null) {
             SBase sentencia = bloque.getSentencia();
@@ -849,11 +863,11 @@ public class SemanticHelper {
                 procesarPrint(printSentencia.getLista(), taulaSim, codigoIntermedio);
             } else if (sentencia instanceof SInput) {
                 SInput inputSentencia = (SInput) sentencia;
-                procesarInput(inputSentencia, taulaSim);
+                procesarInput(inputSentencia, taulaSim, codigoIntermedio);
             } else {
                 ErrorManager.addError(3 , "Error: Sentencia no reconocida dentro del bloque '" + contexto + "'.");
             }
-        } 
+        }
     
         if (dentroDeFuncion && contexto.equals("Funcion")) {
             String funcionActual = taulaSim.obtenerFuncionActual();
@@ -1102,14 +1116,16 @@ public class SemanticHelper {
         int i = 0;
         SListaArgumentos lista_local = lista;
         do {
-            if (procesarExpresion(lista_local.getExpresion(), taulaSim, codigoIntermedio).isError()) {
+            SExpresion expresion = procesarExpresion(lista_local.getExpresion(), taulaSim, codigoIntermedio);
+            if (expresion.isError()) {
                 return new SListaArgumentos();
             }
-            SExpresion expresion = procesarExpresion(lista_local.getExpresion(), taulaSim, codigoIntermedio);
+            
             if (!funcion.getListaTipos().get(i).equals(expresion.getTipo())) {
                 ErrorManager.addError(3 , "Error: En el parámetro " + i + ", la expresion que es: " + expresion.getTipo() + " no coincide con el tipo de la funcion que es: " + funcion.getListaTipos().get(i) + ", en línea " + lista_local.getLine() + ".");
                 return new SListaArgumentos();
             }
+            codigoIntermedio.agregarInstruccion("PARAM_S", "", "", expresion.getVarGenerada());
             i++;
             lista_local = lista_local.getArgumentos();
         } while (lista_local != null);
