@@ -2,6 +2,7 @@ package compiler.sintactic;
 
 import compiler.taulasimbols.*;
 import java.util.ArrayList;
+import java.util.List;
 
 import compiler.codigo_intermedio.CodigoIntermedio;
 import compiler.simbols.*;
@@ -49,7 +50,7 @@ public class SemanticHelper {
 
         // Generar código intermedio
         String valorLiteral = valor.getValor();
-        codigoIntermedio.registrarVariable(descripcionConstante.idUnico, id, taulaSim.obtenerFuncionActual(), TipoSubyacente.sizeOf(descripcionConstante.tipoSubyacente.getTipoBasico()), descripcionConstante);
+        codigoIntermedio.registrarVariable(descripcionConstante.idUnico, id, taulaSim.obtenerFuncionActual(), TipoSubyacente.sizeOf(descripcionConstante.tipoSubyacente.getTipoBasico()), descripcionConstante.tipoSubyacente, descripcionConstante);
         codigoIntermedio.agregarInstruccion("COPY", valorLiteral, "", descripcionConstante.idUnico);
 
         taulaSim.imprimirTabla();
@@ -76,7 +77,7 @@ public class SemanticHelper {
         // Si no hay errores, la variable ya está creada, simplemente valida y registra su descripción
         DVar descripcionVariable = new DVar(new TipoSubyacente(type));
         taulaSim.posar(id, descripcionVariable);
-        codigoIntermedio.registrarVariable(descripcionVariable.idUnico, id, taulaSim.obtenerFuncionActual(), TipoSubyacente.sizeOf(descripcionVariable.tipoSubyacente.getTipoBasico()), descripcionVariable);
+        codigoIntermedio.registrarVariable(descripcionVariable.idUnico, id, taulaSim.obtenerFuncionActual(), TipoSubyacente.sizeOf(descripcionVariable.tipoSubyacente.getTipoBasico()), descripcionVariable.tipoSubyacente, descripcionVariable);
         taulaSim.imprimirTabla();
     }
 
@@ -121,7 +122,7 @@ public class SemanticHelper {
         }
 
         tamañoTotal *= baseSize;
-        codigoIntermedio.registrarVariable(desc_array.idUnico, id, taulaSim.obtenerFuncionActual(), tamañoTotal, desc_array);
+        codigoIntermedio.registrarVariable(desc_array.idUnico, id, taulaSim.obtenerFuncionActual(), tamañoTotal, new TipoSubyacente(tipo), desc_array);
 
         taulaSim.imprimirTabla();
 
@@ -181,7 +182,7 @@ public class SemanticHelper {
         }
 
         taulaSim.posar(id, tuplaDef);
-        codigoIntermedio.registrarVariable(tuplaDef.idUnico, id, taulaSim.obtenerFuncionActual(), tamañoTotal, tuplaDef);
+        codigoIntermedio.registrarVariable(tuplaDef.idUnico, id, taulaSim.obtenerFuncionActual(), tamañoTotal, null, tuplaDef);
         return listaTupla;
     }
 
@@ -215,7 +216,7 @@ public class SemanticHelper {
             return;
         }
 
-        if (referencia.varGenerada != null) {
+        if (referencia.varGenerada != null && !(referencia.getLlamada() instanceof SLlamadaFuncion)) {
             codigoIntermedio.agregarInstruccion("IND_ASS", expresion.getVarGenerada(), referencia.varGenerada, referencia.getIdUnico());
         } else {
             codigoIntermedio.agregarInstruccion("COPY", expresion.getVarGenerada(), "", referencia.getIdUnico());
@@ -248,6 +249,7 @@ public class SemanticHelper {
                 return new SBase();
             }
             referencia.tipoSubyacente = llamadaFuncion.getTipoRetorno();
+            referencia.varGenerada = llamadaFuncion.varGenerada;
         } else if (referencia.nameid != null) {
             Descripcio desc = taulaSim.consultar(referencia.nameid);
             if (desc instanceof DVar) {
@@ -352,7 +354,7 @@ public class SemanticHelper {
             if (!tipoRetornoEsperado.equals(new TipoSubyacente(Tipus.VOID))) {
                 ErrorManager.addError(3 , "Error: La función '" + funcionActual + "' debe retornar un valor de tipo '" + tipoRetornoEsperado + "', en línea " + 012345 + ".");
             } else {
-                codigoIntermedio.agregarInstruccion("RTN", "", "", funcionActual);
+                codigoIntermedio.agregarInstruccion("RTN", "", "", codigoIntermedio.getVariableTemp());
             }
             hasReturn = true;
             return;
@@ -369,7 +371,7 @@ public class SemanticHelper {
             ErrorManager.addError(3 , "Error: El tipo de la expresión retornada ('" + expresionProcesada.getTipo() + "') no coincide con el tipo de retorno declarado ('" + tipoRetornoEsperado + "'), en línea " + 012345 + ".");
         }
 
-        codigoIntermedio.agregarInstruccion("RTN", "", "", funcionActual);
+        codigoIntermedio.agregarInstruccion("RTN", "", "", codigoIntermedio.getVariableTemp());
         hasReturn = true;
 
     }
@@ -409,6 +411,8 @@ public class SemanticHelper {
     
         // Crear un nuevo ámbito para la función
         taulaSim.nuevoNivelAmbito();
+
+        List<String> listaIDUnicos = new ArrayList<>();
     
         // Registrar los parámetros en el nuevo ámbito
         do {
@@ -424,6 +428,8 @@ public class SemanticHelper {
             // Registrar el parámetro como una variable
             DVar variable = new DVar(new TipoSubyacente(tipoParametro));
             taulaSim.posar(nombreParametro, variable);
+            listaIDUnicos.add(variable.idUnico);
+            codigoIntermedio.registrarVariable(variable.idUnico, nombreParametro, id, TipoSubyacente.sizeOf(new TipoSubyacente(tipoParametro).getTipoBasico()), new TipoSubyacente(tipoParametro), variable);
             parametros = parametros.getParametro();
         } while (parametros != null);
 
@@ -435,7 +441,7 @@ public class SemanticHelper {
         procesarBloque(cuerpo, taulaSim, false, "Funcion", codigoIntermedio);
 
         int ocupacionLocales = taulaSim.calcularOcupacionLocales();
-        codigoIntermedio.registrarProcedimiento(descripcionFuncion.idUnico, id, descripcionFuncion.getNombresParametros().size(), etiquetaSubprograma, false, ocupacionLocales);
+        codigoIntermedio.registrarProcedimiento(descripcionFuncion.idUnico, id, descripcionFuncion.getNombresParametros().size(), listaIDUnicos, etiquetaSubprograma, false, ocupacionLocales, descripcionFuncion);
 
         if (descripcionFuncion.getTipoRetorno().equals(new TipoSubyacente(Tipus.VOID)) && !hasReturn) {
             codigoIntermedio.agregarInstruccion("RTN", "", "", descripcionFuncion.idUnico);
@@ -480,8 +486,9 @@ public class SemanticHelper {
             llamadaFuncion.setEsVoid(true);
         }
 
-
-        codigoIntermedio.agregarInstruccion("CALL", "", "", codigoIntermedio.obtenerEtiquetaInicio(funcion.idUnico));
+        String varGenerada = codigoIntermedio.nuevaVariableTemporal();
+        codigoIntermedio.agregarInstruccion("CALL", varGenerada, "", funcion.idUnico);
+        llamadaFuncion.varGenerada = varGenerada;
 
         taulaSim.imprimirTabla();
         return llamadaFuncion;
@@ -779,7 +786,6 @@ public class SemanticHelper {
             ErrorManager.addError(3 , "Error: '" + id + "' no es una variable, en línea " + input.getLine() + ".");
             return;
         }
-
         codigoIntermedio.agregarInstruccion("INPUT", "", "", desc.idUnico);
     }
 
@@ -791,6 +797,7 @@ public class SemanticHelper {
      * @param taulaSim      Tabla de Símbolos
      */
     public static void procesarMain(SBloque bloque, TaulaSimbols taulaSim, CodigoIntermedio codigoIntermedio) {
+        codigoIntermedio.agregarInstruccion("SKIP", "", "", "MAIN");
         procesarBloque(bloque, taulaSim, false, "Main", codigoIntermedio);
         codigoIntermedio.imprimirCodigo();
         codigoIntermedio.imprimirTablaVariables();
@@ -916,6 +923,41 @@ public class SemanticHelper {
             return expresion;
         }
 
+        if (expresion.getOperador() == "&&" || expresion.getOperador() == "||") {
+            SExpresion e1Procesada = procesarExpresion(expresion.getE1(), taulaSim, codigoIntermedio);
+            SExpresion e2Procesada = procesarExpresion(expresion.getE2(), taulaSim, codigoIntermedio);
+
+            if (e1Procesada.getTipo() == null || e2Procesada.getTipo() == null) {
+                ErrorManager.addError(3 , "Error: Tipos inválidos en los operandos de la operación '" + expresion.getOperador() + "', en línea " + expresion.getLine() + ".");
+                return new SExpresion();
+            }
+
+            // Verificar compatibilidad de tipos
+            if (!e1Procesada.getTipo().esCompatibleCon(e2Procesada.getTipo())) {
+                ErrorManager.addError(3 , "Error: Tipos incompatibles en la operación '" + expresion.getOperador() + "', en línea " + expresion.getLine() + ".");
+                return new SExpresion();
+            }
+
+            TipoSubyacente tipoResultado = new TipoSubyacente(Tipus.BOOLEAN);
+
+            String etiqueta = codigoIntermedio.nuevaEtiqueta();
+            codigoIntermedio.agregarInstruccion(expresion.getOperador(), e1Procesada.getVarGenerada(), e2Procesada.getVarGenerada(), etiqueta);
+            String varGenerada = codigoIntermedio.nuevaVariableTemporal();
+            codigoIntermedio.agregarInstruccion("COPY", "0", "", varGenerada);
+            String etiqueta2 = codigoIntermedio.nuevaEtiqueta();
+            codigoIntermedio.agregarInstruccion("GOTO", "", "", etiqueta2);
+            codigoIntermedio.agregarInstruccion("SKIP", "", "", etiqueta);
+            codigoIntermedio.agregarInstruccion("COPY", "-1", "", varGenerada);
+            codigoIntermedio.agregarInstruccion("SKIP", "", "", etiqueta2);
+
+            expresion.setVarGenerada(varGenerada);
+
+            // Asignar el tipo resultante a la expresión
+            expresion.setTipo(tipoResultado);
+
+            return expresion;
+        }
+
         // Si es una operación compuesta
         if (expresion.getOperador() != null && !esOperadorComparacion(expresion.getOperador())) {
             // Procesar las subexpresiones
@@ -940,7 +982,9 @@ public class SemanticHelper {
                 return new SExpresion();
             }
 
-            String varGenerada = codigoIntermedio.generarExpresion(expresion.getOperador(), e1Procesada.getVarGenerada(), e2Procesada.getVarGenerada());
+            String varGenerada = codigoIntermedio.nuevaVariableTemporal();
+            codigoIntermedio.agregarInstruccion(expresion.getOperador(), e1Procesada.getVarGenerada(), e2Procesada.getVarGenerada(), varGenerada);
+
             expresion.setVarGenerada(varGenerada);
 
             // Asignar el tipo resultante a la expresión
@@ -965,7 +1009,15 @@ public class SemanticHelper {
                 return new SExpresion();
             }
 
-            String varGenerada = codigoIntermedio.generarExpresion(expresion.getOperador(), e1Procesada.getVarGenerada(), e2Procesada.getVarGenerada());
+            String etiqueta = codigoIntermedio.nuevaEtiqueta();
+            codigoIntermedio.generarIf(expresion.getOperador(), e1Procesada.getVarGenerada(), e2Procesada.getVarGenerada(), etiqueta);
+            String varGenerada = codigoIntermedio.nuevaVariableTemporal();
+            codigoIntermedio.agregarInstruccion("COPY", "0", "", varGenerada);
+            String etiqueta2 = codigoIntermedio.nuevaEtiqueta();
+            codigoIntermedio.agregarInstruccion("GOTO", "", "", etiqueta2);
+            codigoIntermedio.agregarInstruccion("SKIP", "", "", etiqueta);
+            codigoIntermedio.agregarInstruccion("COPY", "-1", "", varGenerada);
+            codigoIntermedio.agregarInstruccion("SKIP", "", "", etiqueta2);
             expresion.setVarGenerada(varGenerada);
 
             // Asignar el tipo BOOLEAN a la expresión de comparación
@@ -984,13 +1036,18 @@ public class SemanticHelper {
             SReferencia referencia = (SReferencia) referenciaProcesada;
             // Comprobamos si hay desplazamiento
             String varNueva = codigoIntermedio.nuevaVariableTemporal();
-            if (referencia.varGenerada != null) {
+            if (referencia.varGenerada != null && !(referencia.getLlamada() instanceof SLlamadaFuncion)) {
                 codigoIntermedio.agregarInstruccion("IND_VAL", referencia.getIdUnico(), referencia.varGenerada, varNueva);
-            } else {
+            } else if (!(referencia.getLlamada() instanceof SLlamadaFuncion)){
                 codigoIntermedio.agregarInstruccion("COPY", referencia.getIdUnico(), "", varNueva);
-            }
+            } 
             expresion.setTipo(referencia.tipoSubyacente);
-            expresion.setVarGenerada(varNueva);
+            if (referencia.getLlamada() instanceof SLlamadaFuncion) {
+                expresion.setVarGenerada(referencia.varGenerada);
+            } else {
+                expresion.setVarGenerada(varNueva);
+            }
+            
             return expresion;
         }
 

@@ -1,8 +1,13 @@
-
+def int suma(int a, int b) {
+    return a + b;
+}
 
 {
     int a;
-    a = 10;
-
-    const float h=8.7;
+    a = 9;
+    int b;
+    input(b);
+    int sumaTotal;
+    sumaTotal = suma(a, b);
+    print(sumaTotal);
 }

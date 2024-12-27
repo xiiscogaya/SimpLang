@@ -111,7 +111,7 @@ whitespace  = [ \n\t\r]+
 ")"             { return symbol(ParserSym.RPAREN); }
 "["             { return symbol(ParserSym.LBRACKET); }
 "]"             { return symbol(ParserSym.RBRACKET); }
-"&&"|"||"               { return symbol(ParserSym.OP_ARITMETICO, yytext()); }
+"&&"|"||"               { return symbol(ParserSym.OP_COMPARACION, yytext()); }
 "<"|">"|">="|"<="|"=="|"!="     { return symbol(ParserSym.OP_LOGICO, yytext()) ;}
 "="             { return symbol(ParserSym.EQUAL); }
 

@@ -1,0 +1,183 @@
+00001076 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 27/12/2024 16:43:54
+
+00001000                             1      ORG $1000
+00001000                             2  ; ------- DECLARACIÓN DE CONSTANTES Y VARIABLES --------
+00001000                             3  t4  DS.L    1
+00001004                             4  t5  DS.L    1
+00001008                             5  t6  DS.L    1
+0000100C                             6  t7  DS.L    1
+00001010                             7  t8  DS.L    1
+00001014                             8  ID2 DS.L    1
+00001018                             9  ID1 DS.L    1
+0000101C                            10  ID4 DS.L    1
+00001020                            11  ID3 DS.L    1
+00001024                            12  ID5 DS.L    1
+00001028                            13  t0  DS.L    1
+0000102C                            14  t1  DS.L    1
+00001030                            15  t2  DS.L    1
+00001034                            16  t3  DS.L    1
+00001038                            17  ; -----------------------------------------------------------------------------
+00001038                            18  ; Subrutina para la función: L0
+00001038                            19  ; -----------------------------------------------------------------------------
+00001038                            20  L0:
+00001038  48E7 FFFE                 21      MOVEM.L D0-D7/A0-A6,-(A7)   ; Guardar registros
+0000103C  4280                      22      CLR.L   D0
+0000103E  202F 0044                 23      MOVE.L  68(SP),D0
+00001042  21C0 1018                 24      MOVE.L  D0,ID1
+00001046  4280                      25      CLR.L   D0
+00001048  202F 0048                 26      MOVE.L  72(SP),D0
+0000104C  21C0 1014                 27      MOVE.L  D0,ID2
+00001050  21F8 1018 1028            28      MOVE.L   ID1,t0
+00001056  21F8 1014 102C            29      MOVE.L   ID2,t1
+0000105C  2038 1028                 30      MOVE.L  t0,D0
+00001060  2238 102C                 31      MOVE.L  t1,D1
+00001064  D081                      32      ADD.L   D1,D0
+00001066  21C0 1030                 33      MOVE.L  D0,t2
+0000106A  2F78 1030 0040            34      MOVE.L  t2,64(SP)
+00001070  4CDF 7FFF                 35      MOVEM.L (A7)+,D0-D7/A0-A6   ; Restaurar registros
+00001074  4E75                      36      RTS ; Retornar de la función
+00001076                            37  ; ---- FIN DE LAS SUBRUTINAS ----------------
+00001076                            38  START
+00001076  21FC 00000009 1034        39      MOVE.L   #9,t3
+0000107E  21F8 1034 1020            40      MOVE.L   t3,ID3
+00001084  4EB9 00001120             41      JSR INPUT_INT
+0000108A  21C1 101C                 42      MOVE.L  D1,ID4
+0000108E  21F8 1020 1000            43      MOVE.L   ID3,t4
+00001094  2038 1000                 44      MOVE.L  t4,D0
+00001098  2F00                      45      MOVE.L  D0,-(SP)
+0000109A  21F8 101C 1004            46      MOVE.L   ID4,t5
+000010A0  2038 1004                 47      MOVE.L  t5,D0
+000010A4  2F00                      48      MOVE.L  D0,-(SP)
+000010A6  598F                      49      SUBA.L  #4,SP
+000010A8  4EB8 1038                 50      JSR L0
+000010AC  21DF 1008                 51      MOVE.L  (SP)+,t6
+000010B0  2E7C 01000000             52      MOVE.L  #$01000000,SP
+000010B6  21F8 1008 1024            53      MOVE.L   t6,ID5
+000010BC  21F8 1024 1010            54      MOVE.L   ID5,t8
+000010C2  2038 1010                 55      MOVE.L  t8,D0
+000010C6  2F00                      56      MOVE.L  D0,-(SP)
+000010C8  4EB9 000010D2             57      JSR PRINT_GENERAL
+000010CE  FFFF FFFF                 58      SIMHALT
+000010D2                            59  ; -----------------------------------------------------------------------------
+000010D2                            60  PRINT_GENERAL
+000010D2                            61  ; General Print Subroutine
+000010D2                            62  ; INPUT: Stack contains items to print, each 4 bytes
+000010D2                            63  ; OUTPUT: Items are printed one by one
+000010D2                            64  ; -----------------------------------------------------------------------------
+000010D2  48E7 E000                 65      MOVEM.L D0-D2,-(A7) ; Guardar D0 y D1
+000010D6  DFFC 00000010             66      ADDA.L  #16,SP
+000010DC  4282                      67      CLR.L   D2
+000010DE                            68  PRINT_LOOP:
+000010DE  BFFC 01000000             69      CMP.L   #$01000000,SP
+000010E4  6700 000E                 70      BEQ PRINT_END   ; Si no hay más elementos, finalizar
+000010E8  5882                      71      ADD.L   #4,D2
+000010EA  221F                      72      MOVE.L  (SP)+,D1
+000010EC  4EB9 00001102             73      JSR PRINT_VALUE ; Llamar a subrutina para imprimir
+000010F2  60EA                      74      BRA PRINT_LOOP
+000010F4                            75  PRINT_END:
+000010F4  9FC2                      76      SUBA.L  D2,SP
+000010F6  9FFC 00000010             77      SUBA.L  #16,SP
+000010FC  4CDF 0007                 78      MOVEM.L (A7)+,D0-D2 ; Restaurar D1 y D0
+00001100  4E75                      79      RTS ; Retornar de la subrutina
+00001102                            80  ; -----------------------------------------------------------------------------
+00001102                            81  PRINT_VALUE
+00001102                            82  ; Prints a single value
+00001102                            83  ; INPUT: A1 contains the value to print
+00001102                            84  ; OUTPUT: None
+00001102                            85  ; -----------------------------------------------------------------------------
+00001102  303C 0003                 86      MOVE.W  #3,D0   ; Código para imprimir enteros
+00001106  4E4F                      87      TRAP    #15 ; Llamada al sistema
+00001108  4EB9 00001110             88      JSR PRINT_NEWLINE
+0000110E  4E75                      89      RTS ; Retornar de la subrutina
+00001110                            90  PRINT_NEWLINE
+00001110  227C 0000111E             91      MOVEA.L #NEWLINE,A1
+00001116  303C 000D                 92      MOVE.W  #13,D0
+0000111A  4E4F                      93      TRAP    #15
+0000111C  4E75                      94      RTS
+0000111E= 20 00                     95  NEWLINE DC.B    ' ',0
+00001120                            96  ; ------------------------------------------------------------------------------
+00001120                            97  INPUT_INT
+00001120                            98  ; General Input Subrutina
+00001120                            99  ; INPUT: None
+00001120                           100  ; OUTPUT: Reads an integer or value and stores it
+00001120  2F00                     101      MOVE.L  D0,-(A7)    ; SAVE D0
+00001122  4280                     102      CLR.L   D0  ; CLEAR D0
+00001124  4281                     103      CLR.L   D1  ; CLEAR D1
+00001126  303C 0004                104      MOVE.W  #4,D0   ; READ_INT
+0000112A  4E4F                     105      TRAP    #15
+0000112C  201F                     106      MOVE.L  (A7)+,D0    
+0000112E  4E75                     107      RTS
+00001130                           108  ; -----------------------------------------------------------------------------
+00001130                           109  INPUT_BOOL
+00001130                           110  ; READS A STRING
+00001130                           111  ; INPUT: NONE
+00001130                           112  ; OUTPUT: A1 - STRING READ
+00001130                           113  ; -----------------------------------------------------------------------------
+00001130  3F00                     114      MOVE.W  D0,-(A7)    ; SAVE D0
+00001132  4280                     115      CLR.L   D0  ; CLEAR D0
+00001134  3240                     116      MOVE.W  D0, A1  ; CLEAR A1
+00001136  303C 0002                117      MOVE.W  #2,D0   ; READ_STRING
+0000113A  4E4F                     118      TRAP    #15 ; READ_STRING CALL TO OS
+0000113C  301F                     119      MOVE.W  (A7)+,D0    ; RESTORE D0
+0000113E  4E75                     120      RTS ; RETURN FROM SUBROUTINE
+00001140                           121  ; -----------------------------------------------------------------------------
+00001140                           122  STRING_TO_BOOLEAN
+00001140                           123  ; CONVERTS A STRING TO A BOOLEAN
+00001140                           124  ; ASSERT: INPUT STRING IS:
+00001140                           125  ; TRUE/true OR FALSE/false
+00001140                           126  ; INPUT: A1 - STRING TO CONVERT
+00001140                           127  ; OUTPUT: D1 - BOOLEAN VALUE
+00001140                           128  ; -----------------------------------------------------------------------------
+00001140  48A7 8040                129      MOVEM.W D0/A1,-(A7) ; SAVE D0/A1
+00001144  4280                     130      CLR.L   D0  ; CLEAR D0
+00001146  1011                     131      MOVE.B  (A1),D0 : FIRST CHARACTER
+00001148  B07C 0046                132      CMP.W   #'F',D0 ; IS FALSE?
+0000114C  6700 0016                133      BEQ .STR_F  ; IS F
+00001150  B07C 0066                134      CMP.W   #'f',D0 ; IS FALSE?
+00001154  6700 000E                135      BEQ .STR_F  ; IS f
+00001158  4281                     136      CLR.L   D1
+0000115A  123C 00FF                137      MOVE.B  #$FF,D1
+0000115E  4EF9 00001166            138      JMP .STR_END    ; END
+00001164                           139  .STR_F
+00001164  7200                     140      MOVE.L  #0,D1
+00001166                           141  .STR_END
+00001166  4C9F 0201                142      MOVEM.W (A7)+,D0/A1 ; SAVE D0/A1
+0000116A  4E75                     143      RTS ; RETURN FROM SUBROUTINE
+0000116C                           144      END START
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+ID1                 1018
+ID2                 1014
+ID3                 1020
+ID4                 101C
+ID5                 1024
+INPUT_BOOL          1130
+INPUT_INT           1120
+L0                  1038
+NEWLINE             111E
+PRINT_END           10F4
+PRINT_GENERAL       10D2
+PRINT_LOOP          10DE
+PRINT_NEWLINE       1110
+PRINT_VALUE         1102
+START               1076
+STRING_TO_BOOLEAN   1140
+STRING_TO_BOOLEAN:STR_END  1166
+STRING_TO_BOOLEAN:STR_F  1164
+T0                  1028
+T1                  102C
+T2                  1030
+T3                  1034
+T4                  1000
+T5                  1004
+T6                  1008
+T7                  100C
+T8                  1010

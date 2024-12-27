@@ -207,7 +207,7 @@ Input_Sentencia ::= INPUT:i LPAREN ID:id RPAREN
                         {: RESULT = new SInput(ileft, id); :}
                     ;
 
-ListaExpresiones ::= Expresion:e COMMA ListaExpresiones:lista
+ListaExpresiones ::= ListaExpresiones:lista COMMA Expresion:e
                         {: RESULT = new SListaExpresiones((SListaExpresiones) lista, (SExpresion) e); :}
                     | Expresion:e
                         {: RESULT = new SListaExpresiones((SExpresion) e); :}

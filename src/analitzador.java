@@ -39,6 +39,7 @@ public class analitzador {
             System.out.println("Tiempo de ejecución del generador de instrucciones 68K: " + (tFin - tInit) + " milisegundos");
 
             generador.imprimirInstrucciones68k();
+            generador.guardarArchivoX68("programa.X68");
 
             System.out.println("Análisis léxico completado.");
         } catch (Exception e) {

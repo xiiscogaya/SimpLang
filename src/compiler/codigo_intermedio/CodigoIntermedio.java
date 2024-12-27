@@ -7,6 +7,7 @@ import java.util.Map;
 
 import compiler.sintactic.ErrorManager;
 import compiler.taulasimbols.Descripcio;
+import compiler.taulasimbols.TipoSubyacente;
 
 public class CodigoIntermedio {
 
@@ -48,16 +49,22 @@ public class CodigoIntermedio {
         return "L" + contadorEtiquetas++;
     }
 
+    public String getVariableTemp() {
+        int variable = contadorVariablesTemporales;
+        variable--;
+        return "t" + variable;
+    }
+
     public void agregarInstruccion(String operador, String operando1, String operando2, String destino) {
         instrucciones.add(new Instruccion(operador, operando1, operando2, destino));
     }
 
-    public void registrarVariable(String idUnico, String nombre, String nombreFuncion, int tamañoTotal, Descripcio descripcio) {
-        tablaVariables.put(idUnico, new Variable(nombre, nombreFuncion, tamañoTotal, descripcio));
+    public void registrarVariable(String idUnico, String nombre, String nombreFuncion, int tamañoTotal, TipoSubyacente tipo, Descripcio descripcio) {
+        tablaVariables.put(idUnico, new Variable(nombre, nombreFuncion, tamañoTotal, tipo, descripcio));
     }
 
-    public void registrarProcedimiento(String idUnico, String nombre, int numParametros, String etiquetaInicio, Boolean yaAnalizado, int ocupacionLocales) {
-        tablaProcedimientos.put(idUnico, new Procedimiento(nombre, numParametros, etiquetaInicio, yaAnalizado, ocupacionLocales));
+    public void registrarProcedimiento(String idUnico, String nombre, int numParametros, List<String> listaIDUnicos, String etiquetaInicio, Boolean yaAnalizado, int ocupacionLocales, Descripcio descripcio) {
+        tablaProcedimientos.put(idUnico, new Procedimiento(nombre, numParametros, listaIDUnicos, etiquetaInicio, yaAnalizado, ocupacionLocales, descripcio));
     }
 
     public String obtenerEtiquetaInicio(String idUnico) {

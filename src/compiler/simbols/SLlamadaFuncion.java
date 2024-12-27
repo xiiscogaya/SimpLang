@@ -8,6 +8,7 @@ public class SLlamadaFuncion extends SBase {
     private TipoSubyacente tipoRetorno; // Tipo de retorno de la función
     private boolean esVoid;     // Indica si una función es void
     private int line;
+    public String varGenerada;
 
     /**
      * Constructor de SLLamadaFuncion
