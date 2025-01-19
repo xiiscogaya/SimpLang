@@ -122,34 +122,6 @@ public class CodigoIntermedio {
         
     }
 
-    // Generación de código para bloques if-else
-    public void generarIfElse(String condicion, String etiquetaThen, String etiquetaElse, String etiquetaFin) {
-        agregarInstruccion("if", condicion, "", etiquetaThen);
-        agregarInstruccion("goto", "", "", etiquetaElse);
-        agregarInstruccion(etiquetaThen + ":", "", "", "");
-        agregarInstruccion("goto", "", "", etiquetaFin);
-        agregarInstruccion(etiquetaElse + ":", "", "", "");
-        agregarInstruccion(etiquetaFin + ":", "", "", "");
-    }
-
-    // Generación de código para bucles while
-    public void generarWhile(String condicion, String etiquetaInicio, String etiquetaFin) {
-        agregarInstruccion(etiquetaInicio + ":", "", "", "");
-        agregarInstruccion("if", condicion, "", etiquetaFin);
-        agregarInstruccion("goto", etiquetaInicio, "", "");
-        agregarInstruccion(etiquetaFin + ":", "", "", "");
-    }
-
-    // Generación de código para bucles for
-    public void generarFor(String inicializacion, String condicion, String actualizacion, String etiquetaInicio, String etiquetaFin) {
-        agregarInstruccion(inicializacion, "", "", "");
-        agregarInstruccion(etiquetaInicio + ":", "", "", "");
-        agregarInstruccion("if", condicion, "", etiquetaFin);
-        agregarInstruccion(actualizacion, "", "", "");
-        agregarInstruccion("goto", etiquetaInicio, "", "");
-        agregarInstruccion(etiquetaFin + ":", "", "", "");
-    }
-
     public void imprimirTablaVariables() {
         System.out.println("Tabla de Variables:");
         System.out.println("-----------------------------------------------------------------------------------------------------");

@@ -121,9 +121,6 @@ whitespace  = [ \n\t\r]+
 ","             { return symbol(ParserSym.COMMA); }
 "."             { return symbol(ParserSym.DOT); }
 
-// Literales de punto flotante o enteros
--?[0-9]+\.[0-9]+    { return symbol(ParserSym.FLOAT_LITERAL, yytext()); }
-
 -?[0-9]+        { return symbol(ParserSym.INT_LITERAL, yytext()); }
 
 // Identificadores

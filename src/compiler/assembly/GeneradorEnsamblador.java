@@ -13,8 +13,6 @@ import compiler.taulasimbols.DArray;
 import compiler.taulasimbols.DConst;
 import compiler.taulasimbols.DFuncion;
 import compiler.taulasimbols.DTupla;
-import compiler.taulasimbols.DVar;
-import compiler.taulasimbols.Descripcio;
 import compiler.taulasimbols.TipoSubyacente;
 import compiler.taulasimbols.Tipus;
 
@@ -27,6 +25,8 @@ public class GeneradorEnsamblador {
     private CodigoIntermedio codigoIntermedio;
     private List<String> codigoEnsamblador;
     private int desplazamiento;
+    private boolean isPrint = false;
+    private boolean isInput = false;
 
     public GeneradorEnsamblador(CodigoIntermedio codigoIntermedio) {
         this.codigoIntermedio = codigoIntermedio;
@@ -44,10 +44,20 @@ public class GeneradorEnsamblador {
         String funcionActual = null;
         List<Instruccion> instruccionesFuncion = null;
 
+        
+
         for (int i = 0; i < instrucciones.size(); i++) {
             Instruccion instr = instrucciones.get(i);
+
+            // Comprobamos si hay algun print o input, para asi imprimir las subrutinas
+            if (instr.operador.equals("PRINT")) {
+                this.isPrint = true;
+            }
+            if (instr.operador.equals("INPUT")) {
+                this.isInput = true;
+            }
     
-            if (instr.operador.equals("SKIP") && !instr.destino.equals("MAIN")) {
+            if (instr.operador.equals("NEWFUN") && !instr.destino.equals("MAIN")) {
                 // Encontramos un nuevo bloque (función o main)
                 if (funcionActual != null) {
                     // Guardar la función anterior
@@ -55,7 +65,7 @@ public class GeneradorEnsamblador {
                 }
                 funcionActual = instr.destino; // Nombre de la función
                 instruccionesFuncion = new ArrayList<>();
-            } else if (i == instrucciones.size() - 1 || (instrucciones.get(i + 1).operador.equals("SKIP"))) {
+            } else if (i == instrucciones.size() - 1 || (instrucciones.get(i + 1).operador.equals("NEWFUN"))) {
                 // Final del bloque actual
                 if (funcionActual != null) {
                     instruccionesFuncion.add(instr);
@@ -88,10 +98,14 @@ public class GeneradorEnsamblador {
         codigoEnsamblador.add("\tSIMHALT");
 
         // Generar subrutinas comunes
-        generarSubrutinaPrintGeneral();
-        generarSubrutinaPrintValue();
-        generarSubrutinaInputInt();
-        generarSubrutinaInputBool();
+        if (this.isPrint) {
+            generarSubrutinaPrintGeneral();
+            generarSubrutinaPrintValue();
+        }
+        if (this.isInput) {
+            generarSubrutinaInputInt();
+            generarSubrutinaInputBool();
+        }
 
         codigoEnsamblador.add("\tEND\tSTART");
     }
@@ -111,10 +125,10 @@ public class GeneradorEnsamblador {
                     codigoEnsamblador.add(String.format("%s\tEQU\t%s", idUnico, constante.getValor()));
                 } else if (variable.descripcio instanceof DArray) {
                     // Declaración de un array
-                    codigoEnsamblador.add(String.format("%s\tDS.W\t%d", idUnico, variable.tamañoTotal));
+                    codigoEnsamblador.add(String.format("%s\tDS.L\t%d", idUnico, variable.tamañoTotal));
                 } else if (variable.descripcio instanceof DTupla) {
                     // Declaración de una tupla
-                    codigoEnsamblador.add(String.format("%s\tDS.W\t%d", idUnico, variable.tamañoTotal));
+                    codigoEnsamblador.add(String.format("%s\tDS.L\t%d", idUnico, variable.tamañoTotal));
                 } else {
                     codigoEnsamblador.add(String.format("%s\tDS.L\t1", idUnico));
                 }
@@ -186,12 +200,12 @@ public class GeneradorEnsamblador {
             case "IND_VAL":
                 // INDIRECT VALUE operation (e.g., load value at op1 + op2 -> destino)
                 codigoEnsamblador.add("\tMOVEA.L\t" + instr.operando1 + ",A0"); // Cargar dirección base en A0
-                codigoEnsamblador.add("\tMOVE.W\t(" + instr.operando2 + ",A0)," + instr.destino); // Cargar valor indirecto
+                codigoEnsamblador.add("\tMOVE.L\t(" + instr.operando2 + ",A0)," + instr.destino); // Cargar valor indirecto
                 break;
             case "IND_ASS":
                 // INDIRECT ASSIGN operation (e.g., assign op1 to address op2 + base -> destino)
                 codigoEnsamblador.add("\tMOVEA.L\t" + instr.operando2 + ",A0"); // Cargar dirección base en A0
-                codigoEnsamblador.add("\tMOVE.W\t" + instr.operando1 + ",(" + instr.destino + ",A0)"); // Guardar valor indirecto
+                codigoEnsamblador.add("\tMOVE.L\t" + instr.operando1 + ",(" + instr.destino + ",A0)"); // Guardar valor indirecto
                 break;
             case "CALL":
                 callInstr(instr);
@@ -244,10 +258,10 @@ public class GeneradorEnsamblador {
         }
     
         // Generar código ensamblador para multiplicación
-        codigoEnsamblador.add("\tMOVE.W\t" + op1 + ",D0"); // Mover el primer operando a D0
-        codigoEnsamblador.add("\tMOVE.W\t" + op2 + ",D1"); // Mover el segundo operando a D1
-        codigoEnsamblador.add("\tMULS.W\tD1,D0");         // Realizar multiplicación (signed)
-        codigoEnsamblador.add("\tMOVE.W\tD0," + destino); // Almacenar el resultado en el destino
+        codigoEnsamblador.add("\tMOVE.L\t" + op1 + ",D0"); // Mover el primer operando a D0
+        codigoEnsamblador.add("\tMOVE.L\t" + op2 + ",D1"); // Mover el segundo operando a D1
+        codigoEnsamblador.add("\tMULS.W\tD1,D0");         // Realizar multiplicación
+        codigoEnsamblador.add("\tMOVE.L\tD0," + destino); // Almacenar el resultado en el destino
     }
 
     private void restaInstr(Instruccion instruccion) {
@@ -263,10 +277,10 @@ public class GeneradorEnsamblador {
             op2 = "#" + op2; // Si no es variable, es un valor inmediato
         }
 
-        codigoEnsamblador.add("\tMOVE.W\t" + op1 + ",D0"); // Mover el primer operando a D0
-        codigoEnsamblador.add("\tMOVE.W\t" + op2 + ",D1"); // Mover el segundo operando a D1
-        codigoEnsamblador.add("\tSUB.W\tD1,D0"); 
-        codigoEnsamblador.add("\tMOVE.W\tD0," + destino); // Almacenar el resultado en el destino
+        codigoEnsamblador.add("\tMOVE.L\t" + op1 + ",D0"); // Mover el primer operando a D0
+        codigoEnsamblador.add("\tMOVE.L\t" + op2 + ",D1"); // Mover el segundo operando a D1
+        codigoEnsamblador.add("\tSUB.L\tD1,D0"); 
+        codigoEnsamblador.add("\tMOVE.L\tD0," + destino); // Almacenar el resultado en el destino
     }
     
     private void addInstr(Instruccion instruccion) {
@@ -299,10 +313,10 @@ public class GeneradorEnsamblador {
         if (!esVariable(op2)) {
             op2 = "#" + op2; // Si no es variable, es un valor inmediato
         }
-        codigoEnsamblador.add("\tMOVE.W\t" + op1 + ",D0"); // Mover el primer operando a D0
-        codigoEnsamblador.add("\tMOVE.W\t" + op2 + ",D1"); // Mover el segundo operando a D1
-        codigoEnsamblador.add("\tDIVS.W\tD1,D0"); 
-        codigoEnsamblador.add("\tMOVE.W\tD0," + destino); // Almacenar el resultado en el destino
+        codigoEnsamblador.add("\tMOVE.L\t" + op1 + ",D0"); // Mover el primer operando a D0
+        codigoEnsamblador.add("\tMOVE.L\t" + op2 + ",D1"); // Mover el segundo operando a D1
+        codigoEnsamblador.add("\tDIVS.L\tD1,D0"); 
+        codigoEnsamblador.add("\tMOVE.L\tD0," + destino); // Almacenar el resultado en el destino
     }
 
     private void ifInstr(Instruccion instruccion) {
@@ -318,9 +332,9 @@ public class GeneradorEnsamblador {
             op2 = "#" + op2; // Si no es variable, es un valor inmediato
         }
 
-        codigoEnsamblador.add("\tMOVE.W\t" + op1 + ",D0"); // Cargar op1 en D0
-        codigoEnsamblador.add("\tMOVE.W\t" + op2 + ",D1"); // Mover el segundo operando a D1
-        codigoEnsamblador.add("\tCMP.W\tD1,D0");           // Comparar op2 con D0
+        codigoEnsamblador.add("\tMOVE.L\t" + op1 + ",D0"); // Cargar op1 en D0
+        codigoEnsamblador.add("\tMOVE.L\t" + op2 + ",D1"); // Mover el segundo operando a D1
+        codigoEnsamblador.add("\tCMP.L\tD1,D0");           // Comparar op2 con D0
         switch (instruccion.operador) {
             case "IF_LT":
                 codigoEnsamblador.add("\tBLT\t" + destino); // Branch if Less Than
@@ -385,9 +399,9 @@ public class GeneradorEnsamblador {
         }
 
         // Generar código ensamblador para AND lógico
-        codigoEnsamblador.add("\tMOVE.W\t" + var1 + ",D0"); // Mover el primer operando a D0
-        codigoEnsamblador.add("\tAND.W\t" + var2 + ",D0"); // AND lógico entre var1 y var2
-        codigoEnsamblador.add("\tTST.W\tD0");              // Probar si el resultado es cero
+        codigoEnsamblador.add("\tMOVE.L\t" + var1 + ",D0"); // Mover el primer operando a D0
+        codigoEnsamblador.add("\tAND.L\t" + var2 + ",D0"); // AND lógico entre var1 y var2
+        codigoEnsamblador.add("\tTST.L\tD0");              // Probar si el resultado es cero
         codigoEnsamblador.add("\tBEQ\t" + destino);  // Saltar a falso si es cero
     }
 
@@ -405,9 +419,9 @@ public class GeneradorEnsamblador {
         }
 
         // Generar código ensamblador para OR lógico
-        codigoEnsamblador.add("\tMOVE.W\t" + var1 + ",D0"); // Mover el primer operando a D0
-        codigoEnsamblador.add("\tOR.W\t" + var2 + ",D0");  // OR lógico entre var1 y var2
-        codigoEnsamblador.add("\tTST.W\tD0");              // Probar si el resultado es cero
+        codigoEnsamblador.add("\tMOVE.L\t" + var1 + ",D0"); // Mover el primer operando a D0
+        codigoEnsamblador.add("\tOR.L\t" + var2 + ",D0");  // OR lógico entre var1 y var2
+        codigoEnsamblador.add("\tTST.L\tD0");              // Probar si el resultado es cero
         codigoEnsamblador.add("\tBNE\tverdadero_" + destino); // Saltar a verdadero si no es cero
     }
 
@@ -420,6 +434,7 @@ public class GeneradorEnsamblador {
 
     private void printInstr() {
         codigoEnsamblador.add("\tJSR\tPRINT_GENERAL"); // Llama a la subrutina de impresión
+        codigoEnsamblador.add("\tADDA.L\t#4,SP");
     }
 
     private void inputPrint(Instruccion ins) {
@@ -505,19 +520,12 @@ public class GeneradorEnsamblador {
         codigoEnsamblador.add("; -----------------------------------------------------------------------------");
     
         // Llamar a la función del sistema para imprimir (por ejemplo, enteros)
-        codigoEnsamblador.add("\tMOVE.W\t#3,D0\t; Código para imprimir enteros");
+        codigoEnsamblador.add("\tMOVE.L\t#3,D0\t; Código para imprimir enteros");
         codigoEnsamblador.add("\tTRAP\t#15\t; Llamada al sistema");
-        codigoEnsamblador.add("\tJSR\tPRINT_NEWLINE");
-        codigoEnsamblador.add("\tRTS\t; Retornar de la subrutina");
-        generarSubrutinaNewLine();
-    }
-
-    private void generarSubrutinaNewLine() {
-        codigoEnsamblador.add("PRINT_NEWLINE");
         codigoEnsamblador.add("\tMOVEA.L\t#NEWLINE,A1");
-        codigoEnsamblador.add("\tMOVE.W\t#13,D0");
+        codigoEnsamblador.add("\tMOVE.L\t#13,D0");
         codigoEnsamblador.add("\tTRAP\t#15");
-        codigoEnsamblador.add("\tRTS");
+        codigoEnsamblador.add("\tRTS\t; Retornar de la subrutina");
         codigoEnsamblador.add("NEWLINE\tDC.B\t' ',0");
     }
 
@@ -531,7 +539,7 @@ public class GeneradorEnsamblador {
         codigoEnsamblador.add("\tMOVE.L\tD0,-(A7)\t; SAVE D0");
         codigoEnsamblador.add("\tCLR.L\tD0\t; CLEAR D0");
         codigoEnsamblador.add("\tCLR.L\tD1\t; CLEAR D1");
-        codigoEnsamblador.add("\tMOVE.W\t#4,D0\t; READ_INT");
+        codigoEnsamblador.add("\tMOVE.L\t#4,D0\t; READ_INT");
         codigoEnsamblador.add("\tTRAP\t#15");
         codigoEnsamblador.add("\tMOVE.L\t(A7)+,D0\t");
         codigoEnsamblador.add("\tRTS");
@@ -544,12 +552,12 @@ public class GeneradorEnsamblador {
         codigoEnsamblador.add("; INPUT: NONE");
         codigoEnsamblador.add("; OUTPUT: A1 - STRING READ");
         codigoEnsamblador.add("; -----------------------------------------------------------------------------");
-        codigoEnsamblador.add("\tMOVE.W\tD0,-(A7)\t; SAVE D0");
+        codigoEnsamblador.add("\tMOVE.L\tD0,-(A7)\t; SAVE D0");
         codigoEnsamblador.add("\tCLR.L\tD0\t; CLEAR D0");
-        codigoEnsamblador.add("\tMOVE.W\tD0, A1\t; CLEAR A1");
-        codigoEnsamblador.add("\tMOVE.W\t#2,D0\t; READ_STRING");
+        codigoEnsamblador.add("\tMOVE.L\tD0, A1\t; CLEAR A1");
+        codigoEnsamblador.add("\tMOVE.L\t#2,D0\t; READ_STRING");
         codigoEnsamblador.add("\tTRAP\t#15\t; READ_STRING CALL TO OS");
-        codigoEnsamblador.add("\tMOVE.W\t(A7)+,D0\t; RESTORE D0");
+        codigoEnsamblador.add("\tMOVE.L\t(A7)+,D0\t; RESTORE D0");
         codigoEnsamblador.add("\tRTS\t; RETURN FROM SUBROUTINE");
 
         codigoEnsamblador.add("; -----------------------------------------------------------------------------");
@@ -560,12 +568,12 @@ public class GeneradorEnsamblador {
         codigoEnsamblador.add("; INPUT: A1 - STRING TO CONVERT");
         codigoEnsamblador.add("; OUTPUT: D1 - BOOLEAN VALUE");
         codigoEnsamblador.add("; -----------------------------------------------------------------------------");
-        codigoEnsamblador.add("\tMOVEM.W\tD0/A1,-(A7)\t; SAVE D0/A1");
+        codigoEnsamblador.add("\tMOVEM.L\tD0/A1,-(A7)\t; SAVE D0/A1");
         codigoEnsamblador.add("\tCLR.L\tD0\t; CLEAR D0");
         codigoEnsamblador.add("\tMOVE.B\t(A1),D0\t: FIRST CHARACTER");
-        codigoEnsamblador.add("\tCMP.W\t#'F',D0\t; IS FALSE?");
+        codigoEnsamblador.add("\tCMP.L\t#'F',D0\t; IS FALSE?");
         codigoEnsamblador.add("\tBEQ\t.STR_F\t; IS F");
-        codigoEnsamblador.add("\tCMP.W\t#'f',D0\t; IS FALSE?");
+        codigoEnsamblador.add("\tCMP.L\t#'f',D0\t; IS FALSE?");
         codigoEnsamblador.add("\tBEQ\t.STR_F\t; IS f");
         codigoEnsamblador.add("\tCLR.L\tD1");
         codigoEnsamblador.add("\tMOVE.B\t#$FF,D1"); // true
@@ -573,7 +581,7 @@ public class GeneradorEnsamblador {
         codigoEnsamblador.add(".STR_F"); // false
         codigoEnsamblador.add("\tMOVE.L\t#0,D1");
         codigoEnsamblador.add(".STR_END");
-        codigoEnsamblador.add("\tMOVEM.W\t(A7)+,D0/A1\t; SAVE D0/A1");
+        codigoEnsamblador.add("\tMOVEM.L\t(A7)+,D0/A1\t; SAVE D0/A1");
         codigoEnsamblador.add("\tRTS\t; RETURN FROM SUBROUTINE");
     }
 

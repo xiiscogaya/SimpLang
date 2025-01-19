@@ -235,8 +235,6 @@ Expresion ::= Expresion:e1 OP_ARITMETICO:op Expresion:e2
 
 Valor ::= INT_LITERAL:v
             {: RESULT = new SValor(new TipoSubyacente(Tipus.INT), (String) v); :}
-        | FLOAT_LITERAL:v
-            {: RESULT = new SValor(new TipoSubyacente(Tipus.FLOAT), (String) v); :}
         | BOOLEAN_LITERAL:v
             {: RESULT = new SValor(new TipoSubyacente(Tipus.BOOLEAN), Integer.toString((v.equals("true")) ? -1 : 0)); :}
         ;

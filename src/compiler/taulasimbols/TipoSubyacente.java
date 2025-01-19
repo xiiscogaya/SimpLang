@@ -16,9 +16,6 @@ public class TipoSubyacente {
             case "bool":
                 this.tipoBasico = Tipus.BOOLEAN;
                 break;
-            case "float":
-                this.tipoBasico = Tipus.FLOAT;
-                break;
             case "void":
                 this.tipoBasico = Tipus.VOID;
                 break;
@@ -55,8 +52,6 @@ public class TipoSubyacente {
                 return 1; // En Java, el boolean ocupa 1 byte
             case INT:
                 return 4; // En Java, el int ocupa 4 bytes
-            case FLOAT:
-                return 4; // Tamaño típico de float en Java
             default:
                 throw new IllegalArgumentException("Tipo no reconocido: " + tipoBasico);
         }
@@ -71,8 +66,6 @@ public class TipoSubyacente {
                 return "int";
             case BOOLEAN:
                 return "bool";
-            case FLOAT:
-                return "float";
             case VOID:
                 return "void";
             default:
@@ -115,7 +108,7 @@ public class TipoSubyacente {
      * útil para operaciones aritméticas en la tabla de símbolos.
      */
     public boolean esNumerico() {
-        return tipoBasico == Tipus.INT || tipoBasico == Tipus.FLOAT;
+        return tipoBasico == Tipus.INT;
     }
 
     /**

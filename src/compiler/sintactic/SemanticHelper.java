@@ -294,19 +294,6 @@ public class SemanticHelper {
                         return new SValor(); // Devuelve un SValor vacío con error
                     }
                     break;
-                    
-                case FLOAT:
-                    try {
-                        float floatValue = Float.parseFloat(valor);
-                        if (!esValorValido(floatValue, tipo)) {
-                            ErrorManager.addError(3 , "Error: Valor fuera de rango para el tipo " + tipo + ", en línea " + 012345 + ".");
-                            return new SValor(); // Devuelve un SValor vacío con error
-                        }
-                    } catch (NumberFormatException e) {
-                        ErrorManager.addError(3 , "Error: Número demasiado grande para el tipo " + tipo + ", en línea " + 012345 + ".");
-                        return new SValor(); // Devuelve un SValor vacío con error
-                    }
-                    break;
                 case BOOLEAN:
                     // No hacemos nada
                     return sim_valor;
@@ -434,7 +421,7 @@ public class SemanticHelper {
         } while (parametros != null);
 
         String etiquetaSubprograma = codigoIntermedio.nuevaEtiqueta();
-        codigoIntermedio.agregarInstruccion("SKIP", "", "", etiquetaSubprograma);
+        codigoIntermedio.agregarInstruccion("NEWFUN", "", "", etiquetaSubprograma);
         codigoIntermedio.agregarInstruccion("PMB", "", "", descripcionFuncion.idUnico);
 
         // Procesar el bloque de la función
@@ -533,7 +520,7 @@ public class SemanticHelper {
                 ErrorManager.addError(3 , "Error: La dimension del array no es un entero, sino que es " + valor_procesado.getTipo() + ", en línea " + llamadaArray.getLine() + ".");
             }
 
-            codigoIntermedio.agregarInstruccion("MUL", valor_procesado.getVarGenerada(), variableSizeBytes, variableSizeBytes);
+            codigoIntermedio.agregarInstruccion("*", valor_procesado.getVarGenerada(), variableSizeBytes, variableSizeBytes);
             dimensiones = dimensiones.getLista();
         } while (dimensiones != null);
 
@@ -797,7 +784,7 @@ public class SemanticHelper {
      * @param taulaSim      Tabla de Símbolos
      */
     public static void procesarMain(SBloque bloque, TaulaSimbols taulaSim, CodigoIntermedio codigoIntermedio) {
-        codigoIntermedio.agregarInstruccion("SKIP", "", "", "MAIN");
+        codigoIntermedio.agregarInstruccion("NEWFUN", "", "", "MAIN");
         procesarBloque(bloque, taulaSim, false, "Main", codigoIntermedio);
         codigoIntermedio.imprimirCodigo();
         codigoIntermedio.imprimirTablaVariables();
@@ -1141,13 +1128,6 @@ public class SemanticHelper {
                 }
                 break;
     
-            case FLOAT:
-                if (valor instanceof Float) {
-                    // Para float, asumiremos los valores en 32 bits de IEEE-754 (4 bytes)
-                    return byteSize >= 4; // En este caso, nos aseguramos que `byteSize` sea al menos 4 bytes
-                }
-                break;
-    
             case BOOLEAN:
                 // Suponiendo que boolean ocupa 1 byte (true o false)
                 return valor instanceof Boolean;
@@ -1229,9 +1209,7 @@ public class SemanticHelper {
         // Operaciones aritméticas
         if (operador.matches("[+\\-*/]")) {
             if (tipo1.esNumerico() && tipo2.esNumerico()) {
-                return tipo1.getTipoBasico() == Tipus.FLOAT || tipo2.getTipoBasico() == Tipus.FLOAT
-                    ? new TipoSubyacente(Tipus.FLOAT)
-                    : new TipoSubyacente(Tipus.INT);
+                return new TipoSubyacente(Tipus.INT);
             }
         }
     
