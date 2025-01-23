@@ -1,0 +1,29 @@
+def int multiplicacion(int a, int b) {
+    return a * b;
+}
+
+{
+    const int a = 6;
+    const int c = 10;
+    tupla agrupacion = (a, c);
+
+    int total;
+    total = 0;
+
+    bool continuar;
+    continuar = true;
+
+    while continuar && (total < 200) {
+        int leer;
+        input(leer);
+        if leer > 10 {
+            continuar = false;
+        } else {
+            int mult;
+            mult = multiplicacion(agrupacion.a, agrupacion.c);
+            total = total + mult;
+        }
+    }
+
+    print(total);
+}

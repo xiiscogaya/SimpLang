@@ -1,5 +1,7 @@
 package compiler.codigo_intermedio;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -82,9 +84,10 @@ public class CodigoIntermedio {
     }
     
 
-    public void imprimirCodigo() {
+    public void imprimirCodigo(BufferedWriter writer) throws IOException {
         for (Instruccion instr : instrucciones) {
-            System.out.println(instr);
+            writer.write(instr.toString());
+            writer.newLine();
         }
     }
 
@@ -122,50 +125,51 @@ public class CodigoIntermedio {
         
     }
 
-    public void imprimirTablaVariables() {
-        System.out.println("Tabla de Variables:");
-        System.out.println("-----------------------------------------------------------------------------------------------------");
-        System.out.println("|  IDUnico |   Nombre  | Función            | Tamaño  | Descripción                              |");
-        System.out.println("-----------------------------------------------------------------------------------------------------");
-    
-        for (Map.Entry<String, Variable> entry : tablaVariables.entrySet()) {
-            String idUnico = entry.getKey();
-            Variable variable = entry.getValue();
-    
-            if (variable != null) {
-                String nombre = variable.nombre != null ? variable.nombre : "N/A";
-                String funcion = variable.nombreFuncion != null ? variable.nombreFuncion : "Global";
-                String tamaño = variable.tamañoTotal > 0 ? String.valueOf(variable.tamañoTotal) : "N/A";
-                String descripcion = variable.descripcio != null ? variable.descripcio.toString() : "N/A";
-    
-                System.out.printf("| %-10s | %-10s | %-18s | %-7s | %-25s |\n", idUnico, nombre, funcion, tamaño, descripcion);
-            } else {
-                System.out.printf("| %-10s | %-10s | %-18s | %-7s | %-25s |\n", idUnico, "N/A", "N/A", "N/A", "N/A");
-            }
+    public void imprimirTablaVariables(BufferedWriter writer) throws IOException {
+    writer.write("-----------------------------------------------------------------------------------------------------\n");
+    writer.write("|  IDUnico   |   Nombre    | Función            | Tamaño  | Descripción                              |\n");
+    writer.write("-----------------------------------------------------------------------------------------------------\n");
+
+    for (Map.Entry<String, Variable> entry : tablaVariables.entrySet()) {
+        String idUnico = entry.getKey();
+        Variable variable = entry.getValue();
+
+        if (variable != null) {
+            String nombre = variable.nombre != null ? variable.nombre : "N/A";
+            String funcion = variable.nombreFuncion != null ? variable.nombreFuncion : "Global";
+            String tamaño = variable.tamañoTotal > 0 ? String.valueOf(variable.tamañoTotal) : "N/A";
+            String descripcion = variable.descripcio != null ? variable.descripcio.toString() : "N/A";
+
+            writer.write(String.format("| %-10s | %-10s | %-18s | %-7s | %-25s |\n", 
+                idUnico, nombre, funcion, tamaño, descripcion));
+        } else {
+            writer.write(String.format("| %-10s | %-10s | %-18s | %-7s | %-25s |\n", 
+                idUnico, "N/A", "N/A", "N/A", "N/A"));
         }
-    
-        System.out.println("-----------------------------------------------------------------------------------------------------");
     }
-    
-    public void imprimirTablaProcedimientos() {
-        System.out.println("Tabla de Procedimientos:");
-        System.out.println("---------------------------------------------------");
-        System.out.println("| Nombre         | Número de Parámetros | Etiqueta |");
-        System.out.println("---------------------------------------------------");
-    
-        for (Map.Entry<String, Procedimiento> entry : tablaProcedimientos.entrySet()) {
-            String idUnico = entry.getKey();
-            Procedimiento procedimiento = entry.getValue();
-    
-            if (procedimiento != null) {
-                System.out.printf("| %-10s | %-14s | %-20d | %-8s |\n", idUnico, procedimiento.nombre, procedimiento.numParametros, procedimiento.etiquetaInicio);
-            } else {
-                System.out.printf("| %10-s | %-14s | %-20s | %-8s |\n", idUnico, "N/A", "N/A", "N/A");
-            }
-        }
-    
-        System.out.println("---------------------------------------------------");
-    }
-    
+
+    writer.write("-----------------------------------------------------------------------------------------------------\n");
 }
 
+public void imprimirTablaProcedimientos(BufferedWriter writer) throws IOException {
+    writer.write("---------------------------------------------------\n");
+    writer.write("| Nombre         | Número de Parámetros | Etiqueta |\n");
+    writer.write("---------------------------------------------------\n");
+
+    for (Map.Entry<String, Procedimiento> entry : tablaProcedimientos.entrySet()) {
+        String idUnico = entry.getKey();
+        Procedimiento procedimiento = entry.getValue();
+
+        if (procedimiento != null) {
+            writer.write(String.format("| %-10s | %-20s | %-10d |\n", 
+                idUnico, procedimiento.nombre, procedimiento.numParametros, procedimiento.etiquetaInicio));
+        } else {
+            writer.write(String.format("| %-10s | %-20s | %-10s |\n", 
+                idUnico, "N/A", "N/A"));
+        }
+    }
+
+    writer.write("---------------------------------------------------\n");
+}
+
+}

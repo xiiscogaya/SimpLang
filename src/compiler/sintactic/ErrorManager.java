@@ -1,5 +1,7 @@
 package compiler.sintactic;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,10 +9,6 @@ public class ErrorManager {
     private static List<String> errorLexic = new ArrayList<>();
     private static List<String> errorSintactic = new ArrayList<>();
     private static List<String> errorSemantic = new ArrayList<>();
-
-    // Códigos ANSI para colores
-    private static final String ANSI_RED = "\u001B[31m";
-    private static final String ANSI_RESET = "\u001B[0m";
 
     // Método para añadir un error al listado
     public static void addError(int tipoError,String message) {
@@ -68,34 +66,29 @@ public class ErrorManager {
         return hasErrorLexic() || hasErrorSintactic() || hasErrorSemantic();
     }
 
-    // Método para mostrar todos los errores acumulados, si es necesario
-    public static void printErrors() {
+    public static void guardarErroresEnArchivo(BufferedWriter writer) throws IOException {
         if (hasError()) {
-            System.err.println(ANSI_RED + "Se encontraron los siguientes errores" + ANSI_RESET);
+            writer.write("===== ERRORES ENCONTRADOS =====\n");
             if (hasErrorLexic()) {
-                System.out.println(ANSI_RED + "Errores léxicos:" + ANSI_RED);
+                writer.write("\nErrores Léxicos:\n");
                 for (String error : errorLexic) {
-                    System.err.println(ANSI_RED + " - " + error + ANSI_RESET);
+                    writer.write(" - " + error + "\n");
                 }
             }
             if (hasErrorSintactic()) {
-                System.out.println(ANSI_RED + "Errores sintácticos:" + ANSI_RED);
+                writer.write("\nErrores Sintácticos:\n");
                 for (String error : errorSintactic) {
-                    System.err.println(ANSI_RED + " - " + error + ANSI_RESET);
+                    writer.write(" - " + error + "\n");
                 }
             }
             if (hasErrorSemantic()) {
-                System.out.println(ANSI_RED + "Errores semánticos:" + ANSI_RED);
+                writer.write("\nErrores Semánticos:\n");
                 for (String error : errorSemantic) {
-                    System.err.println(ANSI_RED + " - " + error + ANSI_RESET);
+                    writer.write(" - " + error + "\n");
                 }
             }
-            
         } else {
-            System.out.println("No se encontraron errores.");
+            writer.write("No se encontraron errores.\n");
         }
     }
-}
-
-
-
+}    

@@ -1,0 +1,71 @@
+NEWFUN  -> L0
+PMB  -> ID0
+COPY ID1 -> t0
+COPY ID2 -> t1
+* t0, t1 -> t2
+RTN  -> t2
+NEWFUN  -> MAIN
+COPY 1 -> t3
+COPY 4 -> t4
+COPY 0 -> t5
+* t5, t4 -> t4
+IND_ASS, t3 -> ID3[t4]
+COPY 2 -> t6
+COPY 4 -> t7
+COPY 1 -> t8
+* t8, t7 -> t7
+IND_ASS, t6 -> ID3[t7]
+COPY 3 -> t9
+COPY 4 -> t10
+COPY 2 -> t11
+* t11, t10 -> t10
+IND_ASS, t9 -> ID3[t10]
+COPY 4 -> t12
+COPY 4 -> t13
+COPY 3 -> t14
+* t14, t13 -> t13
+IND_ASS, t12 -> ID3[t13]
+COPY 5 -> t15
+COPY 4 -> t16
+COPY 4 -> t17
+* t17, t16 -> t16
+IND_ASS, t15 -> ID3[t16]
+COPY 1 -> t18
+COPY t18 -> ID4
+COPY -1 -> t19
+COPY t19 -> ID5
+COPY 0 -> t20
+COPY t20 -> ID6
+SKIP  -> L1
+COPY ID5 -> t21
+IF_EQ t21, 0 -> L2
+COPY ID4 -> t22
+PARAM_S  -> t22
+COPY 4 -> t23
+COPY ID6 -> t24
+* t24, t23 -> t23
+IND_VAL, ID3[t23] -> t25
+PARAM_S  -> t25
+CALL t26 -> ID0
+COPY t26 -> ID4
+COPY ID4 -> t28
+COPY 10 -> t29
+IF_GT t28, t29 -> L3
+COPY 0 -> t30
+GOTO  -> L4
+SKIP  -> L3
+COPY -1 -> t30
+SKIP  -> L4
+IF_EQ t30, 0 -> L5
+COPY ID4 -> t31
+PARAM_S  -> t31
+PRINT  -> 
+COPY 0 -> t32
+COPY t32 -> ID5
+SKIP  -> L5
+COPY ID6 -> t33
+COPY 1 -> t34
++ t33, t34 -> t35
+COPY t35 -> ID6
+GOTO  -> L1
+SKIP  -> L2

@@ -1,0 +1,66 @@
+NEWFUN  -> L0
+PMB  -> ID0
+COPY ID1 -> t0
+COPY ID2 -> t1
+* t0, t1 -> t2
+RTN  -> t2
+NEWFUN  -> MAIN
+COPY 6 -> ID3
+COPY 10 -> ID4
+COPY 0 -> t2
+IND_ASS, ID3 -> ID5[t2]
+COPY 4 -> t2
+IND_ASS, ID4 -> ID5[t2]
+COPY 0 -> t3
+COPY t3 -> ID6
+COPY -1 -> t4
+COPY t4 -> ID7
+SKIP  -> L1
+COPY ID7 -> t5
+COPY ID6 -> t6
+COPY 200 -> t7
+IF_LT t6, t7 -> L2
+COPY 0 -> t8
+GOTO  -> L3
+SKIP  -> L2
+COPY -1 -> t8
+SKIP  -> L3
+&& t5, t8 -> L4
+COPY 0 -> t9
+GOTO  -> L5
+SKIP  -> L4
+COPY -1 -> t9
+SKIP  -> L5
+IF_EQ t9, 0 -> L6
+INPUT  -> ID8
+COPY ID8 -> t10
+COPY 10 -> t11
+IF_GT t10, t11 -> L7
+COPY 0 -> t12
+GOTO  -> L8
+SKIP  -> L7
+COPY -1 -> t12
+SKIP  -> L8
+IF_EQ t12, 0 -> L9
+COPY 0 -> t13
+COPY t13 -> ID7
+GOTO  -> L10
+SKIP  -> L9
+COPY 0 -> t14
+IND_VAL, ID5[t14] -> t15
+PARAM_S  -> t15
+COPY 4 -> t16
+IND_VAL, ID5[t16] -> t17
+PARAM_S  -> t17
+CALL t18 -> ID0
+COPY t18 -> ID9
+COPY ID6 -> t20
+COPY ID9 -> t21
++ t20, t21 -> t22
+COPY t22 -> ID6
+SKIP  -> L10
+GOTO  -> L1
+SKIP  -> L6
+COPY ID6 -> t23
+PARAM_S  -> t23
+PRINT  -> 

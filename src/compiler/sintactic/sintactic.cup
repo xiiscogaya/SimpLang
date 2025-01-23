@@ -8,11 +8,6 @@ import compiler.simbols.*;
 import compiler.taulasimbols.*;
 import compiler.codigo_intermedio.*;
 
-import java.io.PrintStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-
 
 class Parser;
 
@@ -51,7 +46,7 @@ parser code {:
 
 terminal String ID;
 terminal String TYPE;
-terminal FLOAT_LITERAL, INT_LITERAL, BOOLEAN_LITERAL;
+terminal INT_LITERAL, BOOLEAN_LITERAL;
 terminal CONST;
 terminal SEMICOLON;
 terminal LBRACE, RBRACE, LBRACKET, RBRACKET, EQUAL;
@@ -136,6 +131,8 @@ ListaParametros ::= TYPE:type ID:id COMMA ListaParametros:lista
                         {: RESULT = new SListaParametros(typeleft, type, id, (SListaParametros) lista); :}
                     | TYPE:type ID:id
                         {: RESULT = new SListaParametros(typeleft, type, id); :}
+                    |
+                        {: RESULT = null; :}
                     ;
 
 DecFun ::= DEF:d TYPE:type ID:id LPAREN ListaParametros:params RPAREN LBRACE Bloque:bloque RBRACE
@@ -173,6 +170,8 @@ ListaArgumentos ::= Expresion:e COMMA ListaArgumentos:lista
                     {: RESULT = new SListaArgumentos(listaleft, (SListaArgumentos) lista, (SExpresion) e); :}
                 | Expresion:e
                     {: RESULT = new SListaArgumentos(eleft, (SExpresion) e); :}
+                |
+                    {: RESULT = null; :}
                 ;
 
 If_Sentencia ::= IF:i Expresion:expresion LBRACE Bloque:bloque1 RBRACE Elif_Lista:lista ELSE LBRACE Bloque:bloque2 RBRACE
@@ -234,8 +233,8 @@ Expresion ::= Expresion:e1 OP_ARITMETICO:op Expresion:e2
             ;
 
 Valor ::= INT_LITERAL:v
-            {: RESULT = new SValor(new TipoSubyacente(Tipus.INT), (String) v); :}
+            {: RESULT = new SValor(new TipoSubyacente(Tipus.INT), (String) v, vleft); :}
         | BOOLEAN_LITERAL:v
-            {: RESULT = new SValor(new TipoSubyacente(Tipus.BOOLEAN), Integer.toString((v.equals("true")) ? -1 : 0)); :}
+            {: RESULT = new SValor(new TipoSubyacente(Tipus.BOOLEAN), Integer.toString((v.equals("true")) ? -1 : 0), vleft); :}
         ;
 

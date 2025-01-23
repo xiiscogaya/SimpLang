@@ -17,6 +17,7 @@ public class Optimizacion {
 
     public void generarCodigoOptimizado() {
         EliminarRedundacias();
+        eliminarTemporalesInnecesarios();
     }
 
     public void EliminarRedundacias() {
@@ -35,6 +36,35 @@ public class Optimizacion {
             }
             
         }
+    }
+
+    public void eliminarTemporalesInnecesarios() {
+        List<Instruccion> instruccions = codigoIntermedio.obtenerInstrucciones();
+        for (int i=0; i<instruccions.size(); i++) {
+            Instruccion instr = instruccions.get(i);
+            if (esTemporal(instr.destino)) {
+                String temporal = instr.destino;
+                String operacion = instr.operador;
+                String operando1 = instr.operando1;
+                String operando2 = instr.operando2;
+                for (int j = i + 1; j < instruccions.size(); j++) {
+                    Instruccion siguiente = instruccions.get(j);
+                    if (siguiente.operador.equals("COPY") && siguiente.operando1.equals(temporal)) {
+                        // Reemplazar la instrucción original
+                        siguiente.operador = operacion;
+                        siguiente.operando1 = operando1;
+                        siguiente.operando2 = operando2;
+                        instruccions.remove(i);
+                        i--;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    public boolean esTemporal(String variable) {
+        return variable.startsWith("t");
     }
 
     public void imprimirCodigo() {

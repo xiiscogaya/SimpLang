@@ -1,0 +1,12 @@
+===== Estado Actual de la Tabla de Símbolos =====
+
+ID                   Tipo                                                         Nivel     
+-------------------- ------------------------------------------------------------ ----------
+agrupacion           DTupla{campos={a=int, c=int} idUnico=ID5}                    1         
+multiplicacion       DFuncion{tipoRetorno=int, parametros=[int a, int b]}idUnico=ID0 1         
+a                    DConst{valor=6, tipoSubyacente=int, idUnico=ID3}             1         
+total                DVar{tipoSubyacente=int, idUnico=ID6}                        1         
+c                    DConst{valor=10, tipoSubyacente=int, idUnico=ID4}            1         
+continuar            DVar{tipoSubyacente=bool, idUnico=ID7}                       1         
+
+==============================================================================================

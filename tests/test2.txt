@@ -1,0 +1,12 @@
+# PROGRAMA 2 - FUNCIONA
+# Realiza la suma con una función auxiliar y imprime el resultado por pantalla
+
+def int suma(int a, int b) {
+    return a + b;
+}
+
+{
+    int resultado;
+    resultado = suma(4 + 6 - 4, 5);
+    print(resultado);
+}

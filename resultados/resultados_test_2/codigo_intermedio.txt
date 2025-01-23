@@ -1,0 +1,20 @@
+NEWFUN  -> L0
+PMB  -> ID0
+COPY ID1 -> t0
+COPY ID2 -> t1
++ t0, t1 -> t2
+RTN  -> t2
+NEWFUN  -> MAIN
+COPY 4 -> t3
+COPY 6 -> t4
++ t3, t4 -> t5
+COPY 4 -> t6
+- t5, t6 -> t7
+PARAM_S  -> t7
+COPY 5 -> t8
+PARAM_S  -> t8
+CALL t9 -> ID0
+COPY t9 -> ID3
+COPY ID3 -> t11
+PARAM_S  -> t11
+PRINT  -> 

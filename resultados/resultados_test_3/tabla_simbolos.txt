@@ -1,0 +1,11 @@
+===== Estado Actual de la Tabla de Símbolos =====
+
+ID                   Tipo                                                         Nivel     
+-------------------- ------------------------------------------------------------ ----------
+total                DVar{tipoSubyacente=int, idUnico=ID4}                        1         
+mult                 DFuncion{tipoRetorno=int, parametros=[int a, int b]}idUnico=ID0 1         
+i                    DVar{tipoSubyacente=bool, idUnico=ID5}                       1         
+j                    DVar{tipoSubyacente=int, idUnico=ID6}                        1         
+nums                 DArray{tipo=int, dimensiones=[5] idUnico=ID3}                1         
+
+==============================================================================================

@@ -1,0 +1,45 @@
+===== TABLA DE VARIABLES =====
+-----------------------------------------------------------------------------------------------------
+|  IDUnico   |   Nombre    | Función            | Tamaño  | Descripción                              |
+-----------------------------------------------------------------------------------------------------
+| t4         | N/A        | N/A                | N/A     | N/A                       |
+| t5         | N/A        | N/A                | N/A     | N/A                       |
+| t6         | N/A        | N/A                | N/A     | N/A                       |
+| t7         | N/A        | N/A                | N/A     | N/A                       |
+| t8         | N/A        | N/A                | N/A     | N/A                       |
+| t9         | N/A        | N/A                | N/A     | N/A                       |
+| t10        | N/A        | N/A                | N/A     | N/A                       |
+| t12        | N/A        | N/A                | N/A     | N/A                       |
+| t11        | N/A        | N/A                | N/A     | N/A                       |
+| t14        | N/A        | N/A                | N/A     | N/A                       |
+| t13        | N/A        | N/A                | N/A     | N/A                       |
+| t16        | N/A        | N/A                | N/A     | N/A                       |
+| t15        | N/A        | N/A                | N/A     | N/A                       |
+| t18        | N/A        | N/A                | N/A     | N/A                       |
+| t17        | N/A        | N/A                | N/A     | N/A                       |
+| t19        | N/A        | N/A                | N/A     | N/A                       |
+| t21        | N/A        | N/A                | N/A     | N/A                       |
+| t20        | N/A        | N/A                | N/A     | N/A                       |
+| t23        | N/A        | N/A                | N/A     | N/A                       |
+| t22        | N/A        | N/A                | N/A     | N/A                       |
+| ID2        | b          | multiplicacion     | 4       | DVar{tipoSubyacente=int, idUnico=ID2} |
+| ID1        | a          | multiplicacion     | 4       | DVar{tipoSubyacente=int, idUnico=ID1} |
+| ID4        | c          | Global             | 4       | DConst{valor=10, tipoSubyacente=int, idUnico=ID4} |
+| ID3        | a          | Global             | 4       | DConst{valor=6, tipoSubyacente=int, idUnico=ID3} |
+| ID6        | total      | Global             | 4       | DVar{tipoSubyacente=int, idUnico=ID6} |
+| ID5        | agrupacion | Global             | 8       | DTupla{campos={a=int, c=int} idUnico=ID5} |
+| t0         | N/A        | N/A                | N/A     | N/A                       |
+| ID8        | leer       | Global             | 4       | DVar{tipoSubyacente=int, idUnico=ID8} |
+| t1         | N/A        | N/A                | N/A     | N/A                       |
+| ID7        | continuar  | Global             | 1       | DVar{tipoSubyacente=bool, idUnico=ID7} |
+| t2         | N/A        | N/A                | N/A     | N/A                       |
+| t3         | N/A        | N/A                | N/A     | N/A                       |
+| ID9        | mult       | Global             | 4       | DVar{tipoSubyacente=int, idUnico=ID9} |
+-----------------------------------------------------------------------------------------------------
+
+===== TABLA DE PROCEDIMIENTOS =====
+---------------------------------------------------
+| Nombre         | Número de Parámetros | Etiqueta |
+---------------------------------------------------
+| ID0        | multiplicacion       | 2          |
+---------------------------------------------------

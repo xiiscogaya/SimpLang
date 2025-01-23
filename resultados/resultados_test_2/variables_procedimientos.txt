@@ -1,0 +1,27 @@
+===== TABLA DE VARIABLES =====
+-----------------------------------------------------------------------------------------------------
+|  IDUnico   |   Nombre    | Función            | Tamaño  | Descripción                              |
+-----------------------------------------------------------------------------------------------------
+| t4         | N/A        | N/A                | N/A     | N/A                       |
+| t5         | N/A        | N/A                | N/A     | N/A                       |
+| t6         | N/A        | N/A                | N/A     | N/A                       |
+| t7         | N/A        | N/A                | N/A     | N/A                       |
+| t8         | N/A        | N/A                | N/A     | N/A                       |
+| t9         | N/A        | N/A                | N/A     | N/A                       |
+| t10        | N/A        | N/A                | N/A     | N/A                       |
+| t11        | N/A        | N/A                | N/A     | N/A                       |
+| ID2        | b          | suma               | 4       | DVar{tipoSubyacente=int, idUnico=ID2} |
+| ID1        | a          | suma               | 4       | DVar{tipoSubyacente=int, idUnico=ID1} |
+| ID3        | resultado  | Global             | 4       | DVar{tipoSubyacente=int, idUnico=ID3} |
+| t0         | N/A        | N/A                | N/A     | N/A                       |
+| t1         | N/A        | N/A                | N/A     | N/A                       |
+| t2         | N/A        | N/A                | N/A     | N/A                       |
+| t3         | N/A        | N/A                | N/A     | N/A                       |
+-----------------------------------------------------------------------------------------------------
+
+===== TABLA DE PROCEDIMIENTOS =====
+---------------------------------------------------
+| Nombre         | Número de Parámetros | Etiqueta |
+---------------------------------------------------
+| ID0        | suma                 | 2          |
+---------------------------------------------------

@@ -6,13 +6,14 @@ public class SValor extends SBase {
 
     private TipoSubyacente tipo;
     private String valor;
-    private int tamañoChar;
+    private int line;
 
 
-    public SValor(TipoSubyacente tipo, String valor) {
+    public SValor(TipoSubyacente tipo, String valor, int line) {
         super("SValor", valor); // Llama al constructor de SBase con nombre y valor.
         this.tipo = tipo;
         this.valor = valor;
+        this.line = line;
     }
 
     public SValor() {
@@ -27,12 +28,8 @@ public class SValor extends SBase {
         return valor;
     }
 
-    public int getTamañoChar() {
-        return tamañoChar;
-    }
-
-    public void setTamañoChar(int tamañoChar) {
-        this.tamañoChar = tamañoChar;
+    public int getLine() {
+        return line;
     }
 
 }

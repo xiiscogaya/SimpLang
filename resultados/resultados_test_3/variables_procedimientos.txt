@@ -1,0 +1,54 @@
+===== TABLA DE VARIABLES =====
+-----------------------------------------------------------------------------------------------------
+|  IDUnico   |   Nombre    | Función            | Tamaño  | Descripción                              |
+-----------------------------------------------------------------------------------------------------
+| t4         | N/A        | N/A                | N/A     | N/A                       |
+| t5         | N/A        | N/A                | N/A     | N/A                       |
+| t6         | N/A        | N/A                | N/A     | N/A                       |
+| t7         | N/A        | N/A                | N/A     | N/A                       |
+| t8         | N/A        | N/A                | N/A     | N/A                       |
+| t9         | N/A        | N/A                | N/A     | N/A                       |
+| t30        | N/A        | N/A                | N/A     | N/A                       |
+| t10        | N/A        | N/A                | N/A     | N/A                       |
+| t32        | N/A        | N/A                | N/A     | N/A                       |
+| t31        | N/A        | N/A                | N/A     | N/A                       |
+| t12        | N/A        | N/A                | N/A     | N/A                       |
+| t34        | N/A        | N/A                | N/A     | N/A                       |
+| t11        | N/A        | N/A                | N/A     | N/A                       |
+| t33        | N/A        | N/A                | N/A     | N/A                       |
+| t14        | N/A        | N/A                | N/A     | N/A                       |
+| t13        | N/A        | N/A                | N/A     | N/A                       |
+| t35        | N/A        | N/A                | N/A     | N/A                       |
+| t16        | N/A        | N/A                | N/A     | N/A                       |
+| t15        | N/A        | N/A                | N/A     | N/A                       |
+| t18        | N/A        | N/A                | N/A     | N/A                       |
+| t17        | N/A        | N/A                | N/A     | N/A                       |
+| t19        | N/A        | N/A                | N/A     | N/A                       |
+| t21        | N/A        | N/A                | N/A     | N/A                       |
+| t20        | N/A        | N/A                | N/A     | N/A                       |
+| t23        | N/A        | N/A                | N/A     | N/A                       |
+| t22        | N/A        | N/A                | N/A     | N/A                       |
+| ID2        | b          | mult               | 4       | DVar{tipoSubyacente=int, idUnico=ID2} |
+| t25        | N/A        | N/A                | N/A     | N/A                       |
+| ID1        | a          | mult               | 4       | DVar{tipoSubyacente=int, idUnico=ID1} |
+| t24        | N/A        | N/A                | N/A     | N/A                       |
+| ID4        | total      | Global             | 4       | DVar{tipoSubyacente=int, idUnico=ID4} |
+| t27        | N/A        | N/A                | N/A     | N/A                       |
+| ID3        | nums       | Global             | 20      | DArray{tipo=int, dimensiones=[5] idUnico=ID3} |
+| t26        | N/A        | N/A                | N/A     | N/A                       |
+| ID6        | j          | Global             | 4       | DVar{tipoSubyacente=int, idUnico=ID6} |
+| t29        | N/A        | N/A                | N/A     | N/A                       |
+| ID5        | i          | Global             | 1       | DVar{tipoSubyacente=bool, idUnico=ID5} |
+| t28        | N/A        | N/A                | N/A     | N/A                       |
+| t0         | N/A        | N/A                | N/A     | N/A                       |
+| t1         | N/A        | N/A                | N/A     | N/A                       |
+| t2         | N/A        | N/A                | N/A     | N/A                       |
+| t3         | N/A        | N/A                | N/A     | N/A                       |
+-----------------------------------------------------------------------------------------------------
+
+===== TABLA DE PROCEDIMIENTOS =====
+---------------------------------------------------
+| Nombre         | Número de Parámetros | Etiqueta |
+---------------------------------------------------
+| ID0        | mult                 | 2          |
+---------------------------------------------------

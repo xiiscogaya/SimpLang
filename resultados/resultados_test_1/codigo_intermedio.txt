@@ -1,0 +1,38 @@
+NEWFUN  -> MAIN
+COPY 0 -> t0
+COPY t0 -> ID0
+SKIP  -> L0
+COPY ID0 -> t1
+COPY 10 -> t2
+IF_LT t1, t2 -> L1
+COPY 0 -> t3
+GOTO  -> L2
+SKIP  -> L1
+COPY -1 -> t3
+SKIP  -> L2
+IF_EQ t3, 0 -> L3
+INPUT  -> ID1
+COPY ID1 -> t4
+COPY 5 -> t5
+IF_GT t4, t5 -> L4
+COPY 0 -> t6
+GOTO  -> L5
+SKIP  -> L4
+COPY -1 -> t6
+SKIP  -> L5
+IF_EQ t6, 0 -> L6
+COPY ID1 -> t7
+PARAM_PI  -> t7
+PRINT  -> 
+GOTO  -> L7
+SKIP  -> L6
+COPY 0 -> t8
+PARAM_PI  -> t8
+PRINT  -> 
+SKIP  -> L7
+COPY ID0 -> t9
+COPY 1 -> t10
++ t9, t10 -> t11
+COPY t11 -> ID0
+GOTO  -> L0
+SKIP  -> L3

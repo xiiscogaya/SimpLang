@@ -1,0 +1,8 @@
+===== Estado Actual de la Tabla de Símbolos =====
+
+ID                   Tipo                                                         Nivel     
+-------------------- ------------------------------------------------------------ ----------
+suma                 DFuncion{tipoRetorno=int, parametros=[int a, int b]}idUnico=ID0 1         
+resultado            DVar{tipoSubyacente=int, idUnico=ID3}                        1         
+
+==============================================================================================

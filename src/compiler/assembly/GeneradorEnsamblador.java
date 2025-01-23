@@ -18,7 +18,6 @@ import compiler.taulasimbols.Tipus;
 
 
 import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 
 public class GeneradorEnsamblador {
@@ -100,7 +99,6 @@ public class GeneradorEnsamblador {
         // Generar subrutinas comunes
         if (this.isPrint) {
             generarSubrutinaPrintGeneral();
-            generarSubrutinaPrintValue();
         }
         if (this.isInput) {
             generarSubrutinaInputInt();
@@ -137,6 +135,8 @@ public class GeneradorEnsamblador {
                     codigoEnsamblador.add(String.format("%s\tDS.L\t1", idUnico));
             }
         }
+        codigoEnsamblador.add("INPUT_MARK\tDC.B\t'>>>',0");
+
     }
 
     private void generarSubrutina(String nombre, List<Instruccion> instrucciones) {
@@ -199,8 +199,8 @@ public class GeneradorEnsamblador {
                 break;
             case "IND_VAL":
                 // INDIRECT VALUE operation (e.g., load value at op1 + op2 -> destino)
-                codigoEnsamblador.add("\tMOVEA.L\t" + instr.operando1 + ",A0"); // Cargar dirección base en A0
-                codigoEnsamblador.add("\tMOVE.L\t(" + instr.operando2 + ",A0)," + instr.destino); // Cargar valor indirecto
+                codigoEnsamblador.add("\tMOVEA.L\t" + instr.operando2 + ",A0"); // Cargar dirección base en A0
+                codigoEnsamblador.add("\tMOVE.L\t(" + instr.operando1 + ",A0)," + instr.destino); // Cargar valor indirecto
                 break;
             case "IND_ASS":
                 // INDIRECT ASSIGN operation (e.g., assign op1 to address op2 + base -> destino)
@@ -218,6 +218,12 @@ public class GeneradorEnsamblador {
                 break;
             case "PARAM_S":
                 param_sInstr(instr);
+                break;
+            case "PARAM_PI":
+                param_piInstr(instr);
+                break;
+            case "PARAM_PB":
+                param_pbInstr(instr);
                 break;
             case "PRINT":
                 printInstr();
@@ -313,10 +319,14 @@ public class GeneradorEnsamblador {
         if (!esVariable(op2)) {
             op2 = "#" + op2; // Si no es variable, es un valor inmediato
         }
+
+        // No se permite la división de registros de 4 bytes en el 68k
+        // Se debe hacer por partes
         codigoEnsamblador.add("\tMOVE.L\t" + op1 + ",D0"); // Mover el primer operando a D0
         codigoEnsamblador.add("\tMOVE.L\t" + op2 + ",D1"); // Mover el segundo operando a D1
-        codigoEnsamblador.add("\tDIVS.L\tD1,D0"); 
-        codigoEnsamblador.add("\tMOVE.L\tD0," + destino); // Almacenar el resultado en el destino
+        codigoEnsamblador.add("\tDIVS.W\tD1,D0");
+        codigoEnsamblador.add("\tANDI.L\t#$0000FFFF,D0");
+        codigoEnsamblador.add("\tMOVE.L\tD0," + destino);
     }
 
     private void ifInstr(Instruccion instruccion) {
@@ -402,7 +412,7 @@ public class GeneradorEnsamblador {
         codigoEnsamblador.add("\tMOVE.L\t" + var1 + ",D0"); // Mover el primer operando a D0
         codigoEnsamblador.add("\tAND.L\t" + var2 + ",D0"); // AND lógico entre var1 y var2
         codigoEnsamblador.add("\tTST.L\tD0");              // Probar si el resultado es cero
-        codigoEnsamblador.add("\tBEQ\t" + destino);  // Saltar a falso si es cero
+        codigoEnsamblador.add("\tBNE\t" + destino);  // Saltar a falso si es cero
     }
 
     private void orLogical(Instruccion ins) {
@@ -422,7 +432,7 @@ public class GeneradorEnsamblador {
         codigoEnsamblador.add("\tMOVE.L\t" + var1 + ",D0"); // Mover el primer operando a D0
         codigoEnsamblador.add("\tOR.L\t" + var2 + ",D0");  // OR lógico entre var1 y var2
         codigoEnsamblador.add("\tTST.L\tD0");              // Probar si el resultado es cero
-        codigoEnsamblador.add("\tBNE\tverdadero_" + destino); // Saltar a verdadero si no es cero
+        codigoEnsamblador.add("\tBEQ\t" + destino); // Saltar a verdadero si no es cero
     }
 
     private void param_sInstr(Instruccion ins) {
@@ -432,9 +442,25 @@ public class GeneradorEnsamblador {
         codigoEnsamblador.add("\tMOVE.L\tD0,-(SP)"); // Empuja 4 bytes al stack
     }
 
+    private void param_piInstr(Instruccion ins) {
+        String parametro = ins.destino;
+        codigoEnsamblador.add("\tMOVE.L\t" + parametro + ",D0");
+        codigoEnsamblador.add("\tMOVE.L\tD0,-(SP)"); // Empuja 4 bytes al stack
+        // Indicamos que es un tipo (entero) con un 0
+        codigoEnsamblador.add("\tMOVE.L\t#0,-(SP)");
+    }
+
+    private void param_pbInstr(Instruccion ins) {
+        String parametro = ins.destino;
+        codigoEnsamblador.add("\tMOVE.L\t" + parametro + ",D0");
+        codigoEnsamblador.add("\tMOVE.L\tD0,-(SP)"); // Empuja 4 bytes al stack
+        // Indicamos que es un tipo (entero) con un 0
+        codigoEnsamblador.add("\tMOVE.L\t#1,-(SP)");
+    }
+
     private void printInstr() {
         codigoEnsamblador.add("\tJSR\tPRINT_GENERAL"); // Llama a la subrutina de impresión
-        codigoEnsamblador.add("\tADDA.L\t#4,SP");
+        codigoEnsamblador.add("\tMOVE.L\t#$01000000,SP");
     }
 
     private void inputPrint(Instruccion ins) {
@@ -483,50 +509,58 @@ public class GeneradorEnsamblador {
         codigoEnsamblador.add("; -----------------------------------------------------------------------------");
 
         // Guardar registros necesarios
-        codigoEnsamblador.add("\tMOVEM.L\tD0-D2,-(A7)\t; Guardar D0 y D1");
-        codigoEnsamblador.add("\tADDA.L\t#16,SP");
+        codigoEnsamblador.add("\tMOVEM.L\tD0-D3,-(A7)\t; Guardar D0 y D1");
+        codigoEnsamblador.add("\tADDA.L\t#20,SP");
 
         // Inicio del bucle de impresión
-        codigoEnsamblador.add("\tCLR.L\tD2");
         codigoEnsamblador.add("PRINT_LOOP:");
         codigoEnsamblador.add("\tCMP.L\t#$01000000,SP");
         codigoEnsamblador.add("\tBEQ\tPRINT_END\t; Si no hay más elementos, finalizar");
 
         // Extraer un elemento del stack
-        codigoEnsamblador.add("\tADD.L\t#4,D2");
-        codigoEnsamblador.add("\tMOVE.L\t(SP)+,D1");
+        codigoEnsamblador.add("\tADD.L\t#8,D3");
+        codigoEnsamblador.add("\tMOVE.L\t(SP)+,D2");    // Extraer el valor de la pila 
+        codigoEnsamblador.add("\tMOVE.L\t(SP)+,D1");    // Extraer el tipo de la pila
 
-        // Imprimir el valor (general)
-        codigoEnsamblador.add("\tJSR\tPRINT_VALUE\t; Llamar a subrutina para imprimir");
+        codigoEnsamblador.add("\tCMP.L\t#1,D2");
+        codigoEnsamblador.add("\tBEQ\tPRINT_BOOLEAN");
+
+        // Imprimir entero
+        codigoEnsamblador.add("\tMOVE.W\t#3,D0");
+        codigoEnsamblador.add("\tTRAP\t#15");
+        codigoEnsamblador.add("\tMOVEA.L\t#NEWLINE,A1");
+        codigoEnsamblador.add("\tMOVE.L\t#13,D0");
+        codigoEnsamblador.add("\tTRAP\t#15");
 
         // Repetir para el siguiente elemento
         codigoEnsamblador.add("\tBRA\tPRINT_LOOP");
 
+        // Imprimir boolean
+        codigoEnsamblador.add("PRINT_BOOLEAN:");
+        codigoEnsamblador.add("\tCMP.L\t#$FF,D1");
+        codigoEnsamblador.add("\tBEQ\tPRINT_TRUE");
+        codigoEnsamblador.add("\tLEA\tVALFALSE,A1");
+        codigoEnsamblador.add("\tBRA\tPRINT_STRING");
+
+        codigoEnsamblador.add("PRINT_TRUE:");
+        codigoEnsamblador.add("\tLEA\tVALTRUE,A1");
+
+        // Imprimir el string 
+        codigoEnsamblador.add("PRINT_STRING:");
+        codigoEnsamblador.add("\tMOVE.W\t#13,D0");
+        codigoEnsamblador.add("\tTRAP\t#15");
+        codigoEnsamblador.add("\tBRA\tPRINT_LOOP");
+
         // Fin de la subrutina
         codigoEnsamblador.add("PRINT_END:");
-        codigoEnsamblador.add("\tSUBA.L\tD2,SP");
-        codigoEnsamblador.add("\tSUBA.L\t#16,SP");
-        codigoEnsamblador.add("\tMOVEM.L\t(A7)+,D0-D2\t; Restaurar D1 y D0");
+        codigoEnsamblador.add("\tSUBA.L\t#28,SP");
+        codigoEnsamblador.add("\tMOVEM.L\t(A7)+,D0-D3\t; Restaurar D1 y D0");
         codigoEnsamblador.add("\tRTS\t; Retornar de la subrutina");
-    }
-    
 
-    private void generarSubrutinaPrintValue() {
-        codigoEnsamblador.add("; -----------------------------------------------------------------------------");
-        codigoEnsamblador.add("PRINT_VALUE");
-        codigoEnsamblador.add("; Prints a single value");
-        codigoEnsamblador.add("; INPUT: A1 contains the value to print");
-        codigoEnsamblador.add("; OUTPUT: None");
-        codigoEnsamblador.add("; -----------------------------------------------------------------------------");
-    
-        // Llamar a la función del sistema para imprimir (por ejemplo, enteros)
-        codigoEnsamblador.add("\tMOVE.L\t#3,D0\t; Código para imprimir enteros");
-        codigoEnsamblador.add("\tTRAP\t#15\t; Llamada al sistema");
-        codigoEnsamblador.add("\tMOVEA.L\t#NEWLINE,A1");
-        codigoEnsamblador.add("\tMOVE.L\t#13,D0");
-        codigoEnsamblador.add("\tTRAP\t#15");
-        codigoEnsamblador.add("\tRTS\t; Retornar de la subrutina");
+        codigoEnsamblador.add("VALTRUE\tDC.B\t'true',0");
+        codigoEnsamblador.add("VALFALSE\tDC.B\t'false',0");
         codigoEnsamblador.add("NEWLINE\tDC.B\t' ',0");
+        codigoEnsamblador.add("\tDS.W\t0");
     }
 
     private void generarSubrutinaInputInt() {
@@ -537,6 +571,9 @@ public class GeneradorEnsamblador {
         codigoEnsamblador.add("; OUTPUT: Reads an integer or value and stores it");
 
         codigoEnsamblador.add("\tMOVE.L\tD0,-(A7)\t; SAVE D0");
+        codigoEnsamblador.add("\tLEA\tINPUT_MARK,A1");
+        codigoEnsamblador.add("\tMOVE.L\t#14,D0");
+        codigoEnsamblador.add("\tTRAP\t#15");
         codigoEnsamblador.add("\tCLR.L\tD0\t; CLEAR D0");
         codigoEnsamblador.add("\tCLR.L\tD1\t; CLEAR D1");
         codigoEnsamblador.add("\tMOVE.L\t#4,D0\t; READ_INT");
@@ -553,6 +590,9 @@ public class GeneradorEnsamblador {
         codigoEnsamblador.add("; OUTPUT: A1 - STRING READ");
         codigoEnsamblador.add("; -----------------------------------------------------------------------------");
         codigoEnsamblador.add("\tMOVE.L\tD0,-(A7)\t; SAVE D0");
+        codigoEnsamblador.add("\tLEA\tINPUT_MARK,A1");
+        codigoEnsamblador.add("\tMOVE.L\t#14,D0");
+        codigoEnsamblador.add("\tTRAP\t#15");
         codigoEnsamblador.add("\tCLR.L\tD0\t; CLEAR D0");
         codigoEnsamblador.add("\tMOVE.L\tD0, A1\t; CLEAR A1");
         codigoEnsamblador.add("\tMOVE.L\t#2,D0\t; READ_STRING");
@@ -587,27 +627,16 @@ public class GeneradorEnsamblador {
 
 
 //----------------------------------------------------------------------------------------------------------------
-//---------------------  FUNCIONES AUXILIARES  -------------------------------------------------------------------
+//---------------------  FUNCION AUXILIAR  -----------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------------------
 
 
-    public void guardarArchivoX68(String nombreArchivo) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(nombreArchivo))) {
-            for (String linea : codigoEnsamblador) {
-                writer.write(linea);
-                writer.newLine(); // Agregar salto de línea
-            }
-            System.out.println("Archivo ensamblador generado correctamente: " + nombreArchivo);
-        } catch (IOException e) {
-            System.err.println("Error al escribir el archivo: " + e.getMessage());
-        }
-    }
 
-
-    public void imprimirInstrucciones68k() {
-        System.out.println("; Código ensamblador Motorola 68k generado:");
+    public void imprimirInstrucciones68k(BufferedWriter writer) throws IOException {
+        writer.write("; Código ensamblador Motorola 68k generado:\n");
         for (String linea : codigoEnsamblador) {
-            System.out.println(linea);
+            writer.write(linea);
+            writer.newLine(); // Agregar salto de línea
         }
     }
     

@@ -1,0 +1,6 @@
+===== ERRORES ENCONTRADOS =====
+
+Errores Semánticos:
+ - Error: Redefinición de la función 'a', en línea 5.
+ - Error, el id = a no pertenece a una variable, en la línea 10
+ - Error, los tipos de la asignación no son iguales, en la línea 13

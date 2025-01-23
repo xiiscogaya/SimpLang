@@ -1,12 +1,13 @@
 package compiler.lexic;
 
-import java.io.*;
-
 import java_cup.runtime.*;
 import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import compiler.sintactic.ErrorManager;
 import compiler.sintactic.ParserSym;
+import java.util.List;
+import java.util.LinkedList;
+
 
 %%
 
@@ -43,7 +44,8 @@ whitespace  = [ \n\t\r]+
 
      
 
-    StringBuffer string = new StringBuffer();
+    public static final List<String> tokens = new LinkedList<>();
+
     
     /**
      Construcció d'un symbol sense atribut associat.
@@ -56,6 +58,10 @@ whitespace  = [ \n\t\r]+
         ComplexSymbol cs = new ComplexSymbol(ParserSym.terminalNames[type], type, esquerra, dreta);
         cs.left = yyline + 1;
         cs.right = yycolumn + 1;
+
+        // Agregar token a la lista
+        tokens.add("TOKEN: " + ParserSym.terminalNames[type] + ", VALOR: " + yytext() + 
+               ", LINEA: " + (yyline + 1) + ", COLUMNA: " + (yycolumn + 1));
 
         return cs;
     }
@@ -72,6 +78,11 @@ whitespace  = [ \n\t\r]+
         cs.left = yyline + 1;
         cs.right = yycolumn + 1;
 
+        // Agregar token a la lista
+        tokens.add("TOKEN: " + ParserSym.terminalNames[type] + 
+                ", VALOR: " + (value != null ? value : yytext()) + 
+                ", LINEA: " + (yyline + 1) + ", COLUMNA: " + (yycolumn + 1));
+
         return cs;
     }
 
@@ -86,51 +97,46 @@ whitespace  = [ \n\t\r]+
 
 
 
-// Palabras clave
+// Palabras clave con valores asignados
 "int"|"float"|"string"|"bool"|"void"          { return symbol(ParserSym.TYPE, yytext()); }
-"const"         { return symbol(ParserSym.CONST); }
-"tupla"         { return symbol(ParserSym.TUPLA); }
-"array"         { return symbol(ParserSym.ARRAY); }
-"def"           { return symbol(ParserSym.DEF); }
-"return"        { return symbol(ParserSym.RETURN); }
+"const"         { return symbol(ParserSym.CONST, yytext()); }
+"tupla"         { return symbol(ParserSym.TUPLA, yytext()); }
+"array"         { return symbol(ParserSym.ARRAY, yytext()); }
+"def"           { return symbol(ParserSym.DEF, yytext()); }
+"return"        { return symbol(ParserSym.RETURN, yytext()); }
 "true"|"false"  { return symbol(ParserSym.BOOLEAN_LITERAL, yytext()); }
-"if"            { return symbol(ParserSym.IF); }
-"elif"          { return symbol(ParserSym.ELIF); }
-"else"          { return symbol(ParserSym.ELSE); }
-"while"         { return symbol(ParserSym.WHILE); }
-"repeat"        { return symbol(ParserSym.REPEAT); }
-"until"         { return symbol(ParserSym.UNTIL); }
+"if"            { return symbol(ParserSym.IF, yytext()); }
+"elif"          { return symbol(ParserSym.ELIF, yytext()); }
+"else"          { return symbol(ParserSym.ELSE, yytext()); }
+"while"         { return symbol(ParserSym.WHILE, yytext()); }
+"repeat"        { return symbol(ParserSym.REPEAT, yytext()); }
+"until"         { return symbol(ParserSym.UNTIL, yytext()); }
+"print"         { return symbol(ParserSym.PRINT, yytext()); }
+"input"         { return symbol(ParserSym.INPUT, yytext()); }
 
-"print"         { return symbol(ParserSym.PRINT); }
-"input"         { return symbol(ParserSym.INPUT); }
+// Símbolos y operadores con valores asignados
+"{"             { return symbol(ParserSym.LBRACE, yytext()); }
+"}"             { return symbol(ParserSym.RBRACE, yytext()); }
+"("             { return symbol(ParserSym.LPAREN, yytext()); }
+")"             { return symbol(ParserSym.RPAREN, yytext()); }
+"["             { return symbol(ParserSym.LBRACKET, yytext()); }
+"]"             { return symbol(ParserSym.RBRACKET, yytext()); }
+"&&"|"||"       { return symbol(ParserSym.OP_COMPARACION, yytext()); }
+"<"|">"|">="|"<="|"=="|"!=" { return symbol(ParserSym.OP_LOGICO, yytext()); }
+"="             { return symbol(ParserSym.EQUAL, yytext()); }
+"+"|"-"|"*"|"/" { return symbol(ParserSym.OP_ARITMETICO, yytext()); }
+";"             { return symbol(ParserSym.SEMICOLON, yytext()); }
+","             { return symbol(ParserSym.COMMA, yytext()); }
+"."             { return symbol(ParserSym.DOT, yytext()); }
 
-
-"{"             { return symbol(ParserSym.LBRACE); }
-"}"             { return symbol(ParserSym.RBRACE); }
-"("             { return symbol(ParserSym.LPAREN); }
-")"             { return symbol(ParserSym.RPAREN); }
-"["             { return symbol(ParserSym.LBRACKET); }
-"]"             { return symbol(ParserSym.RBRACKET); }
-"&&"|"||"               { return symbol(ParserSym.OP_COMPARACION, yytext()); }
-"<"|">"|">="|"<="|"=="|"!="     { return symbol(ParserSym.OP_LOGICO, yytext()) ;}
-"="             { return symbol(ParserSym.EQUAL); }
-
-"+"|"-"|"*"|"/"         { return symbol(ParserSym.OP_ARITMETICO, yytext()); }
-
-";"             { return symbol(ParserSym.SEMICOLON); }
-","             { return symbol(ParserSym.COMMA); }
-"."             { return symbol(ParserSym.DOT); }
-
+// Literales e identificadores
 -?[0-9]+        { return symbol(ParserSym.INT_LITERAL, yytext()); }
-
-// Identificadores
 {id}            { return symbol(ParserSym.ID, yytext()); }
 
 // Fin de archivo
 <<EOF>>         { return symbol(ParserSym.EOF); }
 
 // Caracter no reconocido
-
 [^]             { 
-                ErrorManager.addError(1, "Error: línea " + (yyline+1) + ", columna " + (yycolumn+1) + ": caracter no reconocido '" + yytext() + "'");
-                  }
+    ErrorManager.addError(1, "Error: línea " + (yyline + 1) + ", columna " + (yycolumn + 1) + ": caracter no reconocido '" + yytext() + "'");
+}

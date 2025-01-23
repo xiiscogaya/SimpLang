@@ -1,5 +1,7 @@
 package compiler.taulasimbols;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -173,18 +175,22 @@ public class TaulaSimbols {
     /**
      * Imprimir el estado de la tabla de símbolos (para depuración)
      */
-    public void imprimirTabla() {
-        System.out.println("===== Estado Actual de la Tabla de Símbolos =====");
-
-        // Imprimir la tabla de descripciones (td)
-        System.out.println("Tabla de Descripciones (td):");
+    public void imprimirTabla(BufferedWriter writer) throws IOException {
+        // Encabezado de la tabla
+        writer.write("===== Estado Actual de la Tabla de Símbolos =====\n\n");
+        writer.write(String.format("%-20s %-60s %-10s\n", "ID", "Tipo", "Nivel"));
+        writer.write(String.format("%-20s %-60s %-10s\n", "--------------------", "------------------------------------------------------------", "----------"));
+    
+        // Contenido de la tabla
         for (Map.Entry<String, EntradaDesc> entry : td.entrySet()) {
             String id = entry.getKey();
             EntradaDesc desc = entry.getValue();
-            System.out.printf("ID: %s, Tipo: %s, Nivel: %d%n",
-                    id, desc.descripcio, desc.np);
+            writer.write(String.format("%-20s %-60s %-10d\n", 
+                id, desc.descripcio.toString(), desc.np));
         }
-
-        System.out.println("===============================================");
+    
+        writer.write("\n==============================================================================================\n");
     }
+    
+
 }

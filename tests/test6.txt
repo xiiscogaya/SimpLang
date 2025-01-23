@@ -1,0 +1,14 @@
+def int a(int b) {
+    return 6;
+}
+
+def bool a(int c) {         # No se puede redefinir una función
+    return 7;
+}
+
+{
+    a = 7 + 8;              # El id = a no pertenece a una variable
+
+    array bool b[9];
+    b[5] = 5;               # El array es de bool, no de enteros
+}

@@ -1,0 +1,10 @@
+{
+    while true {
+        int a;
+        input(a);
+        int b;
+        input(b);
+        print(a/b);
+    }
+    
+}

@@ -4,13 +4,14 @@
 
 package compiler.lexic;
 
-import java.io.*;
-
 import java_cup.runtime.*;
 import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import compiler.sintactic.ErrorManager;
 import compiler.sintactic.ParserSym;
+import java.util.List;
+import java.util.LinkedList;
+
 
 
 // See https://github.com/jflex-de/jflex/issues/222
@@ -380,7 +381,8 @@ public class Scanner implements java_cup.runtime.Scanner {
 
      
 
-    StringBuffer string = new StringBuffer();
+    public static final List<String> tokens = new LinkedList<>();
+
     
     /**
      Construcció d'un symbol sense atribut associat.
@@ -393,6 +395,10 @@ public class Scanner implements java_cup.runtime.Scanner {
         ComplexSymbol cs = new ComplexSymbol(ParserSym.terminalNames[type], type, esquerra, dreta);
         cs.left = yyline + 1;
         cs.right = yycolumn + 1;
+
+        // Agregar token a la lista
+        tokens.add("TOKEN: " + ParserSym.terminalNames[type] + ", VALOR: " + yytext() + 
+               ", LINEA: " + (yyline + 1) + ", COLUMNA: " + (yycolumn + 1));
 
         return cs;
     }
@@ -408,6 +414,11 @@ public class Scanner implements java_cup.runtime.Scanner {
         ComplexSymbol cs = new ComplexSymbol(ParserSym.terminalNames[type], type, esquerra, dreta, value);
         cs.left = yyline + 1;
         cs.right = yycolumn + 1;
+
+        // Agregar token a la lista
+        tokens.add("TOKEN: " + ParserSym.terminalNames[type] + 
+                ", VALOR: " + (value != null ? value : yytext()) + 
+                ", LINEA: " + (yyline + 1) + ", COLUMNA: " + (yycolumn + 1));
 
         return cs;
     }
@@ -824,7 +835,7 @@ public class Scanner implements java_cup.runtime.Scanner {
       else {
         switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
           case 1:
-            { ErrorManager.addError(1, "Error: línea " + (yyline+1) + ", columna " + (yycolumn+1) + ": caracter no reconocido '" + yytext() + "'");
+            { ErrorManager.addError(1, "Error: línea " + (yyline + 1) + ", columna " + (yycolumn + 1) + ": caracter no reconocido '" + yytext() + "'");
             }
             // fall through
           case 34: break;
@@ -839,12 +850,12 @@ public class Scanner implements java_cup.runtime.Scanner {
             // fall through
           case 36: break;
           case 4:
-            { return symbol(ParserSym.LPAREN);
+            { return symbol(ParserSym.LPAREN, yytext());
             }
             // fall through
           case 37: break;
           case 5:
-            { return symbol(ParserSym.RPAREN);
+            { return symbol(ParserSym.RPAREN, yytext());
             }
             // fall through
           case 38: break;
@@ -854,12 +865,12 @@ public class Scanner implements java_cup.runtime.Scanner {
             // fall through
           case 39: break;
           case 7:
-            { return symbol(ParserSym.COMMA);
+            { return symbol(ParserSym.COMMA, yytext());
             }
             // fall through
           case 40: break;
           case 8:
-            { return symbol(ParserSym.DOT);
+            { return symbol(ParserSym.DOT, yytext());
             }
             // fall through
           case 41: break;
@@ -869,17 +880,17 @@ public class Scanner implements java_cup.runtime.Scanner {
             // fall through
           case 42: break;
           case 10:
-            { return symbol(ParserSym.SEMICOLON);
+            { return symbol(ParserSym.SEMICOLON, yytext());
             }
             // fall through
           case 43: break;
           case 11:
-            { return symbol(ParserSym.OP_LOGICO, yytext()) ;
+            { return symbol(ParserSym.OP_LOGICO, yytext());
             }
             // fall through
           case 44: break;
           case 12:
-            { return symbol(ParserSym.EQUAL);
+            { return symbol(ParserSym.EQUAL, yytext());
             }
             // fall through
           case 45: break;
@@ -889,22 +900,22 @@ public class Scanner implements java_cup.runtime.Scanner {
             // fall through
           case 46: break;
           case 14:
-            { return symbol(ParserSym.LBRACKET);
+            { return symbol(ParserSym.LBRACKET, yytext());
             }
             // fall through
           case 47: break;
           case 15:
-            { return symbol(ParserSym.RBRACKET);
+            { return symbol(ParserSym.RBRACKET, yytext());
             }
             // fall through
           case 48: break;
           case 16:
-            { return symbol(ParserSym.LBRACE);
+            { return symbol(ParserSym.LBRACE, yytext());
             }
             // fall through
           case 49: break;
           case 17:
-            { return symbol(ParserSym.RBRACE);
+            { return symbol(ParserSym.RBRACE, yytext());
             }
             // fall through
           case 50: break;
@@ -914,12 +925,12 @@ public class Scanner implements java_cup.runtime.Scanner {
             // fall through
           case 51: break;
           case 19:
-            { return symbol(ParserSym.IF);
+            { return symbol(ParserSym.IF, yytext());
             }
             // fall through
           case 52: break;
           case 20:
-            { return symbol(ParserSym.DEF);
+            { return symbol(ParserSym.DEF, yytext());
             }
             // fall through
           case 53: break;
@@ -929,12 +940,12 @@ public class Scanner implements java_cup.runtime.Scanner {
             // fall through
           case 54: break;
           case 22:
-            { return symbol(ParserSym.ELIF);
+            { return symbol(ParserSym.ELIF, yytext());
             }
             // fall through
           case 55: break;
           case 23:
-            { return symbol(ParserSym.ELSE);
+            { return symbol(ParserSym.ELSE, yytext());
             }
             // fall through
           case 56: break;
@@ -944,47 +955,47 @@ public class Scanner implements java_cup.runtime.Scanner {
             // fall through
           case 57: break;
           case 25:
-            { return symbol(ParserSym.ARRAY);
+            { return symbol(ParserSym.ARRAY, yytext());
             }
             // fall through
           case 58: break;
           case 26:
-            { return symbol(ParserSym.CONST);
+            { return symbol(ParserSym.CONST, yytext());
             }
             // fall through
           case 59: break;
           case 27:
-            { return symbol(ParserSym.INPUT);
+            { return symbol(ParserSym.INPUT, yytext());
             }
             // fall through
           case 60: break;
           case 28:
-            { return symbol(ParserSym.PRINT);
+            { return symbol(ParserSym.PRINT, yytext());
             }
             // fall through
           case 61: break;
           case 29:
-            { return symbol(ParserSym.TUPLA);
+            { return symbol(ParserSym.TUPLA, yytext());
             }
             // fall through
           case 62: break;
           case 30:
-            { return symbol(ParserSym.UNTIL);
+            { return symbol(ParserSym.UNTIL, yytext());
             }
             // fall through
           case 63: break;
           case 31:
-            { return symbol(ParserSym.WHILE);
+            { return symbol(ParserSym.WHILE, yytext());
             }
             // fall through
           case 64: break;
           case 32:
-            { return symbol(ParserSym.REPEAT);
+            { return symbol(ParserSym.REPEAT, yytext());
             }
             // fall through
           case 65: break;
           case 33:
-            { return symbol(ParserSym.RETURN);
+            { return symbol(ParserSym.RETURN, yytext());
             }
             // fall through
           case 66: break;
