@@ -16,7 +16,10 @@ t0	DS.L	1
 t1	DS.L	1
 t2	DS.L	1
 t3	DS.L	1
-INPUT_MARK	DC.B	'>>>',0
+VALTRUE	DC.B	'true',0
+VALFALSE	DC.B	'false',0
+NEWLINE	DC.B	' ',0
+	DS.W	0
 ; -----------------------------------------------------------------------------
 ; Subrutina para la función: L0
 ; -----------------------------------------------------------------------------
@@ -35,8 +38,8 @@ L0:
 	ADD.L	D1,D0
 	MOVE.L	D0,t2
 	MOVE.L	t2,64(SP)
-	MOVEM.L	(A7)+,D0-D7/A0-A6	; Restaurar registros
-	RTS	; Retornar de la función
+	MOVEM.L	(A7)+,D0-D7/A0-A6
+	RTS
 ; ---- FIN DE LAS SUBRUTINAS ----------------
 START
 	JSR	INPUT_INT
@@ -53,7 +56,7 @@ L1:
 	SUBA.L	#4,SP
 	JSR	L0
 	MOVE.L	(SP)+,t5
-	MOVE.L	#$01000000,SP
+	ADDA.L	#8,SP
 	MOVE.L	 t5,ID4
 	MOVE.L	 ID4,t7
 	MOVE.L	 #200,t8
@@ -116,10 +119,6 @@ PRINT_END:
 	SUBA.L	#28,SP
 	MOVEM.L	(A7)+,D0-D3	; Restaurar D1 y D0
 	RTS	; Retornar de la subrutina
-VALTRUE	DC.B	'true',0
-VALFALSE	DC.B	'false',0
-NEWLINE	DC.B	' ',0
-	DS.W	0
 ; ------------------------------------------------------------------------------
 INPUT_INT
 ; General Input Subrutina
@@ -137,41 +136,37 @@ INPUT_INT
 	RTS
 ; -----------------------------------------------------------------------------
 INPUT_BOOL
-; READS A STRING
+; READS A BOOLEAN VALUE
 ; INPUT: NONE
-; OUTPUT: A1 - STRING READ
+; OUTPUT: D1 - BOOLEAN VALUE (-1 for true, 0 for false)
 ; -----------------------------------------------------------------------------
 	MOVE.L	D0,-(A7)	; SAVE D0
-	LEA	INPUT_MARK,A1
-	MOVE.L	#14,D0
+BUCLE:
+	LEA	INPUT_MARK,A1	; Mostrar marca de entrada
+	MOVE.L	#14,D0	; Llamada al sistema para imprimir
 	TRAP	#15
-	CLR.L	D0	; CLEAR D0
-	MOVE.L	D0, A1	; CLEAR A1
-	MOVE.L	#2,D0	; READ_STRING
-	TRAP	#15	; READ_STRING CALL TO OS
-	MOVE.L	(A7)+,D0	; RESTORE D0
-	RTS	; RETURN FROM SUBROUTINE
-; -----------------------------------------------------------------------------
-STRING_TO_BOOLEAN
-; CONVERTS A STRING TO A BOOLEAN
-; ASSERT: INPUT STRING IS:
-; TRUE/true OR FALSE/false
-; INPUT: A1 - STRING TO CONVERT
-; OUTPUT: D1 - BOOLEAN VALUE
-; -----------------------------------------------------------------------------
-	MOVEM.L	D0/A1,-(A7)	; SAVE D0/A1
-	CLR.L	D0	; CLEAR D0
-	MOVE.B	(A1),D0	: FIRST CHARACTER
-	CMP.L	#'F',D0	; IS FALSE?
-	BEQ	.STR_F	; IS F
-	CMP.L	#'f',D0	; IS FALSE?
-	BEQ	.STR_F	; IS f
-	CLR.L	D1
-	MOVE.B	#$FF,D1
-	JMP	.STR_END	; END
-.STR_F
-	MOVE.L	#0,D1
-.STR_END
-	MOVEM.L	(A7)+,D0/A1	; SAVE D0/A1
-	RTS	; RETURN FROM SUBROUTINE
+	CLR.L	D0	; Limpiar D0
+	MOVE.L	D0,A1	; Limpiar A1
+	MOVE.L	#2,D0	; Leer como cadena
+	TRAP	#15	; Llamada al sistema para leer
+	MOVE.B	(A1),D0	; Leer el primer carácter del input
+	CMP.B	#'t',D0
+	BEQ	SET_TRUE
+	CMP.B	#'f',D0
+	BEQ	SET_FALSE
+INPUT_ERROR_BOOL:
+	LEA	INPUT_ERROR,A1	; Mensaje de error
+	MOVE.L	#13,D0	; Imprimir mensaje
+	TRAP	#15
+	BRA	BUCLE	; Reintentar
+SET_TRUE:
+	MOVE.L	#-1,D1	; Valor true (-1)
+	BRA	INPUT_BOOL_END
+SET_FALSE:
+	MOVE.L	#0,D1	; Valor false (0)
+INPUT_BOOL_END:
+	MOVE.L	(A7)+,D0	; Restaurar D0
+	RTS	; Retornar de la subrutina
+INPUT_MARK	DC.B	'>>> ',0
+INPUT_ERROR	DC.B	'ERROR: Valor invalido. Introduzca true o false.',0
 	END	START

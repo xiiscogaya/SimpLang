@@ -43,6 +43,10 @@ t0	DS.L	1
 t1	DS.L	1
 t2	DS.L	1
 t3	DS.L	1
+VALTRUE	DC.B	'true',0
+VALFALSE	DC.B	'false',0
+NEWLINE	DC.B	' ',0
+	DS.W	0
 ; -----------------------------------------------------------------------------
 ; Subrutina para la función: L0
 ; -----------------------------------------------------------------------------
@@ -61,8 +65,8 @@ L0:
 	MULS.W	D1,D0
 	MOVE.L	D0,t2
 	MOVE.L	t2,64(SP)
-	MOVEM.L	(A7)+,D0-D7/A0-A6	; Restaurar registros
-	RTS	; Retornar de la función
+	MOVEM.L	(A7)+,D0-D7/A0-A6
+	RTS
 ; ---- FIN DE LAS SUBRUTINAS ----------------
 START
 	MOVE.L	 #1,t3
@@ -110,12 +114,9 @@ START
 	MOVE.L	D0,t16
 	MOVEA.L	t16,A0
 	MOVE.L	t15,(ID3,A0)
-	MOVE.L	 #1,t18
-	MOVE.L	 t18,ID4
-	MOVE.L	 #-1,t19
-	MOVE.L	 t19,ID5
-	MOVE.L	 #0,t20
-	MOVE.L	 t20,ID6
+	MOVE.L	 #1,ID4
+	MOVE.L	 #-1,ID5
+	MOVE.L	 #0,ID6
 L1:
 	MOVE.L	 ID5,t21
 	MOVE.L	t21,D0
@@ -138,7 +139,7 @@ L1:
 	SUBA.L	#4,SP
 	JSR	L0
 	MOVE.L	(SP)+,t26
-	MOVE.L	#$01000000,SP
+	ADDA.L	#8,SP
 	MOVE.L	 t26,ID4
 	MOVE.L	 ID4,t28
 	MOVE.L	 #10,t29
@@ -158,18 +159,17 @@ L4:
 	MOVE.L	 ID4,t31
 	MOVE.L	t31,D0
 	MOVE.L	D0,-(SP)
+	MOVE.L	#0,-(SP)
 	JSR	PRINT_GENERAL
-	ADDA.L	#4,SP
-	MOVE.L	 #0,t32
-	MOVE.L	 t32,ID5
+	MOVE.L	#$01000000,SP
+	MOVE.L	 #0,ID5
 L5:
 	MOVE.L	 ID6,t33
 	MOVE.L	 #1,t34
 	MOVE.L	t33,D0
 	MOVE.L	t34,D1
 	ADD.L	D1,D0
-	MOVE.L	D0,t35
-	MOVE.L	 t35,ID6
+	MOVE.L	D0,ID6
 	JMP	L1
 L2:
 	SIMHALT
@@ -179,32 +179,35 @@ PRINT_GENERAL
 ; INPUT: Stack contains items to print, each 4 bytes
 ; OUTPUT: Items are printed one by one
 ; -----------------------------------------------------------------------------
-	MOVEM.L	D0-D2,-(A7)	; Guardar D0 y D1
-	ADDA.L	#16,SP
-	CLR.L	D2
+	MOVEM.L	D0-D3,-(A7)	; Guardar D0 y D1
+	ADDA.L	#20,SP
 PRINT_LOOP:
 	CMP.L	#$01000000,SP
 	BEQ	PRINT_END	; Si no hay más elementos, finalizar
-	ADD.L	#4,D2
+	ADD.L	#8,D3
+	MOVE.L	(SP)+,D2
 	MOVE.L	(SP)+,D1
-	JSR	PRINT_VALUE	; Llamar a subrutina para imprimir
-	BRA	PRINT_LOOP
-PRINT_END:
-	SUBA.L	D2,SP
-	SUBA.L	#16,SP
-	MOVEM.L	(A7)+,D0-D2	; Restaurar D1 y D0
-	RTS	; Retornar de la subrutina
-; -----------------------------------------------------------------------------
-PRINT_VALUE
-; Prints a single value
-; INPUT: A1 contains the value to print
-; OUTPUT: None
-; -----------------------------------------------------------------------------
-	MOVE.L	#3,D0	; Código para imprimir enteros
-	TRAP	#15	; Llamada al sistema
+	CMP.L	#1,D2
+	BEQ	PRINT_BOOLEAN
+	MOVE.W	#3,D0
+	TRAP	#15
 	MOVEA.L	#NEWLINE,A1
 	MOVE.L	#13,D0
 	TRAP	#15
+	BRA	PRINT_LOOP
+PRINT_BOOLEAN:
+	CMP.L	#$FF,D1
+	BEQ	PRINT_TRUE
+	LEA	VALFALSE,A1
+	BRA	PRINT_STRING
+PRINT_TRUE:
+	LEA	VALTRUE,A1
+PRINT_STRING:
+	MOVE.W	#13,D0
+	TRAP	#15
+	BRA	PRINT_LOOP
+PRINT_END:
+	SUBA.L	#28,SP
+	MOVEM.L	(A7)+,D0-D3	; Restaurar D1 y D0
 	RTS	; Retornar de la subrutina
-NEWLINE	DC.B	' ',0
 	END	START

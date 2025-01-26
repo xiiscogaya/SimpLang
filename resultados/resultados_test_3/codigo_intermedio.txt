@@ -58,7 +58,7 @@ COPY -1 -> t30
 SKIP  -> L4
 IF_EQ t30, 0 -> L5
 COPY ID4 -> t31
-PARAM_S  -> t31
+PARAM_PI  -> t31
 PRINT  -> 
 COPY 0 -> t32
 COPY t32 -> ID5

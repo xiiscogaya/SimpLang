@@ -1,0 +1,11 @@
+===== ERRORES ENCONTRADOS =====
+
+Errores Sintácticos:
+ - Error sintáctico en línea 9: se encontró '07'
+ - Error sintáctico en línea 13: se encontró 'print'
+
+Errores Semánticos:
+ - Error: Redefinición de la variable 'a' en línea 8.
+ - Error: Sentencia no reconocida dentro del bloque 'WHILE'.
+ - Error: Sentencia no reconocida dentro del bloque 'WHILE'.
+ - Error: Tipos incompatibles en la operación '-', en línea 14.

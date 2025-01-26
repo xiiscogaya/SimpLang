@@ -62,5 +62,5 @@ SKIP  -> L10
 GOTO  -> L1
 SKIP  -> L6
 COPY ID6 -> t23
-PARAM_S  -> t23
+PARAM_PI  -> t23
 PRINT  -> 

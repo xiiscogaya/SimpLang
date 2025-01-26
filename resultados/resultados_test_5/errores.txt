@@ -1,4 +1,4 @@
 ===== ERRORES ENCONTRADOS =====
 
 Errores Semánticos:
- - Error: Número demasiado grande para el tipo int, en línea 5349.
+ - Error: Número demasiado grande para el tipo int, en línea 3.

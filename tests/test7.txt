@@ -1,10 +1,17 @@
+
+
 {
-    while true {
-        int a;
-        input(a);
+    int a;
+    a = 10;
+
+    while a > 10 {
+        int a;              # No se puede redefinir un id
+        int 07hy;           # Error léxico
         int b;
         input(b);
-        print(a/b);
+        b = b - a           # Falta el ;
+        print(b);
+        a = a - true;       # Tipos incorrectos
     }
     
 }

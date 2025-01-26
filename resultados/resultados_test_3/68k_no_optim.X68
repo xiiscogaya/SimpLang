@@ -7,11 +7,38 @@ t6	DS.L	1
 t7	DS.L	1
 t8	DS.L	1
 t9	DS.L	1
+t30	DS.L	1
 t10	DS.L	1
+t32	DS.L	1
+t31	DS.L	1
+t12	DS.L	1
+t34	DS.L	1
+t11	DS.L	1
+t33	DS.L	1
+t14	DS.L	1
+t13	DS.L	1
+t35	DS.L	1
+t16	DS.L	1
+t15	DS.L	1
+t18	DS.L	1
+t17	DS.L	1
+t19	DS.L	1
+t21	DS.L	1
+t20	DS.L	1
+t23	DS.L	1
+t22	DS.L	1
 ID2	DS.L	1
+t25	DS.L	1
 ID1	DS.L	1
+t24	DS.L	1
 ID4	DS.L	1
-ID3	DS.L	1
+t27	DS.L	1
+ID3	DS.L	20
+t26	DS.L	1
+ID6	DS.L	1
+t29	DS.L	1
+ID5	DS.L	1
+t28	DS.L	1
 t0	DS.L	1
 t1	DS.L	1
 t2	DS.L	1
@@ -35,52 +62,121 @@ L0:
 	MOVE.L	 ID2,t1
 	MOVE.L	t0,D0
 	MOVE.L	t1,D1
-	ADD.L	D1,D0
+	MULS.W	D1,D0
 	MOVE.L	D0,t2
 	MOVE.L	t2,64(SP)
 	MOVEM.L	(A7)+,D0-D7/A0-A6
 	RTS
 ; ---- FIN DE LAS SUBRUTINAS ----------------
 START
-	JSR	INPUT_INT
-	MOVE.L	D1,ID4
+	MOVE.L	 #1,t3
+	MOVE.L	 #4,t4
+	MOVE.L	 #0,t5
+	MOVE.L	t5,D0
+	MOVE.L	t4,D1
+	MULS.W	D1,D0
+	MOVE.L	D0,t4
+	MOVEA.L	t4,A0
+	MOVE.L	t3,(ID3,A0)
+	MOVE.L	 #2,t6
+	MOVE.L	 #4,t7
+	MOVE.L	 #1,t8
+	MOVE.L	t8,D0
+	MOVE.L	t7,D1
+	MULS.W	D1,D0
+	MOVE.L	D0,t7
+	MOVEA.L	t7,A0
+	MOVE.L	t6,(ID3,A0)
+	MOVE.L	 #3,t9
+	MOVE.L	 #4,t10
+	MOVE.L	 #2,t11
+	MOVE.L	t11,D0
+	MOVE.L	t10,D1
+	MULS.W	D1,D0
+	MOVE.L	D0,t10
+	MOVEA.L	t10,A0
+	MOVE.L	t9,(ID3,A0)
+	MOVE.L	 #4,t12
+	MOVE.L	 #4,t13
+	MOVE.L	 #3,t14
+	MOVE.L	t14,D0
+	MOVE.L	t13,D1
+	MULS.W	D1,D0
+	MOVE.L	D0,t13
+	MOVEA.L	t13,A0
+	MOVE.L	t12,(ID3,A0)
+	MOVE.L	 #5,t15
+	MOVE.L	 #4,t16
+	MOVE.L	 #4,t17
+	MOVE.L	t17,D0
+	MOVE.L	t16,D1
+	MULS.W	D1,D0
+	MOVE.L	D0,t16
+	MOVEA.L	t16,A0
+	MOVE.L	t15,(ID3,A0)
+	MOVE.L	 #1,t18
+	MOVE.L	 t18,ID4
+	MOVE.L	 #-1,t19
+	MOVE.L	 t19,ID5
+	MOVE.L	 #0,t20
+	MOVE.L	 t20,ID6
 L1:
-	JSR	INPUT_INT
-	MOVE.L	D1,ID3
-	MOVE.L	 ID4,t3
-	MOVE.L	t3,D0
+	MOVE.L	 ID5,t21
+	MOVE.L	t21,D0
+	MOVE.L	#0,D1
+	CMP.L	D1,D0
+	BEQ	L2
+	MOVE.L	 ID4,t22
+	MOVE.L	t22,D0
 	MOVE.L	D0,-(SP)
-	MOVE.L	 ID3,t4
-	MOVE.L	t4,D0
+	MOVE.L	 #4,t23
+	MOVE.L	 ID6,t24
+	MOVE.L	t24,D0
+	MOVE.L	t23,D1
+	MULS.W	D1,D0
+	MOVE.L	D0,t23
+	MOVEA.L	t23,A0
+	MOVE.L	(ID3,A0),t25
+	MOVE.L	t25,D0
 	MOVE.L	D0,-(SP)
 	SUBA.L	#4,SP
 	JSR	L0
-	MOVE.L	(SP)+,t5
+	MOVE.L	(SP)+,t26
 	ADDA.L	#8,SP
-	MOVE.L	 t5,ID4
-	MOVE.L	 ID4,t7
-	MOVE.L	 #200,t8
-	MOVE.L	t7,D0
-	MOVE.L	t8,D1
+	MOVE.L	 t26,ID4
+	MOVE.L	 ID4,t28
+	MOVE.L	 #10,t29
+	MOVE.L	t28,D0
+	MOVE.L	t29,D1
 	CMP.L	D1,D0
-	BLT	L2
-	MOVE.L	 #0,t9
-	JMP	L3
-L2:
-	MOVE.L	 #-1,t9
+	BGT	L3
+	MOVE.L	 #0,t30
+	JMP	L4
 L3:
-	MOVE.L	t9,D0
+	MOVE.L	 #-1,t30
+L4:
+	MOVE.L	t30,D0
 	MOVE.L	#0,D1
 	CMP.L	D1,D0
-	BEQ	L4
-	JMP	L1
-L4:
-	MOVE.L	 ID4,t10
-	MOVE.L	t10,D0
+	BEQ	L5
+	MOVE.L	 ID4,t31
+	MOVE.L	t31,D0
 	MOVE.L	D0,-(SP)
 	MOVE.L	#0,-(SP)
 	JSR	PRINT_GENERAL
 	MOVE.L	#$01000000,SP
+	MOVE.L	 #0,t32
+	MOVE.L	 t32,ID5
+L5:
+	MOVE.L	 ID6,t33
+	MOVE.L	 #1,t34
+	MOVE.L	t33,D0
+	MOVE.L	t34,D1
+	ADD.L	D1,D0
+	MOVE.L	D0,t35
+	MOVE.L	 t35,ID6
+	JMP	L1
+L2:
 	SIMHALT
 ; -----------------------------------------------------------------------------
 PRINT_GENERAL
@@ -119,54 +215,4 @@ PRINT_END:
 	SUBA.L	#28,SP
 	MOVEM.L	(A7)+,D0-D3	; Restaurar D1 y D0
 	RTS	; Retornar de la subrutina
-; ------------------------------------------------------------------------------
-INPUT_INT
-; General Input Subrutina
-; INPUT: None
-; OUTPUT: Reads an integer or value and stores it
-	MOVE.L	D0,-(A7)	; SAVE D0
-	LEA	INPUT_MARK,A1
-	MOVE.L	#14,D0
-	TRAP	#15
-	CLR.L	D0	; CLEAR D0
-	CLR.L	D1	; CLEAR D1
-	MOVE.L	#4,D0	; READ_INT
-	TRAP	#15
-	MOVE.L	(A7)+,D0	
-	RTS
-; -----------------------------------------------------------------------------
-INPUT_BOOL
-; READS A BOOLEAN VALUE
-; INPUT: NONE
-; OUTPUT: D1 - BOOLEAN VALUE (-1 for true, 0 for false)
-; -----------------------------------------------------------------------------
-	MOVE.L	D0,-(A7)	; SAVE D0
-BUCLE:
-	LEA	INPUT_MARK,A1	; Mostrar marca de entrada
-	MOVE.L	#14,D0	; Llamada al sistema para imprimir
-	TRAP	#15
-	CLR.L	D0	; Limpiar D0
-	MOVE.L	D0,A1	; Limpiar A1
-	MOVE.L	#2,D0	; Leer como cadena
-	TRAP	#15	; Llamada al sistema para leer
-	MOVE.B	(A1),D0	; Leer el primer carácter del input
-	CMP.B	#'t',D0
-	BEQ	SET_TRUE
-	CMP.B	#'f',D0
-	BEQ	SET_FALSE
-INPUT_ERROR_BOOL:
-	LEA	INPUT_ERROR,A1	; Mensaje de error
-	MOVE.L	#13,D0	; Imprimir mensaje
-	TRAP	#15
-	BRA	BUCLE	; Reintentar
-SET_TRUE:
-	MOVE.L	#-1,D1	; Valor true (-1)
-	BRA	INPUT_BOOL_END
-SET_FALSE:
-	MOVE.L	#0,D1	; Valor false (0)
-INPUT_BOOL_END:
-	MOVE.L	(A7)+,D0	; Restaurar D0
-	RTS	; Retornar de la subrutina
-INPUT_MARK	DC.B	'>>> ',0
-INPUT_ERROR	DC.B	'ERROR: Valor invalido. Introduzca true o false.',0
 	END	START
