@@ -1,7 +1,5 @@
 package compiler.simbols;
 
-import java_cup.reduce_action;
-
 public class SDecArray extends SBase {
     private String tipo;
     private String id;

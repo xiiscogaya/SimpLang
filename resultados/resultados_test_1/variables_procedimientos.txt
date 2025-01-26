@@ -8,11 +8,44 @@
 | t7         | N/A        | N/A                | N/A     | N/A                       |
 | t8         | N/A        | N/A                | N/A     | N/A                       |
 | t9         | N/A        | N/A                | N/A     | N/A                       |
+| t30        | N/A        | N/A                | N/A     | N/A                       |
 | t10        | N/A        | N/A                | N/A     | N/A                       |
-| ID0        | count      | Global             | 4       | DVar{tipoSubyacente=int, idUnico=ID0} |
+| t32        | N/A        | N/A                | N/A     | N/A                       |
+| t31        | N/A        | N/A                | N/A     | N/A                       |
+| t12        | N/A        | N/A                | N/A     | N/A                       |
+| t34        | N/A        | N/A                | N/A     | N/A                       |
 | t11        | N/A        | N/A                | N/A     | N/A                       |
-| ID1        | a          | Global             | 4       | DVar{tipoSubyacente=int, idUnico=ID1} |
+| t33        | N/A        | N/A                | N/A     | N/A                       |
+| t14        | N/A        | N/A                | N/A     | N/A                       |
+| t36        | N/A        | N/A                | N/A     | N/A                       |
+| t13        | N/A        | N/A                | N/A     | N/A                       |
+| t35        | N/A        | N/A                | N/A     | N/A                       |
+| t16        | N/A        | N/A                | N/A     | N/A                       |
+| ID10       | n          | factorial          | 4       | DVar{tipoSubyacente=int, idUnico=ID10} |
+| t15        | N/A        | N/A                | N/A     | N/A                       |
+| ID11       | resultado  | factorial          | 4       | DVar{tipoSubyacente=int, idUnico=ID11} |
+| t18        | N/A        | N/A                | N/A     | N/A                       |
+| t17        | N/A        | N/A                | N/A     | N/A                       |
+| t19        | N/A        | N/A                | N/A     | N/A                       |
+| ID12       | resultado  | Global             | 4       | DVar{tipoSubyacente=int, idUnico=ID12} |
+| ID13       | i          | Global             | 1       | DVar{tipoSubyacente=bool, idUnico=ID13} |
+| t21        | N/A        | N/A                | N/A     | N/A                       |
+| t20        | N/A        | N/A                | N/A     | N/A                       |
+| t23        | N/A        | N/A                | N/A     | N/A                       |
+| t22        | N/A        | N/A                | N/A     | N/A                       |
+| ID2        | b          | suma               | 4       | DVar{tipoSubyacente=int, idUnico=ID2} |
+| t25        | N/A        | N/A                | N/A     | N/A                       |
+| ID1        | a          | suma               | 4       | DVar{tipoSubyacente=int, idUnico=ID1} |
+| t24        | N/A        | N/A                | N/A     | N/A                       |
+| ID4        | a          | cuadradoDeSuma     | 4       | DVar{tipoSubyacente=int, idUnico=ID4} |
+| t27        | N/A        | N/A                | N/A     | N/A                       |
+| t26        | N/A        | N/A                | N/A     | N/A                       |
+| ID6        | resultado  | cuadradoDeSuma     | 4       | DVar{tipoSubyacente=int, idUnico=ID6} |
+| t29        | N/A        | N/A                | N/A     | N/A                       |
+| ID5        | b          | cuadradoDeSuma     | 4       | DVar{tipoSubyacente=int, idUnico=ID5} |
+| t28        | N/A        | N/A                | N/A     | N/A                       |
 | t0         | N/A        | N/A                | N/A     | N/A                       |
+| ID8        | n          | esPositivo         | 4       | DVar{tipoSubyacente=int, idUnico=ID8} |
 | t1         | N/A        | N/A                | N/A     | N/A                       |
 | t2         | N/A        | N/A                | N/A     | N/A                       |
 | t3         | N/A        | N/A                | N/A     | N/A                       |
@@ -22,4 +55,8 @@
 ---------------------------------------------------
 | Nombre         | Número de Parámetros | Etiqueta |
 ---------------------------------------------------
+| ID0        | suma                 | 2          |
+| ID3        | cuadradoDeSuma       | 2          |
+| ID7        | esPositivo           | 1          |
+| ID9        | factorial            | 1          |
 ---------------------------------------------------

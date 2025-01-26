@@ -86,7 +86,6 @@ public class analitzador {
                 for (String token : Scanner.tokens) {
                     writer.write(token + "\n");
                 }
-                System.out.println("Archivo 'tokens.txt' generado con éxito.");
             } catch (IOException e) {
                 System.err.println("Error al escribir el archivo de tokens: " + e.getMessage());
             }
@@ -126,10 +125,25 @@ public class analitzador {
                 generador.imprimirInstrucciones68k(writer);
             }
 
+            /**
+             * OPTIMIZACIONES
+             */
+            // Optimixación del código
             CodigoIntermedio instrucciones1 = Parser.codigoIntermedio;
             Optimizacion optimizacion = new Optimizacion(instrucciones1);
             optimizacion.generarCodigoOptimizado();
-            optimizacion.imprimirCodigo();
+            
+            // Generación del 68k optimizado
+            GeneradorEnsamblador generador1 = new GeneradorEnsamblador(instrucciones1);
+            tInit = System.currentTimeMillis();
+            generador1.generarCodigo68k();
+            tFin = System.currentTimeMillis();
+            System.out.println(colorize("Tiempo de ejecución del generador de instrucciones 68K optimizado: " + (tFin - tInit) + " milisegundos", "blue"));
+            File Optim68k = new File(resultadosDir, "68k_optim.X68");
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(Optim68k))) {
+                generador1.imprimirInstrucciones68k(writer);
+            }
+
 
             System.out.println(colorize("PROCESO DE COMPILACION TERMINADO", "blue"));
             System.out.println(colorize("ARCHIVOS GENERADOS EN /resultados", "blue"));

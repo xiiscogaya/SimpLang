@@ -361,6 +361,7 @@ public class Scanner implements java_cup.runtime.Scanner {
   private int yycolumn;
 
   /** Number of characters up to the start of the matched text. */
+  @SuppressWarnings("unused")
   private long yychar;
 
   /** Whether the scanner is currently at the beginning of a line. */
@@ -705,8 +706,6 @@ public class Scanner implements java_cup.runtime.Scanner {
 
     while (true) {
       zzMarkedPosL = zzMarkedPos;
-
-      yychar+= zzMarkedPosL-zzStartRead;
 
       boolean zzR = false;
       int zzCh;

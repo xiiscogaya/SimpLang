@@ -1,38 +1,89 @@
-NEWFUN  -> MAIN
-COPY 0 -> t0
-COPY t0 -> ID0
-SKIP  -> L0
-COPY ID0 -> t1
-COPY 10 -> t2
-IF_LT t1, t2 -> L1
-COPY 0 -> t3
-GOTO  -> L2
-SKIP  -> L1
-COPY -1 -> t3
-SKIP  -> L2
-IF_EQ t3, 0 -> L3
-INPUT  -> ID1
-COPY ID1 -> t4
-COPY 5 -> t5
-IF_GT t4, t5 -> L4
-COPY 0 -> t6
-GOTO  -> L5
-SKIP  -> L4
-COPY -1 -> t6
-SKIP  -> L5
-IF_EQ t6, 0 -> L6
-COPY ID1 -> t7
-PARAM_PI  -> t7
-PRINT  -> 
-GOTO  -> L7
-SKIP  -> L6
-COPY 0 -> t8
-PARAM_PI  -> t8
-PRINT  -> 
-SKIP  -> L7
-COPY ID0 -> t9
-COPY 1 -> t10
-+ t9, t10 -> t11
-COPY t11 -> ID0
-GOTO  -> L0
+NEWFUN  -> L0
+PMB  -> ID0
+COPY ID1 -> t0
+COPY ID2 -> t1
++ t0, t1 -> t2
+RTN  -> t2
+NEWFUN  -> L1
+PMB  -> ID3
+COPY ID4 -> t3
+PARAM_S  -> t3
+COPY ID5 -> t4
+PARAM_S  -> t4
+CALL t5 -> ID0
+COPY t5 -> ID6
+COPY ID6 -> t7
+PARAM_S  -> t7
+COPY ID6 -> t8
+PARAM_S  -> t8
+CALL t9 -> ID0
+COPY t9 -> ID6
+COPY ID6 -> t11
+RTN  -> t11
+NEWFUN  -> L2
+PMB  -> ID7
+COPY ID8 -> t12
+COPY 0 -> t13
+IF_GT t12, t13 -> L3
+COPY 0 -> t14
+GOTO  -> L4
 SKIP  -> L3
+COPY -1 -> t14
+SKIP  -> L4
+IF_EQ t14, 0 -> L5
+COPY -1 -> t15
+RTN  -> t15
+SKIP  -> L5
+COPY 0 -> t16
+RTN  -> t16
+NEWFUN  -> L7
+PMB  -> ID9
+COPY 1 -> t17
+COPY t17 -> ID11
+SKIP  -> L8
+COPY ID10 -> t18
+COPY 0 -> t19
+IF_GT t18, t19 -> L9
+COPY 0 -> t20
+GOTO  -> L10
+SKIP  -> L9
+COPY -1 -> t20
+SKIP  -> L10
+IF_EQ t20, 0 -> L11
+COPY ID11 -> t21
+COPY ID10 -> t22
+* t21, t22 -> t23
+COPY t23 -> ID11
+COPY ID10 -> t24
+COPY 1 -> t25
+- t24, t25 -> t26
+COPY t26 -> ID10
+GOTO  -> L8
+SKIP  -> L11
+COPY ID11 -> t27
+RTN  -> t27
+NEWFUN  -> MAIN
+COPY 10 -> t28
+COPY t28 -> ID12
+SKIP  -> L12
+COPY ID12 -> t29
+PARAM_S  -> t29
+COPY ID12 -> t30
+PARAM_S  -> t30
+CALL t31 -> ID3
+COPY t31 -> ID12
+COPY ID12 -> t33
+PARAM_PI  -> t33
+PRINT  -> 
+INPUT  -> ID13
+COPY ID13 -> t34
+COPY -1 -> t35
+IF_EQ t34, t35 -> L13
+COPY 0 -> t36
+GOTO  -> L14
+SKIP  -> L13
+COPY -1 -> t36
+SKIP  -> L14
+IF_EQ t36, 0 -> L15
+GOTO  -> L12
+SKIP  -> L15

@@ -1008,10 +1008,19 @@ public class SemanticHelper {
                 return new SExpresion(); // Devolver expresión vacía en caso de error
             }
 
-            // Validar tipos: Solo se permiten comparaciones entre tipos numéricos
-            if (!e1Procesada.getTipo().esNumerico() || !e2Procesada.getTipo().esNumerico()) {
-                ErrorManager.addError(3 , "Error: Operadores de comparación solo válidos para tipos numéricos, en línea " + expresion.getLine() + ".");
+            // Validar tipos, solo se permiten comparaciones entre tipos Númericos o Booleanos
+            if (!e1Procesada.getTipo().equals(e2Procesada.getTipo())) {
+                ErrorManager.addError(3, "Error: Operadores de comparación solo válidos entre tipos iguales (numéricos o booleanos), en línea " + expresion.getLine() + ".");
                 return new SExpresion();
+            }
+
+            // Si es booleano, solo se puede utilizar == y !=
+            if (e1Procesada.getTipo().esBoolean()) {
+                String operador = expresion.getOperador();
+                if (!operador.equals("==") && !operador.equals("!=")) {
+                    ErrorManager.addError(3, "Error: Solo se permiten los operadores '==' y '!=' para booleanos, en línea " + expresion.getLine() + ".");
+                    return new SExpresion();
+                }
             }
 
             String etiqueta = codigoIntermedio.nuevaEtiqueta();

@@ -104,7 +104,7 @@ public class TipoSubyacente {
     }
     
     /**
-     * Método que verifica si el tipo actual es numérico (int o float),
+     * Método que verifica si el tipo actual es numérico (int),
      * útil para operaciones aritméticas en la tabla de símbolos.
      */
     public boolean esNumerico() {
@@ -112,10 +112,9 @@ public class TipoSubyacente {
     }
 
     /**
-     * Método que verifica si el tipo actual es compatible para asignación aritmética compuesta.
-     * (por ejemplo: +=, -=, *=, /=) donde solo los tipos numéricos son válidos.
+     * Método que verifica si el tipo actual es booleano
      */
-    public boolean esCompatibleConOperacionCompuesta() {
-        return esNumerico(); // Actualmente solo los tipos numéricos son compatibles
+    public boolean esBoolean() {
+        return tipoBasico == Tipus.BOOLEAN;
     }
 }

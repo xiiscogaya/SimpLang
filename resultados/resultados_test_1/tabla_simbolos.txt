@@ -2,6 +2,11 @@
 
 ID                   Tipo                                                         Nivel     
 -------------------- ------------------------------------------------------------ ----------
-count                DVar{tipoSubyacente=int, idUnico=ID0}                        1         
+suma                 DFuncion{tipoRetorno=int, parametros=[int a, int b]}idUnico=ID0 1         
+resultado            DVar{tipoSubyacente=int, idUnico=ID12}                       1         
+esPositivo           DFuncion{tipoRetorno=bool, parametros=[int n]}idUnico=ID7    1         
+factorial            DFuncion{tipoRetorno=int, parametros=[int n]}idUnico=ID9     1         
+i                    DVar{tipoSubyacente=bool, idUnico=ID13}                      1         
+cuadradoDeSuma       DFuncion{tipoRetorno=int, parametros=[int a, int b]}idUnico=ID3 1         
 
 ==============================================================================================

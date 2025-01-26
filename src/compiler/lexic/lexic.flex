@@ -17,7 +17,6 @@ import java.util.LinkedList;
 %class Scanner
 
 %unicode
-%char
 %line
 %column
 

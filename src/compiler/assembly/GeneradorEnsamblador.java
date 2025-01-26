@@ -26,6 +26,7 @@ public class GeneradorEnsamblador {
     private int desplazamiento;
     private boolean isPrint = false;
     private boolean isInput = false;
+    private boolean hayRTN = false;
 
     public GeneradorEnsamblador(CodigoIntermedio codigoIntermedio) {
         this.codigoIntermedio = codigoIntermedio;
@@ -54,6 +55,9 @@ public class GeneradorEnsamblador {
             }
             if (instr.operador.equals("INPUT")) {
                 this.isInput = true;
+            }
+            if (instr.operador.equals("RTN")) {
+                this.hayRTN = true;
             }
     
             if (instr.operador.equals("NEWFUN") && !instr.destino.equals("MAIN")) {
@@ -135,7 +139,10 @@ public class GeneradorEnsamblador {
                     codigoEnsamblador.add(String.format("%s\tDS.L\t1", idUnico));
             }
         }
-        codigoEnsamblador.add("INPUT_MARK\tDC.B\t'>>>',0");
+        codigoEnsamblador.add("VALTRUE\tDC.B\t'true',0");
+        codigoEnsamblador.add("VALFALSE\tDC.B\t'false',0");
+        codigoEnsamblador.add("NEWLINE\tDC.B\t' ',0");
+        codigoEnsamblador.add("\tDS.W\t0");
 
     }
 
@@ -153,9 +160,11 @@ public class GeneradorEnsamblador {
             traducirInstruccion(instruccion);
         }
     
-        // Restaurar registros y retornar
-        codigoEnsamblador.add("\tMOVEM.L\t(A7)+,D0-D7/A0-A6\t; Restaurar registros");
-        codigoEnsamblador.add("\tRTS\t; Retornar de la función");
+        if (!this.hayRTN) {
+            // Restaurar registros y retornar
+            codigoEnsamblador.add("\tMOVEM.L\t(A7)+,D0-D7/A0-A6\t; Restaurar registros");
+            codigoEnsamblador.add("\tRTS\t; Retornar de la función");
+        }
     }
     
 
@@ -374,23 +383,17 @@ public class GeneradorEnsamblador {
         Procedimiento procedimiento = codigoIntermedio.getTablaProcedimientos().get(ins.destino);
 
         DFuncion dFuncion = (DFuncion) procedimiento.descripcio;
-        int tamañoRetorno = TipoSubyacente.sizeOf(dFuncion.getTipoRetorno().getTipoBasico());
         if (!dFuncion.getTipoRetorno().equals(new TipoSubyacente(Tipus.VOID))) {
-            codigoEnsamblador.add("\tSUBA.L\t#" + tamañoRetorno + ",SP");
+            codigoEnsamblador.add("\tSUBA.L\t#4,SP");
         }
 
         codigoEnsamblador.add("\tJSR\t"+ procedimiento.etiquetaInicio);
 
         if (!dFuncion.getTipoRetorno().equals(new TipoSubyacente(Tipus.VOID))) {
-            // Recuperar el valor de retorno con post-incremento
-            if (tamañoRetorno == 1) { // Caso BYTE
-                codigoEnsamblador.add("\tMOVE.B\t(SP)+," + ins.operando1);
-            } else if (tamañoRetorno == 4) { // Caso LONG
-                codigoEnsamblador.add("\tMOVE.L\t(SP)+," + ins.operando1);
-            }
+            codigoEnsamblador.add("\tMOVE.L\t(SP)+," + ins.operando1);
         }
 
-        codigoEnsamblador.add("\tMOVE.L\t#$01000000,SP");
+        codigoEnsamblador.add("\tADDA.L\t#" + (procedimiento.numParametros*4) + ",SP");
 
 
     }
@@ -470,7 +473,6 @@ public class GeneradorEnsamblador {
             codigoEnsamblador.add("\tJSR\tINPUT_INT");
         } else {
             codigoEnsamblador.add("\tJSR\tINPUT_BOOL");
-            codigoEnsamblador.add("\tJSR\tSTRING_TO_BOOLEAN");
         }
         codigoEnsamblador.add("\tMOVE.L\tD1," + ins.destino);
     }
@@ -488,6 +490,8 @@ public class GeneradorEnsamblador {
 
     private void rtnInstr(Instruccion ins) {
         codigoEnsamblador.add("\tMOVE.L\t" + ins.destino + ",64(SP)");
+        codigoEnsamblador.add("\tMOVEM.L\t(A7)+,D0-D7/A0-A6");
+        codigoEnsamblador.add("\tRTS");
     }
 
     private boolean esVariable(String operando) {
@@ -557,10 +561,6 @@ public class GeneradorEnsamblador {
         codigoEnsamblador.add("\tMOVEM.L\t(A7)+,D0-D3\t; Restaurar D1 y D0");
         codigoEnsamblador.add("\tRTS\t; Retornar de la subrutina");
 
-        codigoEnsamblador.add("VALTRUE\tDC.B\t'true',0");
-        codigoEnsamblador.add("VALFALSE\tDC.B\t'false',0");
-        codigoEnsamblador.add("NEWLINE\tDC.B\t' ',0");
-        codigoEnsamblador.add("\tDS.W\t0");
     }
 
     private void generarSubrutinaInputInt() {
@@ -585,46 +585,53 @@ public class GeneradorEnsamblador {
     private void generarSubrutinaInputBool() {
         codigoEnsamblador.add("; -----------------------------------------------------------------------------");
         codigoEnsamblador.add("INPUT_BOOL");
-        codigoEnsamblador.add("; READS A STRING");
+        codigoEnsamblador.add("; READS A BOOLEAN VALUE");
         codigoEnsamblador.add("; INPUT: NONE");
-        codigoEnsamblador.add("; OUTPUT: A1 - STRING READ");
+        codigoEnsamblador.add("; OUTPUT: D1 - BOOLEAN VALUE (-1 for true, 0 for false)");
         codigoEnsamblador.add("; -----------------------------------------------------------------------------");
         codigoEnsamblador.add("\tMOVE.L\tD0,-(A7)\t; SAVE D0");
-        codigoEnsamblador.add("\tLEA\tINPUT_MARK,A1");
-        codigoEnsamblador.add("\tMOVE.L\t#14,D0");
+        codigoEnsamblador.add("BUCLE:");
+        codigoEnsamblador.add("\tLEA\tINPUT_MARK,A1\t; Mostrar marca de entrada");
+        codigoEnsamblador.add("\tMOVE.L\t#14,D0\t; Llamada al sistema para imprimir");
         codigoEnsamblador.add("\tTRAP\t#15");
-        codigoEnsamblador.add("\tCLR.L\tD0\t; CLEAR D0");
-        codigoEnsamblador.add("\tMOVE.L\tD0, A1\t; CLEAR A1");
-        codigoEnsamblador.add("\tMOVE.L\t#2,D0\t; READ_STRING");
-        codigoEnsamblador.add("\tTRAP\t#15\t; READ_STRING CALL TO OS");
-        codigoEnsamblador.add("\tMOVE.L\t(A7)+,D0\t; RESTORE D0");
-        codigoEnsamblador.add("\tRTS\t; RETURN FROM SUBROUTINE");
-
-        codigoEnsamblador.add("; -----------------------------------------------------------------------------");
-        codigoEnsamblador.add("STRING_TO_BOOLEAN");
-        codigoEnsamblador.add("; CONVERTS A STRING TO A BOOLEAN");
-        codigoEnsamblador.add("; ASSERT: INPUT STRING IS:");
-        codigoEnsamblador.add("; TRUE/true OR FALSE/false");
-        codigoEnsamblador.add("; INPUT: A1 - STRING TO CONVERT");
-        codigoEnsamblador.add("; OUTPUT: D1 - BOOLEAN VALUE");
-        codigoEnsamblador.add("; -----------------------------------------------------------------------------");
-        codigoEnsamblador.add("\tMOVEM.L\tD0/A1,-(A7)\t; SAVE D0/A1");
-        codigoEnsamblador.add("\tCLR.L\tD0\t; CLEAR D0");
-        codigoEnsamblador.add("\tMOVE.B\t(A1),D0\t: FIRST CHARACTER");
-        codigoEnsamblador.add("\tCMP.L\t#'F',D0\t; IS FALSE?");
-        codigoEnsamblador.add("\tBEQ\t.STR_F\t; IS F");
-        codigoEnsamblador.add("\tCMP.L\t#'f',D0\t; IS FALSE?");
-        codigoEnsamblador.add("\tBEQ\t.STR_F\t; IS f");
-        codigoEnsamblador.add("\tCLR.L\tD1");
-        codigoEnsamblador.add("\tMOVE.B\t#$FF,D1"); // true
-        codigoEnsamblador.add("\tJMP\t.STR_END\t; END");
-        codigoEnsamblador.add(".STR_F"); // false
-        codigoEnsamblador.add("\tMOVE.L\t#0,D1");
-        codigoEnsamblador.add(".STR_END");
-        codigoEnsamblador.add("\tMOVEM.L\t(A7)+,D0/A1\t; SAVE D0/A1");
-        codigoEnsamblador.add("\tRTS\t; RETURN FROM SUBROUTINE");
+        codigoEnsamblador.add("\tCLR.L\tD0\t; Limpiar D0");
+        codigoEnsamblador.add("\tMOVE.L\tD0,A1\t; Limpiar A1");
+        codigoEnsamblador.add("\tMOVE.L\t#2,D0\t; Leer como cadena");
+        codigoEnsamblador.add("\tTRAP\t#15\t; Llamada al sistema para leer");
+        codigoEnsamblador.add("\tMOVE.B\t(A1),D0\t; Leer el primer carácter del input");
+    
+        // Verificar si es 't' (true)
+        codigoEnsamblador.add("\tCMP.B\t#'t',D0");
+        codigoEnsamblador.add("\tBEQ\tSET_TRUE");
+    
+        // Verificar si es 'f' (false)
+        codigoEnsamblador.add("\tCMP.B\t#'f',D0");
+        codigoEnsamblador.add("\tBEQ\tSET_FALSE");
+    
+        // Si no es válido, mostrar error y volver a pedir entrada
+        codigoEnsamblador.add("INPUT_ERROR_BOOL:");
+        codigoEnsamblador.add("\tLEA\tINPUT_ERROR,A1\t; Mensaje de error");
+        codigoEnsamblador.add("\tMOVE.L\t#13,D0\t; Imprimir mensaje");
+        codigoEnsamblador.add("\tTRAP\t#15");
+        codigoEnsamblador.add("\tBRA\tBUCLE\t; Reintentar");
+    
+        // Configurar valor booleano para true
+        codigoEnsamblador.add("SET_TRUE:");
+        codigoEnsamblador.add("\tMOVE.L\t#-1,D1\t; Valor true (-1)");
+        codigoEnsamblador.add("\tBRA\tINPUT_BOOL_END");
+    
+        // Configurar valor booleano para false
+        codigoEnsamblador.add("SET_FALSE:");
+        codigoEnsamblador.add("\tMOVE.L\t#0,D1\t; Valor false (0)");
+    
+        codigoEnsamblador.add("INPUT_BOOL_END:");
+        codigoEnsamblador.add("\tMOVE.L\t(A7)+,D0\t; Restaurar D0");
+        codigoEnsamblador.add("\tRTS\t; Retornar de la subrutina");
+    
+        codigoEnsamblador.add("INPUT_MARK\tDC.B\t'>>> ',0");
+        codigoEnsamblador.add("INPUT_ERROR\tDC.B\t'ERROR: Valor invalido. Introduzca true o false.',0");
     }
-
+    
 
 //----------------------------------------------------------------------------------------------------------------
 //---------------------  FUNCION AUXILIAR  -----------------------------------------------------------------------

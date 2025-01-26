@@ -5,16 +5,26 @@ COPY ID2 -> t1
 + t0, t1 -> t2
 RTN  -> t2
 NEWFUN  -> MAIN
-COPY 4 -> t3
-COPY 6 -> t4
-+ t3, t4 -> t5
-COPY 4 -> t6
-- t5, t6 -> t7
-PARAM_S  -> t7
-COPY 5 -> t8
-PARAM_S  -> t8
-CALL t9 -> ID0
-COPY t9 -> ID3
-COPY ID3 -> t11
-PARAM_S  -> t11
+INPUT  -> ID4
+SKIP  -> L1
+INPUT  -> ID3
+COPY ID4 -> t3
+PARAM_S  -> t3
+COPY ID3 -> t4
+PARAM_S  -> t4
+CALL t5 -> ID0
+COPY t5 -> ID4
+COPY ID4 -> t7
+COPY 200 -> t8
+IF_LT t7, t8 -> L2
+COPY 0 -> t9
+GOTO  -> L3
+SKIP  -> L2
+COPY -1 -> t9
+SKIP  -> L3
+IF_EQ t9, 0 -> L4
+GOTO  -> L1
+SKIP  -> L4
+COPY ID4 -> t10
+PARAM_PI  -> t10
 PRINT  -> 

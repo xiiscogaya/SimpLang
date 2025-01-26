@@ -1,6 +1,7 @@
 package compiler.optimizacion;
 
-import java.util.ArrayList;
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.util.List;
 
 import compiler.codigo_intermedio.CodigoIntermedio;
@@ -8,36 +9,21 @@ import compiler.codigo_intermedio.Instruccion;
 
 public class Optimizacion {
     private CodigoIntermedio codigoIntermedio;
-    private List<String> codigoOptimizado;
     
     public Optimizacion(CodigoIntermedio codigoIntermedio) {
         this.codigoIntermedio = codigoIntermedio;
-        this.codigoOptimizado = new ArrayList<>();
     }
 
     public void generarCodigoOptimizado() {
-        EliminarRedundacias();
+        // Dos optimizaciones de mireta
         eliminarTemporalesInnecesarios();
+        eliminarCodigoInalcanzable();
     }
 
-    public void EliminarRedundacias() {
-        List<Instruccion> instrucciones = codigoIntermedio.obtenerInstrucciones();
-        for (int i = 0; i < instrucciones.size()-1; i++) {
-            Instruccion instr = instrucciones.get(i);
-            Instruccion siguienteInstr = instrucciones.get(i+1);
-            // Si el destino es igual al operando
-            if (instr.operador.equals("COPY") && 
-                siguienteInstr.operador.equals("COPY") && 
-                instr.destino.equals(siguienteInstr.operando1)) {
-                    Instruccion newIns = new Instruccion("COPY", instr.operando1, "", siguienteInstr.destino);
-                    instrucciones.set(i, newIns);
-                    instrucciones.remove(i + 1);
-                    i--;
-            }
-            
-        }
-    }
-
+    /**
+     * Método que determina si hay variables temporales innecesarias
+     * y en tal caso las elimina
+     */
     public void eliminarTemporalesInnecesarios() {
         List<Instruccion> instruccions = codigoIntermedio.obtenerInstrucciones();
         for (int i=0; i<instruccions.size(); i++) {
@@ -63,14 +49,33 @@ public class Optimizacion {
         }
     }
 
+
+    /**
+     * Método que elimina el código inalcanzable que hay entre un salto
+     * incondicional y una etiqueta
+     */
+    public void eliminarCodigoInalcanzable() {
+        List<Instruccion> instruccions = codigoIntermedio.obtenerInstrucciones();
+        for (int i=0; i < instruccions.size(); i++) {
+            Instruccion instr = instruccions.get(i);
+            if (instr.operador.equals("GOTO")) {
+                // Eliminar instruccions después del GOTO hasta un SKIP
+                while (i + 1 < instruccions.size() && !instruccions.get(i + 1).operador.equals("SKIP")) {
+                    instruccions.remove(i + 1);
+                }
+            }
+        }
+    }
+
     public boolean esTemporal(String variable) {
         return variable.startsWith("t");
     }
 
-    public void imprimirCodigo() {
+    public void imprimirCodigo(BufferedWriter writer) throws IOException {
         List<Instruccion> instrucciones = codigoIntermedio.obtenerInstrucciones();
         for (Instruccion instr : instrucciones) {
-            System.out.println(instr);
+            writer.write(instr.toString());
+            writer.newLine();
         }
     }
 

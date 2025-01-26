@@ -1,19 +1,60 @@
 # PROGRAMA 1 - FUNCIONA
-# Realiza el print del numero pedido 10 veces, si el valor es mayor a 5, imprime el valor
-# sino imprime el valor 0
+# 
+
+def int suma(int a, int b) {
+    return a + b;
+}
+
+def int cuadradoDeSuma(int a, int b) {
+    int resultado;
+    resultado = suma(a, b);
+    resultado = suma(resultado, resultado);
+    return resultado;
+}
+
+def bool esPositivo(int n) {
+    if n > 0 {
+        return true;
+    } 
+    return false;
+}
+
+def int factorial(int n) {
+    int resultado;
+    resultado = 1;
+    while n > 0 {
+        resultado = resultado * n;
+        n = n - 1;
+    }
+    return resultado;
+}
 
 {
-    int count;
-    count = 0;
+    # Uso de una función con variables
+    int resultado;
+    resultado = 0;
 
-    while count < 10 {
-        int a;
-        input(a);
-        if a > 5 {
-            print(a);
-        } else {
-            print(0);
-        }
-        count = count + 1;
+    resultado = suma(2, 3);
+    print(resultado);
+
+
+    # Calcular el factorial de un número si es positivo
+    int counter;
+    input(counter);
+
+    if esPositivo(counter) {
+        resultado = factorial(counter);
+        print(resultado);
     }
+
+    # Realiza el cuadrado de la suma de dos números hasta que se introduzca false
+    bool i;
+
+    resultado = 10;
+
+    repeat {
+        resultado = cuadradoDeSuma(resultado, resultado);
+        print(resultado);
+        input(i);
+    } until i == true;
 }
